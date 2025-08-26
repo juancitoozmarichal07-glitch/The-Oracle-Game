@@ -1,25 +1,15 @@
 // ============================================
 // == CLAVES Y CONFIGURACIÓN DE API          ==
 // ============================================
-// ¡¡¡IMPORTANTE!!! RECUERDA PONER TU PROPIA CLAVE DE API DE HUGGING FACE AQUÍ
-const HF_TOKEN = ''; // <-- TU NUEVO TOKEN (el que ya pusiste)
-
-// Usamos un proxy para evitar problemas de CORS en el navegador.
-const PROXY_URL = 'https://api.allorigins.win/raw?url=';
-const TARGET_API_URL = 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3';
-const API_URL = PROXY_URL + TARGET_API_URL;
-
-// ... (el resto de tu código sigue igual)
-
+// ¡YA NO HAY CLAVE DE API AQUÍ! ES SEGURO.
 
 // ============================================
 // == CONFIGURACIÓN Y ESTADO DEL JUEGO     ==
 // ============================================
-// (Mantenemos la configuración original)
 const config = {
     questionsLimit: 20,
     typewriterSpeed: 45,
-    huracubonadaChance: 0.10, // Aunque no se use, lo dejamos por si acaso
+    huracubonadaChance: 0.10,
     suggestionLimit: 5,
     guessButtonCooldown: 15000
 };
@@ -31,7 +21,6 @@ const welcomePhrases = [
     "Las respuestas que buscas están aquí. Si sabes cómo preguntar."
 ];
 
-// Lista de personajes para que la IA elija uno y cree un dossier.
 const characterNames = [
     "Iron Man", "Batman", "Goku", "Spider-Man", "Wonder Woman", "Darth Vader",
     "Harry Potter", "Superman", "Joker", "Thanos", "Gandalf", "Luke Skywalker",
@@ -50,7 +39,6 @@ const phrases = {
     incomprehensible: "No he podido comprender tu galimatías. Inténtalo de nuevo."
 };
 
-// (Mantenemos el estado original, adaptado)
 let state = {
     currentMode: 'alternativo',
     questionCount: 0,
@@ -63,11 +51,9 @@ let state = {
     lastClickTime: 0
 };
 
-
 // ============================================
 // == SELECTORES DE ELEMENTOS DEL DOM      ==
 // ============================================
-// (Mantenemos los selectores originales)
 const elements = {
     arcadeScreen: document.getElementById('arcade-screen'),
     screens: { title: document.getElementById('title-screen'), stage: document.getElementById('game-stage'), mainGame: document.getElementById('main-game-screen'), win: document.getElementById('win-screen'), lose: document.getElementById('lose-screen') },
@@ -81,11 +67,46 @@ const elements = {
     sounds: { applause: document.getElementById('applause-sound') }
 };
 
+// ============================================
+// == LÓGICA DE API (NUEVA Y SEGURA)       ==
+// ============================================
+async function callHuggingFaceAPI(prompt) {
+    // La dirección de nuestro mensajero en Vercel
+    const OUR_PROXY_URL = '/api/proxy'; 
+    // La dirección de la IA a la que queremos que vaya el mensajero
+    const TARGET_API_URL = 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3';
+
+    try {
+        // Le damos las instrucciones al mensajero
+        const response = await fetch(OUR_PROXY_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                targetUrl: TARGET_API_URL,
+                body: { inputs: prompt, parameters: { max_new_tokens: 150 } }
+            })
+        });
+
+        if (!response.ok) {
+            console.error('Error en nuestro propio proxy:', await response.text());
+            return phrases.apiError;
+        }
+        
+        // Recibimos la respuesta que nos trae el mensajero
+        const data = await response.json();
+        const generatedText = data[0].generated_text;
+        const responseOnly = generatedText.substring(prompt.length);
+        return responseOnly.trim();
+
+    } catch (error) {
+        console.error('Error de Conexión con nuestro proxy:', error);
+        return phrases.apiError;
+    }
+}
 
 // ============================================
-// == FUNCIONES DE NAVEGACIÓN Y VISUALES   ==
+// == EL RESTO DEL CÓDIGO (SIN CAMBIOS)    ==
 // ============================================
-// (Mantenemos las funciones visuales originales INTACTAS)
 function typewriterEffect(element, text, callback) {
     let i = 0;
     element.textContent = '';
@@ -160,35 +181,6 @@ function openCurtains(callback, speed = 1) {
     if (callback) setTimeout(callback, speed * 1000 + 100);
 }
 
-
-// ============================================
-// == LÓGICA DE API (NUEVA Y ROBUSTA)      ==
-// ============================================
-async function callHuggingFaceAPI(prompt) {
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${HF_TOKEN}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ inputs: prompt, parameters: { max_new_tokens: 150 } })
-        });
-        if (!response.ok) {
-            console.error('Error API:', await response.text());
-            return phrases.apiError;
-        }
-        const data = await response.json();
-        const generatedText = data[0].generated_text;
-        const responseOnly = generatedText.substring(prompt.length);
-        return responseOnly.trim();
-    } catch (error) {
-        console.error('Error de Conexión o Fetch:', error);
-        return phrases.apiError;
-    }
-}
-
-
-// ============================================
-// == LÓGICA PRINCIPAL DEL JUEGO (ADAPTADA) ==
-// ============================================
 function resetGameState() {
     state.questionCount = 0;
     state.isGameActive = false;
@@ -236,26 +228,23 @@ async function startGame() {
     elements.screens.stage.classList.add('hidden');
     elements.screens.mainGame.classList.remove('hidden');
     
-    // Desactivamos controles y mostramos mensaje de carga
     elements.game.input.disabled = true;
     elements.game.askButton.disabled = true;
     elements.game.suggestionButton.disabled = true;
     elements.game.guessButton.disabled = true;
-    elements.game.backToMenu.disabled = true; // Desactivamos también el botón de menú
+    elements.game.backToMenu.disabled = true;
     addMessageToChat("Concibiendo un nuevo enigma del cosmos...", "brain");
 
     const success = await fetchDynamicCharacter();
     if (!success) {
         addMessageToChat(phrases.apiError, "brain");
-        // ¡A PRUEBA DE FALLOS! Si falla, activamos el botón de menú para que no te quedes atrapado.
         elements.game.backToMenu.disabled = false; 
         return;
     }
 
     state.isGameActive = true;
-    elements.game.chatHistory.innerHTML = ''; // Limpiamos el mensaje de "Concibiendo..."
+    elements.game.chatHistory.innerHTML = '';
     addMessageToChat(`He concebido mi enigma. Comienza.`, 'brain', () => {
-        // Activamos todo, incluyendo el botón de menú.
         elements.game.input.disabled = false;
         elements.game.askButton.disabled = false;
         elements.game.suggestionButton.disabled = false;
@@ -265,11 +254,9 @@ async function startGame() {
     });
 }
 
-
 async function fetchDynamicCharacter() {
     const characterName = characterNames[Math.floor(Math.random() * characterNames.length)];
     
-    // PROMPT BLINDADO: Con estructura clara y ejemplos.
     const dossierPrompt = `
 ### TAREA ###
 Crea un dossier en formato JSON para el personaje: "${characterName}".
@@ -293,7 +280,6 @@ Crea un dossier en formato JSON para el personaje: "${characterName}".
     
     const dossierRaw = await callHuggingFaceAPI(dossierPrompt);
     try {
-        // Buscamos el JSON dentro de la respuesta, por si la IA añade texto extra.
         const jsonMatch = dossierRaw.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error("No se encontró JSON en la respuesta.");
         
@@ -306,7 +292,6 @@ Crea un dossier en formato JSON para el personaje: "${characterName}".
         return false;
     }
 }
-
 
 function getSystemPrompt(dossier) {
     const dossierString = JSON.stringify(dossier, null, 2);
@@ -452,7 +437,6 @@ async function showSuggestions() {
             };
             container.appendChild(button);
         });
-        // El contador solo se actualiza si se generan sugerencias
         state.suggestionUses++;
         const remaining = config.suggestionLimit - state.suggestionUses;
         elements.game.suggestionButton.textContent = `Sugerencia (${remaining}/${config.suggestionLimit})`;
@@ -464,12 +448,7 @@ async function showSuggestions() {
     }
 }
 
-
-// ============================================
-// == EVENT LISTENERS (ORIGINALES)         ==
-// ============================================
 document.addEventListener('DOMContentLoaded', () => {
-    // No cargamos datos de jugador, es una versión simplificada
     elements.title.startButton.addEventListener('click', showGameStage);
     elements.title.exitButton.addEventListener('click', () => { elements.arcadeScreen.classList.add('shutdown-effect'); });
     elements.game.askButton.addEventListener('click', handlePlayerInput);
