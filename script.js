@@ -1,9 +1,4 @@
 // ============================================
-// == CLAVES Y CONFIGURACIÓN DE API          ==
-// ============================================
-// ¡YA NO HAY CLAVE DE API AQUÍ! ES SEGURO.
-
-// ============================================
 // == CONFIGURACIÓN Y ESTADO DEL JUEGO     ==
 // ============================================
 const config = {
@@ -68,41 +63,42 @@ const elements = {
 };
 
 // ============================================
-// == LÓGICA DE API (NUEVA Y SEGURA)       ==
+// == LÓGICA DE API (VERSIÓN PÚBLICA SIMPLE) ==
 // ============================================
 async function callHuggingFaceAPI(prompt) {
-    // La dirección de nuestro mensajero en Vercel
-    const OUR_PROXY_URL = '/api/proxy'; 
-    // La dirección de la IA a la que queremos que vaya el mensajero
-    const TARGET_API_URL = 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3';
+    // URL de una API pública que no requiere clave para este modelo
+    const PUBLIC_API_URL = 'https://api.deepinfra.com/v1/openai/chat/completions';
+
+    // El formato de la petición es un poco diferente
+    const requestBody = {
+        model: "mistralai/Mistral-7B-Instruct-v0.1",
+        messages: [{ role: "user", content: prompt }]
+    };
 
     try {
-        // Le damos las instrucciones al mensajero
-        const response = await fetch(OUR_PROXY_URL, {
+        const response = await fetch(PUBLIC_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                targetUrl: TARGET_API_URL,
-                body: { inputs: prompt, parameters: { max_new_tokens: 150 } }
-            })
+            body: JSON.stringify(requestBody)
         });
 
         if (!response.ok) {
-            console.error('Error en nuestro propio proxy:', await response.text());
+            const errorText = await response.text();
+            console.error("Error en la API pública:", errorText);
             return phrases.apiError;
         }
         
-        // Recibimos la respuesta que nos trae el mensajero
         const data = await response.json();
-        const generatedText = data[0].generated_text;
-        const responseOnly = generatedText.substring(prompt.length);
+        // La respuesta viene en un formato diferente, la extraemos
+        const responseOnly = data.choices[0].message.content;
         return responseOnly.trim();
 
     } catch (error) {
-        console.error('Error de Conexión con nuestro proxy:', error);
+        console.error('Error de Conexión con la API pública:', error);
         return phrases.apiError;
     }
 }
+
 
 // ============================================
 // == EL RESTO DEL CÓDIGO (SIN CAMBIOS)    ==
