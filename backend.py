@@ -15,8 +15,7 @@ import os # Importamos 'os' para poder leer la clave de API desde Render
 HF_API_KEY = os.environ.get("HUGGING_FACE_API_KEY", "pon_aqui_tu_clave_hf_si_quieres_probar_en_local")
 
 # Usaremos el modelo Llama-3 8B, que es potente y estable.
-API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
-
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
 # --- FIN DE LA CONFIGURACIÓN ---
 
 
