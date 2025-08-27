@@ -106,7 +106,7 @@ function openCurtains(callback, speed = 1) { elements.stage.curtainLeft.style.tr
 // == LÓGICA DE API (CONECTADA AL BACKEND)   ==
 // ============================================
 async function callOracleAPI(prompt) {
-    const brainLocation = 'http://127.0.0.1:5000/ask';
+    const brainLocation = 'https://the-oracle-game.onrender.com/ask';
     try {
         const response = await fetch(brainLocation, {
             method: 'POST',
