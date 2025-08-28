@@ -23,11 +23,9 @@ body {
     overflow: hidden;
 }
 
-#arcade-screen {
-    width: 100%;
-    height: 100%;
-    max-width: 480px;
-    max-height: 850px;
+##arcade-screen {
+    width: 100vw;  /* 100% del ancho de la ventana */
+    height: 100vh; /* 100% de la altura de la ventana */
     border: 5px solid var(--main-green);
     border-radius: 15px;
     box-shadow: 0 0 20px var(--main-green), inset 0 0 20px var(--main-green);
@@ -36,7 +34,9 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box; 
 }
+
 
 .screen {
     width: 100%;
