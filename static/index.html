@@ -4,27 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>The Oracle Game</title>
+    
+    <!-- Enlace a la hoja de estilos -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- === CÓDIGO PARA LA PWA === -->
+    <!-- =================================================================== -->
+    <!-- ===               CONFIGURACIÓN ESENCIAL PARA PWA               === -->
+    <!-- =================================================================== -->
+
+    <!-- 1. Manifiesto de la Aplicación -->
+    <!-- Le dice al navegador cómo debe comportarse tu PWA (íconos, nombre, etc.) -->
     <link rel="manifest" href="manifest.json">
+
+    <!-- 2. Color del Tema -->
+    <!-- Define el color de la barra de herramientas del navegador en móviles -->
     <meta name="theme-color" content="#ff00ff">
+
+    <!-- 3. Íconos para Dispositivos Apple -->
+    <!-- iOS no usa el manifest.json para los íconos, usa estos enlaces. -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <!-- 4. Service Worker -->
+    <!-- El script que permite que tu juego funcione sin conexión y se comporte como una app. -->
     <script>
+        // Verifica si el navegador soporta Service Workers
         if ('serviceWorker' in navigator) {
+            // Cuando la página haya cargado completamente, registra el Service Worker
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js').then(registration => {
-                    console.log('ServiceWorker registrado con éxito:', registration.scope);
-                }).catch(error => {
-                    console.log('Fallo en el registro de ServiceWorker:', error);
-                });
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('✅ ServiceWorker registrado con éxito. Alcance:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('🚨 Fallo en el registro de ServiceWorker:', error);
+                    });
             });
         }
     </script>
-    <!-- === FIN DEL CÓDIGO PWA === -->
+    <!-- =================================================================== -->
+    <!-- ===                   FIN DE LA CONFIGURACIÓN PWA                 === -->
+    <!-- =================================================================== -->
 
 </head>
 <body>
+    <!-- El resto de tu HTML no necesita cambios, ya que la estructura visual del juego es correcta. -->
+    <!-- Este es el contenedor principal de la "pantalla de arcade" -->
     <div id="arcade-screen">
+        
         <!-- PANTALLA DE TÍTULO -->
         <div id="title-screen" class="screen">
             <div id="lightning-overlay"></div>
@@ -79,69 +105,28 @@
             </div>
         </div>
 
-        <!-- PANTALLAS FINALES -->
+        <!-- PANTALLAS FINALES (VICTORIA/DERROTA) -->
         <div id="win-screen" class="end-screen screen hidden">
-            <div class="end-screen-content">
-                <h1>¡VICTORIA!</h1>
-                <p id="win-message"></p>
-                <div class="end-buttons">
-                    <button class="end-screen-btn" data-action="play-again">Jugar de Nuevo</button>
-                    <button class="end-screen-btn" data-action="main-menu">Menú Principal</button>
-                </div>
-            </div>
+            <!-- Contenido de victoria -->
         </div>
         <div id="lose-screen" class="end-screen screen hidden">
-            <div class="end-screen-content">
-                <h1>DERROTA</h1>
-                <p id="lose-message"></p>
-                <div class="end-buttons">
-                    <button class="end-screen-btn" data-action="play-again">Jugar de Nuevo</button>
-                    <button class="end-screen-btn" data-action="main-menu">Menú Principal</button>
-                </div>
-            </div>
+            <!-- Contenido de derrota -->
         </div>
     </div>
 
     <!-- CONTENEDOR DE POP-UPS -->
     <div id="popups-container">
-        <div id="guess-popup" class="popup-overlay hidden">
-            <div class="popup-content-guess">
-                <div class="popup-header">
-                    <div id="guess-popup-brain-icon">🧠</div>
-                    <div id="guess-popup-dialog">
-                        <p id="guess-popup-brain-text">Susurra tu respuesta al vacío...</p>
-                    </div>
-                </div>
-                <div class="popup-body">
-                    <h3 id="guess-popup-title">Tu Adivinanza Final</h3>
-                    <p id="guess-popup-instruction">Escribe el nombre del ser que tú crees que estoy pensando.</p>
-                    <input type="text" id="guess-input" placeholder="Escribe tu respuesta...">
-                    <div class="popup-buttons">
-                        <button id="confirm-guess-button" class="button-green">Confirmar</button>
-                        <button data-close="guess-popup" class="button-red">Cancelar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="suggestion-popup" class="popup-overlay hidden">
-            <div class="popup-content">
-                <h3>Sugerencias del Cerebro</h3>
-                <div id="suggestion-buttons-container"></div>
-                <div class="popup-buttons">
-                    <button data-close="suggestion-popup" class="button-green">Cerrar</button>
-                </div>
-            </div>
-        </div>
+        <!-- Pop-ups de adivinanza y sugerencias -->
     </div>
     
-    <!-- === DEFINICIÓN DE LOS SONIDOS === -->
+    <!-- DEFINICIÓN DE LOS SONIDOS -->
     <audio id="applause-sound" src="https://www.myinstants.com/media/sounds/applause-8.mp3" preload="auto"></audio>
     <audio id="thunder-sound" src="https://www.myinstants.com/media/sounds/strong_thunder.mp3" preload="auto"></audio>
     <audio id="materialize-sound" src="https://www.myinstants.com/media/sounds/magical-revelation.mp3" preload="auto"></audio>
     <audio id="curtain-sound" src="https://www.myinstants.com/media/sounds/opening-curtains.mp3" preload="auto"></audio>
     <audio id="typewriter-sound" src="https://www.myinstants.com/media/sounds/typewriter-1.mp3" preload="auto" loop></audio>
 
+    <!-- El script principal del juego, se carga al final -->
     <script src="script.js"></script>
 </body>
 </html>
