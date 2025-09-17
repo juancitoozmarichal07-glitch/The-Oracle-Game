@@ -34,7 +34,7 @@ let state = {
 };
 
 // --- CONEXIÓN CON A.L.E. ---
-const ALE_URL = 'http://127.0.0.1:5000/execute';
+const ALE_URL = 'https://oracle-game-pwa.onrender.com/execute';
 
 async function callALE(datos_peticion) {
     datos_peticion.skillset_target = "oracle";
