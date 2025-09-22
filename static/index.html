@@ -4,47 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>The Oracle Game</title>
-    
-    <!-- Enlace a la hoja de estilos -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- =================================================================== -->
-    <!-- ===               CONFIGURACIÓN ESENCIAL PARA PWA               === -->
-    <!-- =================================================================== -->
-
-    <!-- 1. Manifiesto de la Aplicación -->
+    <!-- === CÓDIGO PARA LA PWA === -->
     <link rel="manifest" href="manifest.json">
-
-    <!-- 2. Color del Tema para la barra del navegador en móviles -->
     <meta name="theme-color" content="#ff00ff">
-
-    <!-- 3. Íconos para Dispositivos Apple (iOS) -->
-    <link rel="apple-touch-icon" href="icon-192.png">
-
-    <!-- 4. Service Worker para funcionalidad offline -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('✅ ServiceWorker registrado con éxito.');
-                    })
-                    .catch(error => {
-                        console.log('🚨 Fallo en el registro de ServiceWorker:', error);
-                    });
+                navigator.serviceWorker.register('/service-worker.js').then(registration => {
+                    console.log('ServiceWorker registrado con éxito:', registration.scope);
+                }).catch(error => {
+                    console.log('Fallo en el registro de ServiceWorker:', error);
+                });
             });
         }
     </script>
-    <!-- =================================================================== -->
+    <!-- === FIN DEL CÓDIGO PWA === -->
 
 </head>
 <body>
-    <!-- Contenedor principal de la aplicación -->
     <div id="arcade-screen">
-        
         <!-- PANTALLA DE TÍTULO -->
         <div id="title-screen" class="screen">
-            <!-- La capa del relámpago. Su estilo en CSS ha sido modificado para no bloquear clics. -->
             <div id="lightning-overlay"></div>
             <div id="intro-brain">🧠</div>
             <div id="title-layout" class="hidden">
@@ -68,7 +50,9 @@
                     <div id="stage-brain">🧠</div>
                 </div>
                 <div id="stage-dialog"></div>
-                <div id="menu-buttons"></div>
+                <div id="menu-buttons">
+                    <!-- Los botones se generan dinámicamente aquí -->
+                </div>
             </div>
             <div id="curtain-left" class="curtain"></div>
             <div id="curtain-right" class="curtain"></div>
@@ -80,7 +64,9 @@
                 <button id="back-to-menu-button">‹ MENÚ</button>
                 <p id="question-counter">Pregunta: 0/20</p>
             </div>
-            <div id="chat-history"></div>
+            <div id="chat-history">
+                <!-- El historial del chat se insertará aquí -->
+            </div>
             <div class="player-controls">
                 <div class="input-area">
                     <input type="text" id="user-question-input" placeholder="Escribe tu pregunta...">
@@ -93,7 +79,7 @@
             </div>
         </div>
 
-        <!-- PANTALLAS FINALES (VICTORIA/DERROTA) -->
+        <!-- PANTALLAS FINALES -->
         <div id="win-screen" class="end-screen screen hidden">
             <div class="end-screen-content">
                 <h1>¡VICTORIA!</h1>
@@ -119,21 +105,43 @@
     <!-- CONTENEDOR DE POP-UPS -->
     <div id="popups-container">
         <div id="guess-popup" class="popup-overlay hidden">
-            <!-- Contenido del pop-up de adivinanza -->
+            <div class="popup-content-guess">
+                <div class="popup-header">
+                    <div id="guess-popup-brain-icon">🧠</div>
+                    <div id="guess-popup-dialog">
+                        <p id="guess-popup-brain-text">Susurra tu respuesta al vacío...</p>
+                    </div>
+                </div>
+                <div class="popup-body">
+                    <h3 id="guess-popup-title">Tu Adivinanza Final</h3>
+                    <p id="guess-popup-instruction">Escribe el nombre del ser que tú crees que estoy pensando.</p>
+                    <input type="text" id="guess-input" placeholder="Escribe tu respuesta...">
+                    <div class="popup-buttons">
+                        <button id="confirm-guess-button" class="button-green">Confirmar</button>
+                        <button data-close="guess-popup" class="button-red">Cancelar</button>
+                    </div>
+                </div>
+            </div>
         </div>
+
         <div id="suggestion-popup" class="popup-overlay hidden">
-            <!-- Contenido del pop-up de sugerencias -->
+            <div class="popup-content">
+                <h3>Sugerencias del Cerebro</h3>
+                <div id="suggestion-buttons-container"></div>
+                <div class="popup-buttons">
+                    <button data-close="suggestion-popup" class="button-green">Cerrar</button>
+                </div>
+            </div>
         </div>
     </div>
     
-    <!-- SONIDOS PRECARGADOS -->
+    <!-- === DEFINICIÓN DE LOS SONIDOS === -->
     <audio id="applause-sound" src="https://www.myinstants.com/media/sounds/applause-8.mp3" preload="auto"></audio>
     <audio id="thunder-sound" src="https://www.myinstants.com/media/sounds/strong_thunder.mp3" preload="auto"></audio>
-    <audio id="materialize-sound" src="https://www.myinstants.com/media/sounds/magical-revelation.mp3" preload="auto"></audio>
+    <audio id="materialize-sound" src="https://www.myinstants.com/media=/sounds/magical-revelation.mp3" preload="auto"></audio>
     <audio id="curtain-sound" src="https://www.myinstants.com/media/sounds/opening-curtains.mp3" preload="auto"></audio>
     <audio id="typewriter-sound" src="https://www.myinstants.com/media/sounds/typewriter-1.mp3" preload="auto" loop></audio>
 
-    <!-- SCRIPT PRINCIPAL DEL JUEGO -->
     <script src="script.js"></script>
 </body>
 </html>
