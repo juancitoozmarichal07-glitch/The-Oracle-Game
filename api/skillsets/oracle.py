@@ -9,12 +9,33 @@ import random
 PROMPT_CREACION_DOSSIER = """
 Generate a JSON object for a character (real or fictional).
 The JSON object must be the ONLY thing in your response. Do not include any other text.
-The JSON object must have these exact keys: "nombre", "es_real", "genero", "universo_o_epoca", "rol_principal", "habilidad_principal", "debilidad_notable", "aliado_importante", "enemigo_principal".
-The character should be well-known but try to avoid the most obvious choices (like Superman or Darth Vader) if possible.
+The JSON object must have these exact keys:
+- "nombre": The character's name.
+- "es_real": boolean, is the character a real person?
+- "genero": "Masculino", "Femenino", or "No binario/Otro".
+- "universo_o_epoca": The name of their universe or historical era (e.g., "Marvel Cinematic Universe", "Antigua Roma").
+- "rol_principal": Their main role (e.g., "Héroe", "Villano", "Antihéroe", "Personaje secundario").
+- "arquetipo": Their literary archetype (e.g., "El Elegido", "El Mentor", "El Rebelde", "El Explorador").
+- "tono_del_universo": The general tone of their world (e.g., "Fantasía épica", "Ciencia ficción distópica", "Comedia de situación", "Drama histórico").
+- "reglas_del_universo": A key concept or rule of their world (e.g., "La Fuerza", "Magia y Hechicería", "Leyes de la Robótica", "Viajes en el tiempo").
+- "concepto_abstracto_clave": An abstract theme associated with the character (e.g., "Honor", "Redención", "Sacrificio", "Caos", "Libertad").
+- "meta_info_franquicia": The type of media they are most known for (e.g., "Saga de libros", "Serie de televisión", "Película de culto", "Videojuego").
 
 Example of a valid response:
-{"nombre": "Gollum", "es_real": false, "genero": "Masculino", "universo_o_epoca": "Tierra Media", "rol_principal": "Antagonista/Guía", "habilidad_principal": "Sigilo e Invisibilidad con el Anillo", "debilidad_notable": "Obsesión por el Anillo Único", "aliado_importante": "Ninguno (temporalmente Frodo)", "enemigo_principal": "Sauron / Frodo y Sam"}
+{
+  "nombre": "Jon Snow",
+  "es_real": false,
+  "genero": "Masculino",
+  "universo_o_epoca": "Westeros (Canción de Hielo y Fuego)",
+  "rol_principal": "Héroe",
+  "arquetipo": "El Bastardo Noble / El Héroe a su pesar",
+  "tono_del_universo": "Fantasía oscura y política",
+  "reglas_del_universo": "La magia es rara y peligrosa, los inviernos duran años",
+  "concepto_abstracto_clave": "Honor y Deber",
+  "meta_info_franquicia": "Serie de televisión y saga de libros"
+}
 """
+
 
 # ... (los otros prompts quedan igual) ...
 
