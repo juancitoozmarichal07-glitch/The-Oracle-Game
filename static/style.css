@@ -455,3 +455,13 @@ button:disabled {
     margin-bottom: 15px;
     padding-top: 20px;
 }
+/* --- ESTILOS PARA LOS BOTONES EN COOLDOWN --- */
+.button-cooldown {
+    background-color: #222 !important;
+    color: #ff8c00 !important;
+    /* Naranja para indicar "espera" */
+    border-color: #ff8c00 !important;
+    box-shadow: 0 0 10px #ff8c00 !important;
+    cursor: not-allowed !important;
+    animation: none !important;
+}
