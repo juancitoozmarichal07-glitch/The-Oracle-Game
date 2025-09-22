@@ -1,6 +1,9 @@
 // ===================================================================
-// == THE ORACLE GAME - SCRIPT.JS - v14.1 (Conexión a Render)      ==
+// == THE ORACLE GAME - SCRIPT.JS - v14.2 (Ajuste de Pantalla JS)  ==
 // ===================================================================
+// - NUEVO: Se añade una función 'adjustScreenHeight' que usa JavaScript
+//   para medir la altura real de la ventana y evitar que el juego
+//   se corte en algunos navegadores.
 
 // --- CONFIGURACIÓN Y ESTADO ---
 const config = {
@@ -34,10 +37,6 @@ let state = {
 };
 
 // --- CONEXIÓN CON A.L.E. ---
-// ===================================================================
-// ===         ¡AQUÍ ESTÁ EL ÚNICO CAMBIO IMPORTANTE!              ===
-// ===================================================================
-// Apunta a tu backend desplegado en Render, usando https.
 const ALE_URL = 'https://oracle-game-pwa.onrender.com/execute';
 
 async function callALE(datos_peticion) {
@@ -81,6 +80,21 @@ const elements = {
         typewriter: document.getElementById('typewriter-sound')
     }
 };
+
+// ===================================================================
+// ===       FUNCIÓN DE AJUSTE DE PANTALLA A PRUEBA DE FALLOS      ===
+// ===================================================================
+// Esta función mide la altura real y visible de la ventana y la aplica
+// al contenedor del juego, solucionando el problema de "no se ve entero".
+function adjustScreenHeight() {
+    const arcadeScreen = elements.arcadeScreen;
+    if (arcadeScreen) {
+        // window.innerHeight nos da la altura REAL del área visible.
+        const realHeight = window.innerHeight;
+        arcadeScreen.style.height = `${realHeight}px`;
+        console.log(`Ajustando altura de la pantalla a: ${realHeight}px`);
+    }
+}
 
 // --- LÓGICA PRINCIPAL DEL JUEGO ---
 
@@ -273,12 +287,9 @@ function unlockAudio() {
             sound.play().then(() => {
                 sound.pause();
                 sound.currentTime = 0;
-            }).catch(e => {
-                // Este error es esperado y normal si el navegador aún no lo permite.
-            });
+            }).catch(e => {});
         }
     });
-    // Una vez que se intenta, eliminamos el listener para no hacerlo más.
     document.body.removeEventListener('click', unlockAudio);
     document.body.removeEventListener('touchstart', unlockAudio);
     console.log("Listeners de desbloqueo de audio eliminados.");
@@ -398,6 +409,8 @@ function openCurtains(callback, speed = 1) {
 
 // --- EVENT LISTENERS (PUNTO DE ENTRADA ÚNICO Y CENTRALIZADO) ---
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // Asignación de todos los eventos de clic del juego.
     elements.title.startButton.addEventListener('click', showGameStage);
     elements.title.exitButton.addEventListener('click', () => { elements.arcadeScreen.classList.add('shutdown-effect'); });
     elements.game.askButton.addEventListener('click', handlePlayerInput);
@@ -430,7 +443,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // "Toque de Permiso": Desbloquea los sonidos con la primera interacción del usuario
     document.body.addEventListener('click', unlockAudio);
-    document.body.addEventListener('touchstart', unlockAudio); // Para móviles
+    document.body.addEventListener('touchstart', unlockAudio);
 
+    // ===================================================================
+    // ===         CÓDIGO NUEVO PARA FORZAR EL TAMAÑO CORRECTO         ===
+    // ===================================================================
+    // Ajustamos la altura al cargar la página por primera vez.
+    adjustScreenHeight();
+
+    // Y creamos un "escuchador" que ajusta la altura cada vez que
+    // el tamaño de la ventana cambia (ej: al girar el móvil).
+    window.addEventListener('resize', adjustScreenHeight);
+    // ===================================================================
+
+    // Inicia la secuencia de título del juego.
     runTitleSequence();
 });
