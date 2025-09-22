@@ -1,5 +1,5 @@
 # =================================================================
-# == MAIN.PY - EDICIÓN "BACKEND PURO" PARA RENDER                ==
+# == MAIN.PY - EDICIÓN "BACKEND PURO" PARA RENDER (CORS CORREGIDO) ==
 # =================================================================
 import sys
 import os
@@ -9,13 +9,23 @@ from flask_cors import CORS
 
 # --- CONFIGURACIÓN DE LA APLICACIÓN Y CORS ---
 app = Flask(__name__)
-# CORS es crucial para que Vercel (otro dominio) pueda hablar con Render.
-CORS(app, resources={r"/*": {"origins": "*"}})
+
+# ===================================================================
+# ===       ¡AQUÍ ESTÁ LA CORRECCIÓN PARA EL ERROR DE CORS!       ===
+# ===================================================================
+# En lugar de permitir '*', le damos permiso explícito y único a tu
+# dominio de Vercel. Esto es más seguro y evita bloqueos.
+CORS(app, resources={
+    r"/execute": {
+        "origins": "https://the-oracle-game-ny7nyna98-juan-s-projects-1a87dbe4.vercel.app"
+    }
+})
 
 @app.after_request
 def after_request(response):
+    # Estas cabeceras son importantes, las mantenemos.
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-control-Allow-Methods', 'GET,POST,OPTIONS')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
     return response
 
 # --- PREPARAR EL CAMINO A LOS MÓDULOS ---
