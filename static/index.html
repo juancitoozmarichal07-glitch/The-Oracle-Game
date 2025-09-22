@@ -13,27 +13,21 @@
     <!-- =================================================================== -->
 
     <!-- 1. Manifiesto de la Aplicación -->
-    <!-- Le dice al navegador cómo debe comportarse tu PWA (íconos, nombre, etc.) -->
     <link rel="manifest" href="manifest.json">
 
-    <!-- 2. Color del Tema -->
-    <!-- Define el color de la barra de herramientas del navegador en móviles -->
+    <!-- 2. Color del Tema para la barra del navegador en móviles -->
     <meta name="theme-color" content="#ff00ff">
 
-    <!-- 3. Íconos para Dispositivos Apple -->
-    <!-- iOS no usa el manifest.json para los íconos, usa estos enlaces. -->
+    <!-- 3. Íconos para Dispositivos Apple (iOS) -->
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <!-- 4. Service Worker -->
-    <!-- El script que permite que tu juego funcione sin conexión y se comporte como una app. -->
+    <!-- 4. Service Worker para funcionalidad offline -->
     <script>
-        // Verifica si el navegador soporta Service Workers
         if ('serviceWorker' in navigator) {
-            // Cuando la página haya cargado completamente, registra el Service Worker
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/service-worker.js')
                     .then(registration => {
-                        console.log('✅ ServiceWorker registrado con éxito. Alcance:', registration.scope);
+                        console.log('✅ ServiceWorker registrado con éxito.');
                     })
                     .catch(error => {
                         console.log('🚨 Fallo en el registro de ServiceWorker:', error);
@@ -42,17 +36,15 @@
         }
     </script>
     <!-- =================================================================== -->
-    <!-- ===                   FIN DE LA CONFIGURACIÓN PWA                 === -->
-    <!-- =================================================================== -->
 
 </head>
 <body>
-    <!-- El resto de tu HTML no necesita cambios, ya que la estructura visual del juego es correcta. -->
-    <!-- Este es el contenedor principal de la "pantalla de arcade" -->
+    <!-- Contenedor principal de la aplicación -->
     <div id="arcade-screen">
         
         <!-- PANTALLA DE TÍTULO -->
         <div id="title-screen" class="screen">
+            <!-- La capa del relámpago. Su estilo en CSS ha sido modificado para no bloquear clics. -->
             <div id="lightning-overlay"></div>
             <div id="intro-brain">🧠</div>
             <div id="title-layout" class="hidden">
@@ -76,9 +68,7 @@
                     <div id="stage-brain">🧠</div>
                 </div>
                 <div id="stage-dialog"></div>
-                <div id="menu-buttons">
-                    <!-- Los botones se generan dinámicamente aquí -->
-                </div>
+                <div id="menu-buttons"></div>
             </div>
             <div id="curtain-left" class="curtain"></div>
             <div id="curtain-right" class="curtain"></div>
@@ -90,9 +80,7 @@
                 <button id="back-to-menu-button">‹ MENÚ</button>
                 <p id="question-counter">Pregunta: 0/20</p>
             </div>
-            <div id="chat-history">
-                <!-- El historial del chat se insertará aquí -->
-            </div>
+            <div id="chat-history"></div>
             <div class="player-controls">
                 <div class="input-area">
                     <input type="text" id="user-question-input" placeholder="Escribe tu pregunta...">
@@ -107,26 +95,45 @@
 
         <!-- PANTALLAS FINALES (VICTORIA/DERROTA) -->
         <div id="win-screen" class="end-screen screen hidden">
-            <!-- Contenido de victoria -->
+            <div class="end-screen-content">
+                <h1>¡VICTORIA!</h1>
+                <p id="win-message"></p>
+                <div class="end-buttons">
+                    <button class="end-screen-btn" data-action="play-again">Jugar de Nuevo</button>
+                    <button class="end-screen-btn" data-action="main-menu">Menú Principal</button>
+                </div>
+            </div>
         </div>
         <div id="lose-screen" class="end-screen screen hidden">
-            <!-- Contenido de derrota -->
+            <div class="end-screen-content">
+                <h1>DERROTA</h1>
+                <p id="lose-message"></p>
+                <div class="end-buttons">
+                    <button class="end-screen-btn" data-action="play-again">Jugar de Nuevo</button>
+                    <button class="end-screen-btn" data-action="main-menu">Menú Principal</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- CONTENEDOR DE POP-UPS -->
     <div id="popups-container">
-        <!-- Pop-ups de adivinanza y sugerencias -->
+        <div id="guess-popup" class="popup-overlay hidden">
+            <!-- Contenido del pop-up de adivinanza -->
+        </div>
+        <div id="suggestion-popup" class="popup-overlay hidden">
+            <!-- Contenido del pop-up de sugerencias -->
+        </div>
     </div>
     
-    <!-- DEFINICIÓN DE LOS SONIDOS -->
+    <!-- SONIDOS PRECARGADOS -->
     <audio id="applause-sound" src="https://www.myinstants.com/media/sounds/applause-8.mp3" preload="auto"></audio>
     <audio id="thunder-sound" src="https://www.myinstants.com/media/sounds/strong_thunder.mp3" preload="auto"></audio>
     <audio id="materialize-sound" src="https://www.myinstants.com/media/sounds/magical-revelation.mp3" preload="auto"></audio>
     <audio id="curtain-sound" src="https://www.myinstants.com/media/sounds/opening-curtains.mp3" preload="auto"></audio>
     <audio id="typewriter-sound" src="https://www.myinstants.com/media/sounds/typewriter-1.mp3" preload="auto" loop></audio>
 
-    <!-- El script principal del juego, se carga al final -->
+    <!-- SCRIPT PRINCIPAL DEL JUEGO -->
     <script src="script.js"></script>
 </body>
 </html>
