@@ -1,5 +1,5 @@
 // ===================================================================
-// == THE ORACLE GAME - SCRIPT.JS - v14.1 (Desbloqueo de Audio)    ==
+// == THE ORACLE GAME - SCRIPT.JS - v14.1 (Conexión a Render)      ==
 // ===================================================================
 
 // --- CONFIGURACIÓN Y ESTADO ---
@@ -34,7 +34,12 @@ let state = {
 };
 
 // --- CONEXIÓN CON A.L.E. ---
+// ===================================================================
+// ===         ¡AQUÍ ESTÁ EL ÚNICO CAMBIO IMPORTANTE!              ===
+// ===================================================================
+// Apunta a tu backend desplegado en Render, usando https.
 const ALE_URL = 'https://oracle-game-pwa.onrender.com/execute';
+
 async function callALE(datos_peticion) {
     datos_peticion.skillset_target = "oracle";
     try {
@@ -261,7 +266,6 @@ function handleGuessAttempt() {
 
 // --- FUNCIONES VISUALES Y DE NAVEGACIÓN ---
 
-// === NUEVA FUNCIÓN DE DESBLOQUEO DE AUDIO ===
 function unlockAudio() {
     console.log("Intentando desbloquear el audio con la primera interacción...");
     Object.values(elements.sounds).forEach(sound => {
@@ -285,7 +289,7 @@ function typewriterEffect(element, text, callback) {
     element.textContent = '';
     if (elements.sounds.typewriter) {
         elements.sounds.typewriter.currentTime = 0;
-        elements.sounds.typewriter.play().catch(e => {}); // Catch por si el audio aún no está desbloqueado
+        elements.sounds.typewriter.play().catch(e => {});
     }
     const interval = setInterval(() => {
         if (i < text.length) {
