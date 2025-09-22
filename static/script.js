@@ -1,5 +1,5 @@
 // ===================================================================
-// == THE ORACLE GAME - SCRIPT.JS - v14.1 (Desbloqueo de Audio)    ==
+// == THE ORACLE GAME - SCRIPT.JS - v14.2 (Arranque Robusto)      ==
 // ===================================================================
 
 // --- CONFIGURACIÓN Y ESTADO ---
@@ -34,8 +34,8 @@ let state = {
 };
 
 // --- CONEXIÓN CON A.L.E. ---
-// La URL de tu backend "siempre despierto" en Render
 const ALE_URL = 'https://oracle-game-pwa.onrender.com/execute';
+
 async function callALE(datos_peticion) {
     datos_peticion.skillset_target = "oracle";
     try {
@@ -262,23 +262,23 @@ function handleGuessAttempt() {
 
 // --- FUNCIONES VISUALES Y DE NAVEGACIÓN ---
 
-// === NUEVA FUNCIÓN DE DESBLOQUEO DE AUDIO ===
 function unlockAudio() {
-    console.log("Intentando desbloquear el audio con la primera interacción...");
+    console.log("Intentando desbloquear el audio...");
+    let unlocked = false;
     Object.values(elements.sounds).forEach(sound => {
-        if (sound) {
+        if (sound && sound.paused) {
             sound.play().then(() => {
                 sound.pause();
                 sound.currentTime = 0;
+                unlocked = true;
             }).catch(e => {
-                // Este error es esperado y normal si el navegador aún no lo permite.
+                // Error esperado si el usuario no ha interactuado.
             });
         }
     });
-    // Una vez que se intenta, eliminamos el listener para no hacerlo más.
-    document.body.removeEventListener('click', unlockAudio);
-    document.body.removeEventListener('touchstart', unlockAudio);
-    console.log("Listeners de desbloqueo de audio eliminados.");
+    if (unlocked) {
+        console.log("Audio desbloqueado.");
+    }
 }
 
 function typewriterEffect(element, text, callback) {
@@ -286,7 +286,7 @@ function typewriterEffect(element, text, callback) {
     element.textContent = '';
     if (elements.sounds.typewriter) {
         elements.sounds.typewriter.currentTime = 0;
-        elements.sounds.typewriter.play().catch(e => {}); // Catch por si el audio aún no está desbloqueado
+        elements.sounds.typewriter.play().catch(e => {});
     }
     const interval = setInterval(() => {
         if (i < text.length) {
@@ -394,21 +394,49 @@ function openCurtains(callback, speed = 1) {
 }
 
 // --- EVENT LISTENERS (PUNTO DE ENTRADA ÚNICO Y CENTRALIZADO) ---
+// ===================================================================
+// ===                ¡AQUÍ ESTÁ LA CORRECCIÓN!                    ===
+// ===================================================================
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Variable para asegurar que el audio se desbloquea solo una vez.
+    let isAudioUnlocked = false;
+
+    function initialUserInteraction() {
+        if (!isAudioUnlocked) {
+            unlockAudio();
+            isAudioUnlocked = true;
+            // Una vez que se ha interactuado, eliminamos este listener para no volver a ejecutarlo.
+            document.body.removeEventListener('click', initialUserInteraction);
+            document.body.removeEventListener('touchstart', initialUserInteraction);
+            console.log("Primera interacción detectada. Listeners de desbloqueo de audio eliminados.");
+        }
+    }
+
+    // Añadimos listeners para la primera interacción del usuario en cualquier parte.
+    document.body.addEventListener('click', initialUserInteraction);
+    document.body.addEventListener('touchstart', initialUserInteraction);
+
+
+    // ASIGNAMOS LOS EVENTOS A LOS BOTONES
     elements.title.startButton.addEventListener('click', showGameStage);
     elements.title.exitButton.addEventListener('click', () => { elements.arcadeScreen.classList.add('shutdown-effect'); });
+    
     elements.game.askButton.addEventListener('click', handlePlayerInput);
     elements.game.input.addEventListener('keyup', (e) => { if (e.key === 'Enter') handlePlayerInput(); });
     elements.game.guessButton.addEventListener('click', showGuessPopup);
     elements.game.suggestionButton.addEventListener('click', showSuggestions);
     elements.game.backToMenu.addEventListener('click', () => closeCurtains(showGameStage, 1));
+    
     elements.guessPopup.confirmButton.addEventListener('click', handleGuessAttempt);
     elements.guessPopup.input.addEventListener('keyup', (e) => { if (e.key === 'Enter') handleGuessAttempt(); });
+    
     document.body.addEventListener('click', (e) => {
         if (e.target.dataset.close) {
             e.target.closest('.popup-overlay').classList.add('hidden');
         }
     });
+
     elements.stage.menuButtons.addEventListener('click', (e) => {
         const action = e.target.dataset.action;
         if (action === 'play-alternativo') showChallengeScreen();
@@ -416,6 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (action === 'accept-challenge') startGame();
         if (action === 'flee-challenge') showGameStage();
     });
+
     document.querySelectorAll('.end-buttons button').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const action = e.target.dataset.action;
@@ -425,9 +454,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // "Toque de Permiso": Desbloquea los sonidos con la primera interacción del usuario
-    document.body.addEventListener('click', unlockAudio);
-    document.body.addEventListener('touchstart', unlockAudio); // Para móviles
-
+    // Inicia la secuencia de título del juego
     runTitleSequence();
 });
