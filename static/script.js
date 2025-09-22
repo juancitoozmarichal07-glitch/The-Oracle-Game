@@ -1,9 +1,9 @@
 // ===================================================================
-// == THE ORACLE GAME - SCRIPT.JS - v14.2 (Ajuste de Pantalla JS)  ==
+// == THE ORACLE GAME - SCRIPT.JS - v15.0 (Despertador de Render)  ==
 // ===================================================================
-// - NUEVO: Se añade una función 'adjustScreenHeight' que usa JavaScript
-//   para medir la altura real de la ventana y evitar que el juego
-//   se corte en algunos navegadores.
+// - NUEVO: La función `callALE` ahora incluye una lógica para "despertar"
+//   el backend de Render en el plan gratuito, que se congela tras
+//   15 minutos de inactividad y rechaza peticiones POST.
 
 // --- CONFIGURACIÓN Y ESTADO ---
 const config = {
@@ -36,13 +36,45 @@ let state = {
     characterHistory: []
 };
 
-// --- CONEXIÓN CON A.L.E. ---
-const ALE_URL = 'https://oracle-game-pwa.onrender.com/execute';
+// --- CONEXIÓN CON A.L.E. (LÓGICA DE DESPERTADOR) ---
+
+// Guardamos el estado del motor para no despertarlo cada vez.
+let isMotorCaliente = false;
 
 async function callALE(datos_peticion) {
     datos_peticion.skillset_target = "oracle";
+    const RENDER_URL_RAIZ = 'https://oracle-game-pwa.onrender.com/';
+    const ALE_URL_EXECUTE = 'https://oracle-game-pwa.onrender.com/execute';
+
+    // --- PASO 1: DESPERTAR EL MOTOR (si es la primera vez) ---
+    if (!isMotorCaliente) {
+        console.log("[Despertador] El motor está frío. Enviando golpe de calentamiento...");
+        addMessageToChat("Despertando al Oráculo... Esto puede tardar hasta un minuto.", "brain");
+        
+        try {
+            // Hacemos una petición GET a la raíz. No nos importa la respuesta,
+            // solo que despierte el servidor.
+            await fetch(RENDER_URL_RAIZ);
+            console.log("[Despertador] El motor debería estar arrancando. Esperando un poco...");
+            
+            // Damos un tiempo extra de cortesía para que el motor termine de arrancar.
+            await new Promise(resolve => setTimeout(resolve, 5000)); // 5 segundos
+
+            console.log("[Despertador] ¡Motor caliente! Procediendo con la petición real.");
+            isMotorCaliente = true; // Marcamos que ya está caliente para no volver a despertar.
+
+        } catch (error) {
+            // Si incluso el despertador falla, es un problema mayor.
+            console.error("[Despertador] Fallo crítico al intentar despertar el motor:", error);
+            addMessageToChat("El Oráculo no responde. Parece que hay un problema con el servidor.", "brain");
+            return { error: true };
+        }
+    }
+
+    // --- PASO 2: ENVIAR LA PETICIÓN REAL ---
+    console.log("Enviando petición real a /execute...");
     try {
-        const response = await fetch(ALE_URL, {
+        const response = await fetch(ALE_URL_EXECUTE, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(datos_peticion)
@@ -53,6 +85,12 @@ async function callALE(datos_peticion) {
             addMessageToChat(`Error del Motor: ${errorData.error || 'Fallo desconocido'}`, "brain");
             return { error: true };
         }
+        // Si la respuesta es exitosa, limpiamos el mensaje de "Despertando..." si es que existe.
+        const chatHistory = elements.game.chatHistory;
+        const lastMessage = chatHistory.lastChild;
+        if (lastMessage && lastMessage.textContent.includes("Despertando al Oráculo")) {
+            lastMessage.remove();
+        }
         return await response.json();
     } catch (error) {
         console.error("Error de Conexión con A.L.E.:", error);
@@ -60,6 +98,7 @@ async function callALE(datos_peticion) {
         return { error: true };
     }
 }
+
 
 // --- SELECTORES DEL DOM ---
 const elements = {
@@ -80,21 +119,6 @@ const elements = {
         typewriter: document.getElementById('typewriter-sound')
     }
 };
-
-// ===================================================================
-// ===       FUNCIÓN DE AJUSTE DE PANTALLA A PRUEBA DE FALLOS      ===
-// ===================================================================
-// Esta función mide la altura real y visible de la ventana y la aplica
-// al contenedor del juego, solucionando el problema de "no se ve entero".
-function adjustScreenHeight() {
-    const arcadeScreen = elements.arcadeScreen;
-    if (arcadeScreen) {
-        // window.innerHeight nos da la altura REAL del área visible.
-        const realHeight = window.innerHeight;
-        arcadeScreen.style.height = `${realHeight}px`;
-        console.log(`Ajustando altura de la pantalla a: ${realHeight}px`);
-    }
-}
 
 // --- LÓGICA PRINCIPAL DEL JUEGO ---
 
@@ -121,12 +145,18 @@ async function startGame() {
         resetGameState();
         elements.game.input.disabled = true;
         elements.game.askButton.disabled = true;
-        addMessageToChat("Concibiendo un nuevo enigma del cosmos...", "brain");
+        
+        // La función callALE ahora se encarga de mostrar el mensaje de "Despertando..."
         const respuesta = await callALE({ accion: "iniciar_juego" });
+        
         if (respuesta.error) return;
+        
         state.secretCharacter = respuesta.personaje_secreto;
         console.log("PERSONAJE CREADO POR A.L.E.:", state.secretCharacter);
-        elements.game.chatHistory.innerHTML = '';
+        
+        // No borramos el historial para no quitar el mensaje de "Despertando..."
+        // elements.game.chatHistory.innerHTML = ''; 
+        
         state.isGameActive = true;
         addMessageToChat(`He concebido mi enigma. Comienza.`, 'brain', () => {
             elements.game.input.disabled = false;
@@ -409,8 +439,6 @@ function openCurtains(callback, speed = 1) {
 
 // --- EVENT LISTENERS (PUNTO DE ENTRADA ÚNICO Y CENTRALIZADO) ---
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // Asignación de todos los eventos de clic del juego.
     elements.title.startButton.addEventListener('click', showGameStage);
     elements.title.exitButton.addEventListener('click', () => { elements.arcadeScreen.classList.add('shutdown-effect'); });
     elements.game.askButton.addEventListener('click', handlePlayerInput);
@@ -445,17 +473,5 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('click', unlockAudio);
     document.body.addEventListener('touchstart', unlockAudio);
 
-    // ===================================================================
-    // ===         CÓDIGO NUEVO PARA FORZAR EL TAMAÑO CORRECTO         ===
-    // ===================================================================
-    // Ajustamos la altura al cargar la página por primera vez.
-    adjustScreenHeight();
-
-    // Y creamos un "escuchador" que ajusta la altura cada vez que
-    // el tamaño de la ventana cambia (ej: al girar el móvil).
-    window.addEventListener('resize', adjustScreenHeight);
-    // ===================================================================
-
-    // Inicia la secuencia de título del juego.
     runTitleSequence();
 });
