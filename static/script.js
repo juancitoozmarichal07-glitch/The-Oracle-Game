@@ -38,6 +38,7 @@ let state = {
 
 // --- CONEXIÓN CON A.L.E. ---
 const ALE_URL = '/execute';
+
 async function callALE(datos_peticion) {
     datos_peticion.skillset_target = "oracle";
     try {
@@ -172,22 +173,49 @@ async function handlePlayerInput() {
 }
 
 async function showSuggestions() {
+    const now = Date.now();
+    const timeLeft = Math.ceil((state.lastSuggestionTimestamp + config.suggestionCooldown - now) / 1000);
+
+    // Si el cooldown está activo, no hacemos nada.
+    if (timeLeft > 0) {
+        console.log("Sugerencia en cooldown.");
+        return;
+    }
+
     if (state.suggestionUses >= config.suggestionLimit) {
         addMessageToChat("Has agotado todas tus sugerencias para esta partida.", "brain");
         elements.game.suggestionButton.disabled = true;
         return;
     }
-    const now = Date.now();
-    if (now - state.lastSuggestionTimestamp < config.suggestionCooldown) {
-        const timeLeft = Math.ceil((config.suggestionCooldown - (now - state.lastSuggestionTimestamp)) / 1000);
-        addMessageToChat(`Debes esperar ${timeLeft} segundos para pedir otra sugerencia.`, "brain");
-        return;
-    }
+
+    // Activamos el cooldown INMEDIATAMENTE
     state.lastSuggestionTimestamp = now;
+    elements.game.suggestionButton.disabled = true;
+    elements.game.suggestionButton.classList.add('button-cooldown');
+
+    // Iniciamos la cuenta atrás visual
+    let countdown = Math.ceil(config.suggestionCooldown / 1000);
+    elements.game.suggestionButton.textContent = `Espera ${countdown}s`;
+    const countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+            elements.game.suggestionButton.textContent = `Espera ${countdown}s`;
+        } else {
+            clearInterval(countdownInterval);
+            elements.game.suggestionButton.disabled = false;
+            elements.game.suggestionButton.classList.remove('button-cooldown');
+            const remainingUses = config.suggestionLimit - state.suggestionUses;
+            elements.game.suggestionButton.textContent = `Sugerencia ${remainingUses}/${config.suggestionLimit}`;
+        }
+    }, 1000);
+
+    // Mientras la cuenta atrás corre, pedimos las sugerencias
     const container = elements.suggestionPopup.buttonsContainer;
     container.innerHTML = 'El Oráculo está meditando...';
     elements.popups.suggestion.classList.remove('hidden');
+
     const respuesta = await callALE({ accion: "pedir_sugerencia", historial: state.conversationHistory });
+
     if (!respuesta.error && respuesta.sugerencias && respuesta.sugerencias.length > 0) {
         container.innerHTML = '';
         respuesta.sugerencias.forEach(qText => {
@@ -198,11 +226,17 @@ async function showSuggestions() {
                 elements.game.input.value = qText;
                 elements.game.input.focus();
                 elements.popups.suggestion.classList.add('hidden');
-                state.suggestionUses++;
+                // IMPORTANTE: El uso solo se cuenta cuando se SELECCIONA una sugerencia
+                state.suggestionUses++; 
                 const remainingUses = config.suggestionLimit - state.suggestionUses;
-                elements.game.suggestionButton.textContent = `Sugerencia ${remainingUses}/${config.suggestionLimit}`;
-                if (remainingUses <= 0) {
+                // Actualizamos el texto del botón, pero la cuenta atrás sigue su curso
+                if (countdown <= 0) {
+                     elements.game.suggestionButton.textContent = `Sugerencia ${remainingUses}/${config.suggestionLimit}`;
+                }
+                if (state.suggestionUses >= config.suggestionLimit) {
                     elements.game.suggestionButton.disabled = true;
+                    elements.game.suggestionButton.textContent = "Sugerencias 0/5";
+                    clearInterval(countdownInterval); // Detenemos la cuenta atrás si se agotan
                 }
             };
             container.appendChild(button);
@@ -212,6 +246,7 @@ async function showSuggestions() {
         setTimeout(() => { elements.popups.suggestion.classList.add('hidden'); }, 2000);
     }
 }
+
 
 function endGame(isWin) {
     state.isGameActive = false;
@@ -249,33 +284,62 @@ function showGuessPopup() {
     elements.popups.guess.classList.remove('hidden');
     elements.guessPopup.input.focus();
 }
-
 function handleGuessAttempt() {
     const guess = elements.guessPopup.input.value.trim();
+
     if (guess === '') {
         state.guessPopupPatience--;
         elements.guessPopup.content.classList.add('shake');
         let message = '';
         switch (state.guessPopupPatience) {
-            case 2: message = phrases.guessPopup.strike1; break;
-            case 1: message = phrases.guessPopup.strike2; break;
-            case 0: message = phrases.guessPopup.strike3; break;
+            case 2:
+                message = phrases.guessPopup.strike1;
+                break;
+            case 1:
+                message = phrases.guessPopup.strike2;
+                break;
+            case 0:
+                message = phrases.guessPopup.strike3;
+                break;
         }
         elements.guessPopup.instruction.textContent = message;
+
         setTimeout(() => {
             elements.guessPopup.content.classList.remove('shake');
             if (state.guessPopupPatience <= 0) {
                 elements.popups.guess.classList.add('hidden');
-                elements.game.guessButton.disabled = true;
-                setTimeout(() => { if (state.isGameActive) elements.game.guessButton.disabled = false; }, config.guessButtonCooldown);
+                    
+                // ¡AQUÍ ESTÁ LA PENALIZACIÓN!
+                const guessButton = elements.game.guessButton;
+                guessButton.disabled = true;
+                guessButton.classList.add('button-cooldown');
+                    
+                let countdown = Math.ceil(config.guessButtonCooldown / 1000);
+                guessButton.textContent = `Penalizado ${countdown}s`;
+                    
+                const countdownInterval = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) {
+                        guessButton.textContent = `Penalizado ${countdown}s`;
+                    } else {
+                        clearInterval(countdownInterval);
+                        if (state.isGameActive) { // Solo lo reactivamos si el juego sigue
+                            guessButton.disabled = false;
+                            guessButton.classList.remove('button-cooldown');
+                            guessButton.textContent = "¡Adivinar!";
+                        }
+                    }
+                }, 1000);
             }
         }, 500);
         return;
     }
+
     elements.popups.guess.classList.add('hidden');
-    const isCorrect = guess.toLowerCase() === state.secretCharacter.nombre.toLowerCase();
+    const isCorrect = guess.toLowerCase() === (state.secretCharacter?.nombre.toLowerCase() || '');
     endGame(isCorrect);
 }
+
 
 // --- FUNCIONES VISUALES Y DE NAVEGACIÓN ---
 
