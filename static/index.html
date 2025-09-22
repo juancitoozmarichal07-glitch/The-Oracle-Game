@@ -4,26 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>The Oracle Game</title>
-    <link rel="stylesheet" href="style.css">
-
-    <!-- === CÓDIGO PARA LA PWA === -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ff00ff">
+    
+    <!-- =================================================================== -->
+    <!-- ===           SECCIÓN CRÍTICA PARA LA PWA (CORREGIDA)           === -->
+    <!-- =================================================================== -->
+    
+    <!-- 1. El Manifest: Le da al navegador la información para instalar la app. -->
+    <!-- La ruta "/manifest.json" es crucial para que Vercel la encuentre. -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- 2. El Theme Color: Define el color de la barra de estado en móviles. -->
+    <meta name="theme-color" content="#000000">
+    
+    <!-- 3. El Service Worker: El "cerebro" de la PWA. -->
+    <!-- Este script registra el service-worker.js. La ruta "/service-worker.js" es crucial. -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js').then(registration => {
-                    console.log('ServiceWorker registrado con éxito:', registration.scope);
-                }).catch(error => {
-                    console.log('Fallo en el registro de ServiceWorker:', error);
-                });
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => console.log('[PWA] ServiceWorker registrado con éxito:', registration.scope))
+                    .catch(error => console.log('[PWA] Fallo en el registro de ServiceWorker:', error));
             });
         }
     </script>
-    <!-- === FIN DEL CÓDIGO PWA === -->
+    
+    <!-- === FIN DE LA SECCIÓN PWA === -->
+
+    <!-- La hoja de estilos se mantiene igual -->
+    <link rel="stylesheet" href="style.css">
 
 </head>
 <body>
+    <!-- El resto del cuerpo del HTML no necesita cambios, pero lo incluyo para que lo tengas completo -->
     <div id="arcade-screen">
         <!-- PANTALLA DE TÍTULO -->
         <div id="title-screen" class="screen">
@@ -135,13 +147,14 @@
         </div>
     </div>
     
-    <!-- === DEFINICIÓN DE LOS SONIDOS === -->
+    <!-- DEFINICIÓN DE LOS SONIDOS -->
     <audio id="applause-sound" src="https://www.myinstants.com/media/sounds/applause-8.mp3" preload="auto"></audio>
     <audio id="thunder-sound" src="https://www.myinstants.com/media/sounds/strong_thunder.mp3" preload="auto"></audio>
-    <audio id="materialize-sound" src="https://www.myinstants.com/media=/sounds/magical-revelation.mp3" preload="auto"></audio>
+    <audio id="materialize-sound" src="https://www.myinstants.com/media/sounds/magical-revelation.mp3" preload="auto"></audio>
     <audio id="curtain-sound" src="https://www.myinstants.com/media/sounds/opening-curtains.mp3" preload="auto"></audio>
     <audio id="typewriter-sound" src="https://www.myinstants.com/media/sounds/typewriter-1.mp3" preload="auto" loop></audio>
 
+    <!-- El script principal del juego -->
     <script src="script.js"></script>
 </body>
 </html>
