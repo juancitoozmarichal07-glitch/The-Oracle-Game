@@ -1,18 +1,20 @@
-// service-worker.js para The Oracle Game (versión simple)
+// service-worker.js (Versión Mínima y Segura)
 
-// Se activa cuando el SW se instala.
-self.addEventListener('install', event => {
-  console.log('Service Worker instalado.');
-  self.skipWaiting(); // Activa el SW inmediatamente.
+self.addEventListener('install', (event) => {
+  console.log('[Service Worker] Instalado');
+  // No hacemos nada con la caché por ahora para mantenerlo simple.
+  self.skipWaiting();
 });
 
-// Se activa cuando el SW toma el control.
-self.addEventListener('activate', event => {
-  console.log('Service Worker activado.');
+self.addEventListener('activate', (event) => {
+  console.log('[Service Worker] Activado');
+  // Tomamos el control de la página inmediatamente.
+  return self.clients.claim();
 });
 
-// Listener 'fetch' vacío. Esencial para que el navegador ofrezca la opción de "Instalar".
-self.addEventListener('fetch', event => {
-  // No hacemos nada con la petición, solo la dejamos pasar.
-  return;
+self.addEventListener('fetch', (event) => {
+  // No interceptamos ninguna petición, simplemente dejamos que la red
+  // se encargue de todo. Esto evita problemas de conexión.
+  // console.log('[Service Worker] Petición fetch interceptada para:', event.request.url);
+  return; 
 });
