@@ -15,34 +15,38 @@ body {
     background-color: var(--background-dark);
     color: var(--text-light);
     font-family: 'Press Start 2P', cursive;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    /* Ya no necesitamos flexbox aquí, el #arcade-screen se posicionará por sí mismo */
     margin: 0;
     overflow: hidden;
 }
 
 /* =================================================================== */
-/* ===         ¡AQUÍ ESTÁ LA CORRECCIÓN PARA EL CENTRADO!          === */
+/* ===      SOLUCIÓN DEFINITIVA PARA EL CENTRADO (Y=0 vs Y=1)      === */
 /* =================================================================== */
-/* Reemplaza tu bloque #arcade-screen original por este.
-   El cambio clave es quitar el height y width fijos (100vh/vw) y
-   dejar que el body (con flexbox) haga el trabajo de centrado. */
+/* Este método usa posicionamiento absoluto para forzar el centrado
+   y es mucho más robusto que depender del flexbox del body. */
 #arcade-screen {
-    width: 100%;
-    height: 100%;
+    position: absolute; /* Lo sacamos del flujo normal del documento */
+    top: 50%;           /* Lo movemos 50% hacia abajo desde el borde superior */
+    left: 50%;          /* Lo movemos 50% hacia la derecha desde el borde izquierdo */
+    transform: translate(-50%, -50%); /* Lo "empujamos" de vuelta la mitad de su propio tamaño */
+    
+    /* Mantenemos las dimensiones y el estilo */
+    width: 100vw;
+    height: 100vh;
     max-width: 100vw;
     max-height: 100vh;
+    
     border: 5px solid var(--main-green);
     border-radius: 15px;
     box-shadow: 0 0 20px var(--main-green), inset 0 0 20px var(--main-green);
     background-color: var(--background-dark);
-    position: relative;
-    overflow: hidden;
+    
+    /* Mantenemos el flexbox interno para organizar su contenido */
     display: flex;
     flex-direction: column;
     box-sizing: border-box; 
+    overflow: hidden;
 }
 
 
