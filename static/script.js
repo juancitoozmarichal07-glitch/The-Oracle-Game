@@ -1,9 +1,9 @@
 // ===================================================================
-// == THE ORACLE GAME - SCRIPT.JS - v10.0 (La Versión Coherente)    ==
+// == THE ORACLE GAME - SCRIPT.JS - v13.0 (La Versión Final)        ==
 // ===================================================================
-// - EVOLUCIÓN DE LA v9.1 ESTABLE.
-// - Reintroduce la lógica de Paciencia, Cooldowns y Múltiples Finales
-//   para ser coherente con el oracle.py avanzado.
+// - Reconstruido desde la base ESTABLE v9.2.
+// - Reintroduce TODAS las funcionalidades avanzadas con extremo cuidado.
+// - Sincronizado con oracle.py v8.0 y la interfaz completa.
 
 // --- CONFIGURACIÓN Y ESTADO ---
 const config = {
@@ -62,10 +62,20 @@ const elements = {
     arcadeScreen: document.getElementById('arcade-screen'),
     screens: { title: document.getElementById('title-screen'), stage: document.getElementById('game-stage'), mainGame: document.getElementById('main-game-screen'), win: document.getElementById('win-screen'), lose: document.getElementById('lose-screen') },
     title: { layout: document.getElementById('title-layout'), introBrain: document.getElementById('intro-brain'), startButton: document.getElementById('start-button'), exitButton: document.getElementById('exit-button'), lightning: document.getElementById('lightning-overlay') },
-    stage: { lights: document.getElementById('stage-lights'), content: document.getElementById('stage-content-container'), curtainLeft: document.getElementById('curtain-left'), curtainRight: document.getElementById('curtain-right'), brain: document.getElementById('stage-brain'), dialog: document.getElementById('stage-dialog'), menuButtons: document.getElementById('menu-buttons') },
-    game: { chatHistory: document.getElementById('chat-history'), questionCounter: document.getElementById('question-counter'), input: document.getElementById('user-question-input'), askButton: document.getElementById('ask-button'), suggestionButton: document.getElementById('suggestion-button'), guessButton: document.getElementById('guess-button'), oracleControls: document.getElementById('oracle-mode-controls'), classicControls: document.getElementById('classic-mode-controls') },
+    stage: { menuButtons: document.getElementById('menu-buttons') },
+    game: {
+        chatHistory: document.getElementById('chat-history'),
+        questionCounter: document.getElementById('question-counter'),
+        suggestionButton: document.getElementById('suggestion-button'),
+        guessButton: document.getElementById('guess-button'),
+        oracleControls: document.getElementById('oracle-mode-controls'),
+        classicControls: document.getElementById('classic-mode-controls'),
+        input: document.getElementById('user-question-input'),
+        askButton: document.getElementById('ask-button'),
+        backToMenu: document.getElementById('back-to-menu-button')
+    },
     popups: { guess: document.getElementById('guess-popup'), suggestion: document.getElementById('suggestion-popup') },
-    guessPopup: { content: document.querySelector('#guess-popup .popup-content-guess'), brainIcon: document.getElementById('guess-popup-brain-icon'), instruction: document.getElementById('guess-popup-instruction'), input: document.getElementById('guess-input'), confirmButton: document.getElementById('confirm-guess-button') },
+    guessPopup: { content: document.querySelector('#guess-popup .popup-content-guess'), instruction: document.getElementById('guess-popup-instruction'), input: document.getElementById('guess-input'), confirmButton: document.getElementById('confirm-guess-button') },
     suggestionPopup: { buttonsContainer: document.getElementById('suggestion-buttons-container') },
     endScreens: { winMessage: document.getElementById('win-message'), loseMessage: document.getElementById('lose-message') },
     sounds: { applause: document.getElementById('applause-sound'), thunder: document.getElementById('thunder-sound'), materialize: document.getElementById('materialize-sound'), curtain: document.getElementById('curtain-sound'), typewriter: document.getElementById('typewriter-sound') }
@@ -73,6 +83,22 @@ const elements = {
 
 // --- LÓGICA DE AJUSTE DE PANTALLA ---
 function adjustScreenHeight() { if (elements.arcadeScreen) { elements.arcadeScreen.style.height = `${window.innerHeight}px`; } }
+
+// --- LÓGICA DE MENSAJES ---
+function addMessageToChat(text, sender, callback) {
+    const messageLine = document.createElement('div');
+    messageLine.className = `message-line message-line-${sender}`;
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = sender === 'brain' ? '🧠' : '👤';
+    const textContainer = document.createElement('div');
+    textContainer.className = 'message-text-container';
+    messageLine.appendChild(avatar);
+    messageLine.appendChild(textContainer);
+    elements.game.chatHistory.appendChild(messageLine);
+    elements.game.chatHistory.scrollTop = elements.game.chatHistory.scrollHeight;
+    typewriterEffect(textContainer, text, callback);
+}
 
 // --- LÓGICA PRINCIPAL DEL JUEGO ---
 
@@ -104,17 +130,17 @@ async function startGame(mode) {
 
         if (mode === 'oracle') {
             prepararInterfazModoOraculo();
-            addMessageToChat("Concibiendo un nuevo enigma del cosmos...", "brain");
+            addMessageToChat("Oráculo: Concibiendo un nuevo enigma del cosmos...", "brain");
             const respuesta = await callALE({ skillset_target: "oracle", accion: "iniciar_juego" });
             if (respuesta.error) {
-                addMessageToChat("No he podido concebir un enigma. Mi mente está en conflicto. Inténtalo de nuevo.", "brain");
+                addMessageToChat("Oráculo: No he podido concebir un enigma. Mi mente está en conflicto. Inténtalo de nuevo.", "brain");
                 return;
             }
             state.secretCharacter = respuesta.personaje_secreto;
             console.log("PERSONAJE CREADO POR A.L.E.:", state.secretCharacter);
             elements.game.chatHistory.innerHTML = '';
             state.isGameActive = true;
-            addMessageToChat(`He concebido mi enigma. Comienza.`, 'brain', () => {
+            addMessageToChat(`Oráculo: He concebido mi enigma. Comienza.`, 'brain', () => {
                 elements.game.input.disabled = false;
                 elements.game.askButton.disabled = false;
                 elements.game.input.focus();
@@ -141,16 +167,17 @@ async function handlePlayerInput() {
     const respuesta = await callALE({ skillset_target: "oracle", accion: "procesar_pregunta", pregunta: questionText });
 
     state.isAwaitingBrainResponse = false;
-    if (respuesta.error) {
+
+    if (!respuesta || respuesta.error) {
         if (state.isGameActive) {
             elements.game.input.disabled = false;
             elements.game.askButton.disabled = false;
         }
         return;
     }
-
-    const fullResponse = `${respuesta.respuesta || ''} ${respuesta.aclaracion || ''}`.trim();
-    addMessageToChat(`Oráculo: ${fullResponse}`, 'brain', () => {
+    
+    const fullResponse = `Oráculo: ${respuesta.respuesta || ''} ${respuesta.aclaracion || ''}`.trim();
+    addMessageToChat(fullResponse, 'brain', () => {
         if (respuesta.game_over === true) {
             setTimeout(() => endGame(false, "patience"), 1000);
             return;
@@ -179,7 +206,7 @@ async function showSuggestions() {
     if (timeLeft > 0) return;
 
     if (state.suggestionUses >= config.suggestionLimit) {
-        addMessageToChat("Has agotado todas tus sugerencias para esta partida.", "brain");
+        addMessageToChat("Oráculo: Has agotado todas tus sugerencias para esta partida.", "brain");
         elements.game.suggestionButton.disabled = true;
         return;
     }
@@ -298,16 +325,16 @@ function handleGuessAttempt() {
 function unlockAudio() { Object.values(elements.sounds).forEach(sound => { if (sound) { sound.play().then(() => { sound.pause(); sound.currentTime = 0; }).catch(e => {}); } }); document.body.removeEventListener('click', unlockAudio); document.body.removeEventListener('touchstart', unlockAudio); }
 function typewriterEffect(element, text, callback) { let i = 0; element.textContent = ''; if (elements.sounds.typewriter) { elements.sounds.typewriter.currentTime = 0; elements.sounds.typewriter.play().catch(e => {}); } const interval = setInterval(() => { if (i < text.length) { element.textContent += text.charAt(i); i++; } else { clearInterval(interval); if (elements.sounds.typewriter) { elements.sounds.typewriter.pause(); } if (callback) callback(); } }, config.typewriterSpeed); }
 function runTitleSequence() { Object.values(elements.screens).forEach(s => s.classList.add('hidden')); elements.screens.title.classList.remove('hidden'); elements.title.layout.classList.add('hidden'); elements.title.introBrain.classList.add('hidden'); setTimeout(() => { if (elements.sounds.thunder) elements.sounds.thunder.play().catch(e => {}); elements.title.lightning.classList.add('flash'); setTimeout(() => elements.title.lightning.classList.remove('flash'), 500); }, 500); setTimeout(() => { if (elements.sounds.thunder) elements.sounds.thunder.play().catch(e => {}); elements.title.lightning.classList.add('flash'); setTimeout(() => elements.title.lightning.classList.remove('flash'), 500); if (elements.sounds.materialize) elements.sounds.materialize.play().catch(e => {}); elements.title.introBrain.classList.remove('hidden'); elements.title.introBrain.style.animation = 'materialize 2s forwards ease-out'; }, 1500); setTimeout(() => { elements.title.introBrain.classList.add('hidden'); if (elements.sounds.thunder) elements.sounds.thunder.play().catch(e => {}); elements.title.lightning.classList.add('flash-long'); setTimeout(() => { elements.title.lightning.classList.remove('flash-long'); elements.title.layout.classList.remove('hidden'); }, 2000); }, 4000); }
-function showGameStage() { Object.values(elements.screens).forEach(s => s.classList.add('hidden')); elements.screens.stage.classList.remove('hidden'); elements.stage.brain.classList.add('hidden'); elements.stage.dialog.classList.add('hidden'); elements.stage.lights.classList.remove('hidden'); elements.stage.menuButtons.innerHTML = `<button class="menu-button button-green" data-action="play-oracle">Modo Oráculo</button><button class="menu-button button-grey" data-action="play-classic">Modo Clásico (Próximamente)</button><button class="menu-button button-red" data-action="flee-to-title">Huir</button>`; elements.stage.menuButtons.classList.remove('hidden'); elements.stage.curtainLeft.style.transition = 'width 1s ease-in-out'; elements.stage.curtainRight.style.transition = 'width 1s ease-in-out'; elements.stage.curtainLeft.style.width = '50%'; elements.stage.curtainRight.style.width = '50%'; setTimeout(() => { if (elements.sounds.applause) elements.sounds.applause.play().catch(e => {}); openCurtains(null, 1); }, 1000); setTimeout(() => { elements.stage.lights.classList.add('hidden'); }, 2000); setTimeout(() => { elements.stage.brain.classList.remove('hidden'); }, 2200); setTimeout(() => { elements.stage.dialog.classList.remove('hidden'); typewriterEffect(elements.stage.dialog, "El conocimiento aguarda al audaz. Elige tu camino."); }, 2700); }
-function showChallengeScreen() { elements.stage.menuButtons.classList.add('hidden'); closeCurtains(() => { elements.stage.dialog.classList.add('hidden'); openCurtains(() => { elements.stage.dialog.classList.remove('hidden'); elements.stage.menuButtons.innerHTML = `<button class="button-green" data-action="accept-challenge">Aceptar Reto</button><button class="button-red" data-action="flee-challenge">Huir</button>`; elements.stage.menuButtons.classList.remove('hidden'); typewriterEffect(elements.stage.dialog, phrases.challenge); }, 2.5); }, 1); }
+function showGameStage() { Object.values(elements.screens).forEach(s => s.classList.add('hidden')); elements.screens.stage.classList.remove('hidden'); const stage = document.getElementById('game-stage'); if(stage) { stage.querySelector('#stage-brain').classList.add('hidden'); stage.querySelector('#stage-dialog').classList.add('hidden'); stage.querySelector('#stage-lights').classList.remove('hidden'); stage.querySelector('#menu-buttons').innerHTML = `<button class="menu-button button-green" data-action="play-oracle">Modo Oráculo</button><button class="menu-button button-grey" data-action="play-classic">Modo Clásico</button><button class="menu-button button-red" data-action="flee-to-title">Huir</button>`; stage.querySelector('#menu-buttons').classList.remove('hidden'); stage.querySelector('#curtain-left').style.transition = 'width 1s ease-in-out'; stage.querySelector('#curtain-right').style.transition = 'width 1s ease-in-out'; stage.querySelector('#curtain-left').style.width = '50%'; stage.querySelector('#curtain-right').style.width = '50%'; setTimeout(() => { if (elements.sounds.applause) elements.sounds.applause.play().catch(e => {}); openCurtains(null, 1); }, 1000); setTimeout(() => { stage.querySelector('#stage-lights').classList.add('hidden'); }, 2000); setTimeout(() => { stage.querySelector('#stage-brain').classList.remove('hidden'); }, 2200); setTimeout(() => { stage.querySelector('#stage-dialog').classList.remove('hidden'); typewriterEffect(stage.querySelector('#stage-dialog'), "El conocimiento aguarda al audaz. Elige tu camino."); }, 2700); } }
+function showChallengeScreen() { const stage = document.getElementById('game-stage'); if(stage) { stage.querySelector('#menu-buttons').classList.add('hidden'); closeCurtains(() => { stage.querySelector('#stage-dialog').classList.add('hidden'); openCurtains(() => { stage.querySelector('#stage-dialog').classList.remove('hidden'); stage.querySelector('#menu-buttons').innerHTML = `<button class="button-green" data-action="accept-challenge">Aceptar Reto</button><button class="button-red" data-action="flee-challenge">Huir</button>`; stage.querySelector('#menu-buttons').classList.remove('hidden'); typewriterEffect(stage.querySelector('#stage-dialog'), phrases.challenge); }, 2.5); }, 1); } }
 function prepararInterfazModoOraculo() { elements.game.oracleControls.classList.remove('hidden'); elements.game.classicControls.classList.add('hidden'); elements.game.suggestionButton.classList.remove('hidden'); elements.game.guessButton.textContent = "¡Adivinar!"; elements.game.input.disabled = true; elements.game.askButton.disabled = true; }
-function prepararInterfazModoClasico() { elements.game.oracleControls.classList.add('hidden'); elements.game.classicControls.classList.remove('hidden'); elements.game.suggestionButton.classList.add('hidden'); elements.game.guessButton.textContent = "¡Adivina ahora!"; addMessageToChat("Has elegido el Camino del Clásico. Piensa en un personaje. Yo haré las preguntas. Responde con sinceridad.", 'brain', () => { setTimeout(() => { addMessageToChat("¿Tu personaje es un hombre?", 'brain'); }, 1000); }); }
-function closeCurtains(callback, speed = 1) { elements.stage.curtainLeft.style.transition = `width ${speed}s ease-in-out`; elements.stage.curtainRight.style.transition = `width ${speed}s ease-in-out`; elements.stage.curtainLeft.style.width = '50%'; elements.stage.curtainRight.style.width = '50%'; setTimeout(callback, speed * 1000 + 100); }
-function openCurtains(callback, speed = 1) { if (elements.sounds.curtain) elements.sounds.curtain.play().catch(e => {}); elements.stage.curtainLeft.style.transition = `width ${speed}s ease-in-out`; elements.stage.curtainRight.style.transition = `width ${speed}s ease-in-out`; elements.stage.curtainLeft.style.width = '0%'; elements.stage.curtainRight.style.width = '0%'; if (callback) setTimeout(callback, speed * 1000 + 100); }
+function prepararInterfazModoClasico() { elements.game.oracleControls.classList.add('hidden'); elements.game.classicControls.classList.remove('hidden'); elements.game.suggestionButton.classList.add('hidden'); elements.game.guessButton.textContent = "¡Adivina ahora!"; addMessageToChat("Oráculo: Has elegido el Camino del Clásico. Piensa en un personaje. Yo haré las preguntas. Responde con sinceridad.", 'brain', () => { setTimeout(() => { addMessageToChat("Oráculo: ¿Tu personaje es un hombre?", 'brain'); }, 1000); }); }
+function closeCurtains(callback, speed = 1) { const left = document.getElementById('curtain-left'); const right = document.getElementById('curtain-right'); if(left && right) { left.style.width = '50%'; right.style.width = '50%'; } setTimeout(callback, speed * 1000 + 100); }
+function openCurtains(callback, speed = 1) { if (elements.sounds.curtain) elements.sounds.curtain.play().catch(e => {}); const left = document.getElementById('curtain-left'); const right = document.getElementById('curtain-right'); if(left && right) { left.style.width = '0%'; right.style.width = '0%'; } if (callback) setTimeout(callback, speed * 1000 + 100); }
 
 // --- PUNTO DE ENTRADA ---
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Página cargada. Asignando eventos (v10.0 - Coherente).");
+    console.log("Página cargada. Asignando eventos (v13.0 - La Versión Final).");
     
     adjustScreenHeight();
     window.addEventListener('resize', adjustScreenHeight);
@@ -319,6 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.game.guessButton.addEventListener('click', showGuessPopup);
     elements.guessPopup.confirmButton.addEventListener('click', handleGuessAttempt);
     elements.game.suggestionButton.addEventListener('click', showSuggestions);
+    elements.game.backToMenu.addEventListener('click', () => closeCurtains(showGameStage, 1));
     
     document.body.addEventListener('click', (e) => { if (e.target.dataset.close) { e.target.closest('.popup-overlay').classList.add('hidden'); } });
 
