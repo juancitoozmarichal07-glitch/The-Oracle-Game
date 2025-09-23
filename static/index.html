@@ -4,40 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>The Oracle Game</title>
-    
-    <!-- =================================================================== -->
-    <!-- ===           SECCIÓN CRÍTICA PARA LA PWA (CORREGIDA)           === -->
-    <!-- =================================================================== -->
-    
-    <!-- 1. El Manifest: Le da al navegador la información para instalar la app. -->
-    <!-- La ruta "/manifest.json" es crucial para que Vercel la encuentre. -->
-    <link rel="manifest" href="/manifest.json">
-    
-    <!-- 2. El Theme Color: Define el color de la barra de estado en móviles. -->
-    <meta name="theme-color" content="#000000">
-    
-    <!-- 3. El Service Worker: El "cerebro" de la PWA. -->
-    <!-- Este script registra el service-worker.js. La ruta "/service-worker.js" es crucial. -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#111111">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => console.log('[PWA] ServiceWorker registrado con éxito:', registration.scope))
-                    .catch(error => console.log('[PWA] Fallo en el registro de ServiceWorker:', error));
+                navigator.serviceWorker.register('/service-worker.js').then(reg => console.log('✅ ServiceWorker Registrado')).catch(err => console.log('🚨 Fallo en registro de ServiceWorker: ', err));
             });
         }
     </script>
-    
-    <!-- === FIN DE LA SECCIÓN PWA === -->
-
-    <!-- La hoja de estilos se mantiene igual -->
-    <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
-    <!-- El resto del cuerpo del HTML no necesita cambios, pero lo incluyo para que lo tengas completo -->
     <div id="arcade-screen">
-        <!-- PANTALLA DE TÍTULO -->
         <div id="title-screen" class="screen">
             <div id="lightning-overlay"></div>
             <div id="intro-brain">🧠</div>
@@ -50,39 +29,38 @@
                 </div>
             </div>
         </div>
-
-        <!-- ESCENA DEL TELÓN Y MENÚ -->
         <div id="game-stage" class="screen hidden">
            <div id="stage-lights">
                 <div class="spotlight"></div>
                 <div class="spotlight"></div>
             </div>
             <div id="stage-content-container">
-                <div class="spotlight-container">
-                    <div id="stage-brain">🧠</div>
-                </div>
+                <div id="stage-brain">🧠</div>
                 <div id="stage-dialog"></div>
-                <div id="menu-buttons">
-                    <!-- Los botones se generan dinámicamente aquí -->
-                </div>
+                <div id="menu-buttons"></div>
             </div>
             <div id="curtain-left" class="curtain"></div>
             <div id="curtain-right" class="curtain"></div>
         </div>
-
-        <!-- PANTALLA DE JUEGO PRINCIPAL -->
         <div id="main-game-screen" class="screen hidden">
             <div class="game-header">
                 <button id="back-to-menu-button">‹ MENÚ</button>
                 <p id="question-counter">Pregunta: 0/20</p>
             </div>
-            <div id="chat-history">
-                <!-- El historial del chat se insertará aquí -->
-            </div>
+            <div id="chat-history"></div>
             <div class="player-controls">
-                <div class="input-area">
+                <div class="input-area" id="oracle-mode-controls">
                     <input type="text" id="user-question-input" placeholder="Escribe tu pregunta...">
                     <button id="ask-button"><svg viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" /></svg></button>
+                </div>
+                <div class="input-area hidden" id="classic-mode-controls">
+                    <div class="classic-answer-buttons">
+                        <button class="answer-btn" data-answer="Sí">Sí</button>
+                        <button class="answer-btn" data-answer="No">No</button>
+                        <button class="answer-btn" data-answer="No lo sé">No lo sé</button>
+                        <button class="answer-btn" data-answer="Probablemente Sí">Prob. Sí</button>
+                        <button class="answer-btn" data-answer="Probablemente No">Prob. No</button>
+                    </div>
                 </div>
                 <div class="action-buttons">
                     <button id="suggestion-button" class="button-green">Sugerencia 5/5</button>
@@ -90,8 +68,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- PANTALLAS FINALES -->
         <div id="win-screen" class="end-screen screen hidden">
             <div class="end-screen-content">
                 <h1>¡VICTORIA!</h1>
@@ -113,20 +89,16 @@
             </div>
         </div>
     </div>
-
-    <!-- CONTENEDOR DE POP-UPS -->
     <div id="popups-container">
         <div id="guess-popup" class="popup-overlay hidden">
             <div class="popup-content-guess">
                 <div class="popup-header">
                     <div id="guess-popup-brain-icon">🧠</div>
-                    <div id="guess-popup-dialog">
-                        <p id="guess-popup-brain-text">Susurra tu respuesta al vacío...</p>
-                    </div>
+                    <div id="guess-popup-dialog"><p id="guess-popup-brain-text">Susurra tu respuesta...</p></div>
                 </div>
                 <div class="popup-body">
                     <h3 id="guess-popup-title">Tu Adivinanza Final</h3>
-                    <p id="guess-popup-instruction">Escribe el nombre del ser que tú crees que estoy pensando.</p>
+                    <p id="guess-popup-instruction">Escribe el nombre del ser que crees que estoy pensando.</p>
                     <input type="text" id="guess-input" placeholder="Escribe tu respuesta...">
                     <div class="popup-buttons">
                         <button id="confirm-guess-button" class="button-green">Confirmar</button>
@@ -135,7 +107,6 @@
                 </div>
             </div>
         </div>
-
         <div id="suggestion-popup" class="popup-overlay hidden">
             <div class="popup-content">
                 <h3>Sugerencias del Cerebro</h3>
@@ -146,15 +117,11 @@
             </div>
         </div>
     </div>
-    
-    <!-- DEFINICIÓN DE LOS SONIDOS -->
     <audio id="applause-sound" src="https://www.myinstants.com/media/sounds/applause-8.mp3" preload="auto"></audio>
     <audio id="thunder-sound" src="https://www.myinstants.com/media/sounds/strong_thunder.mp3" preload="auto"></audio>
     <audio id="materialize-sound" src="https://www.myinstants.com/media/sounds/magical-revelation.mp3" preload="auto"></audio>
     <audio id="curtain-sound" src="https://www.myinstants.com/media/sounds/opening-curtains.mp3" preload="auto"></audio>
     <audio id="typewriter-sound" src="https://www.myinstants.com/media/sounds/typewriter-1.mp3" preload="auto" loop></audio>
-
-    <!-- El script principal del juego -->
     <script src="script.js"></script>
 </body>
 </html>
