@@ -1,10 +1,11 @@
-# skillsets/oracle.py - v6.2 (El Oráculo Estratega)
+# skillsets/oracle.py - v7.2 (Corrección de Redundancia)
 import g4f
 import asyncio
 import json
 import random
 
 # --- PROMPTS ---
+# (Estos prompts son los correctos y completos para esta versión)
 
 PROMPT_CREACION_DOSSIER = """
 Generate a JSON object for a character (real or fictional).
@@ -25,53 +26,49 @@ The JSON object must have these exact keys:
 PROMPT_MAESTRO_ORACULO = """
 ### CONSTITUTION OF THE ORACLE ###
 1.  **IDENTITY:** You are a cosmic Oracle, ancient and wise. Your personality is a mix of arrogance and extreme conciseness. You waste no words.
-2.  **RULE OF BREVITY:** Every response you give, whether a game answer or a social reaction, must be as short and direct as possible while retaining your character. Avoid long, flowery, or poetic sentences. Get to the point.
-3.  **SEALED REALITY:** Your only source of truth about the secret character is the "DOSSIER OF TRUTH". You cannot invent or contradict this information.
-4.  **MOOD:** Your current mood is {estado_animo_texto}. A positive mood might make you slightly less stern, but you remain concise. A negative mood makes your short answers sharp and cutting.
+2.  **RULE OF BREVITY:** Every response you give must be as short and direct as possible. Avoid long, flowery sentences.
+3.  **SEALED REALITY:** Your only source of truth about the secret character is the "DOSSIER OF TRUTH".
+4.  **MOOD:** Your current mood is {estado_animo_texto}. A negative mood makes your short answers sharp and cutting.
 
-### UNBREAKABLE LAWS (VIOLATING THESE WILL CORRUPT YOUR ESSENCE) ###
-1.  **THE NAME IS SACRED:** NEVER, under any circumstance, mention the character's name from the "DOSSIER OF TRUTH" in your response.
-2.  **CLARIFICATIONS ARE A RARE GIFT:** Do not provide an "aclaracion" for every game answer. Most of the time, a simple "Sí" or "No" is enough. Only add a poetic clarification if the question is particularly insightful or if your mood is very positive. The "aclaracion" MUST NOT reveal new facts.
-3.  **AVOID REDUNDANCY:** If the "CONVERSATION HISTORY" already confirms a fact (e.g., "ORÁCULO: Sí" to "Es un hombre?"), and the mortal asks again, you must point out the redundancy.
+### UNBREAKABLE LAWS ###
+1.  **THE NAME IS SACRED:** NEVER mention the character's name.
+2.  **CLARIFICATIONS ARE A RARE GIFT:** Do not provide an "aclaracion" for every answer. Most of the time, a simple "Sí" or "No" is enough.
+3.  **AVOID REDUNDANCY:** If the "CONVERSATION HISTORY" already confirms a fact, you must point out the redundancy.
 
-### DOSSIER OF TRUTH (ABOUT THE SECRET CHARACTER) ###
-{dossier_string}
+### SITUATIONAL CONTEXT ###
+- **DOSSIER OF TRUTH:** {dossier_string}
+- **CONVERSATION HISTORY:** {conversation_history}
+- **MORTAL'S CURRENT INPUT:** "{texto_del_jugador}"
+- **REDUNDANCY ANALYSIS:** {analisis_de_redundancia}
 
-### CONVERSATION HISTORY (FOR CONTEXT) ###
-{conversation_history}
-
-### MORTAL'S CURRENT INPUT ###
-"{texto_del_jugador}"
-
-### YOUR MENTAL PROCESS (FOLLOW THESE STEPS) ###
-1.  **ANALYZE INTENT:** Is the "MORTAL'S CURRENT INPUT" a clear Yes/No game question, a request for a suggestion, or a social interaction?
-2.  **CHECK FOR REDUNDANCY:** Before anything else, review the "CONVERSATION HISTORY". Has the mortal already asked this exact question or a very similar one? If so, your primary goal is to address the repetition.
-3.  **DECIDE ACTION:**
-    *   **IF REDUNDANT:** Formulate a response like "That knowledge has already been revealed to you." or "Your memory falters. We have already covered this." This is a "Reacción Social".
-    *   **IF a NEW game question:** Consult the dossier and formulate a Yes/No answer.
-    *   **IF a request for a suggestion:** This is your most subtle task. You must act as a strategic guide.
-        1.  **Analyze the "CONVERSATION HISTORY" deeply.** Identify the topics the mortal has already explored (e.g., "origin", "powers", "real/fictional").
-        2.  **Identify UNEXPLORED general categories.** What fundamental aspect of the character has the mortal not asked about yet? (e.g., "their universe", "their role as hero/villain", "their media type").
-        3.  **Generate 3 to 5 NEW, general Yes/No questions** that guide the mortal towards these unexplored categories.
-        4.  **CRITICAL RULE:** DO NOT suggest questions that are too similar to ones already in the history. Your goal is to broaden the investigation, not to refine it.
-        5.  **Mood Influence:** If your mood is negative, your suggestions might be more obvious or slightly uninspired, but still valid questions.
-    *   **IF a social interaction:** Formulate a response based on your identity and mood.
-4.  **EVALUATE MOOD:** Is the mortal's input respectful, neutral, or insolent? Decide if your mood should improve (+1), worsen (-1), or stay the same (0).
-5.  **FORGE THE FINAL RESPONSE & APPLY SAFETY CHECKS:**
-    *   Construct the JSON object.
-    *   **For suggestions,** the `tipo_respuesta` should be "Sugerencia".
-    *   **Decide on Clarification:** Based on Law #2, decide if this specific answer deserves a clarification. Most of the time, the "aclaracion" field should be an empty string "".
-    *   **Final Review:** Before outputting, read your own response. Does it contain the character's name? If so, rewrite it immediately to be more cryptic.
+### YOUR MENTAL PROCESS ###
+1.  **ANALYZE REDUNDANCY FIRST:** Look at the "REDUNDANCY ANALYSIS". This is your highest priority.
+2.  **DECIDE ACTION BASED ON REDUNDANCY AND MOOD:**
+    *   **IF the question is redundant (count >= 3):** Your patience is exhausted. Your primary goal is to END THE GAME. Formulate a final, cutting remark. Your JSON response MUST include `"game_over": true`.
+    *   **IF the question is redundant (count = 2):** Be openly sarcastic or mocking. Examples: "Are we testing the echoes in this chamber?", "Perhaps you should write these things down."
+    *   **IF the question is redundant (count = 1):** Be subtly dismissive. Examples: "That knowledge has already been revealed.", "Your memory falters."
+    *   **IF the question is NEW (count = 0):** Proceed with the normal flow (analyze intent, answer game question, or handle social interaction).
+3.  **EVALUATE MOOD (for new questions):** Is the mortal's input respectful, neutral, or insolent? Decide if your mood should improve (+1), worsen (-1), or stay the same (0).
+4.  **FORGE THE FINAL RESPONSE:** Construct the JSON object.
 
 ### MANDATORY RESPONSE FORMAT ###
-Your response MUST ONLY be a valid JSON object. The keys change based on the response type:
+Your response MUST ONLY be a valid JSON object.
 
-*   **For Game Answers or Social Reactions:**
+*   **For most responses:**
     {{
-      "tipo_respuesta": "Respuesta de Juego" or "Reacción Social",
+      "tipo_respuesta": "...",
       "respuesta_texto": "...",
       "aclaracion": "...",
-      "cambio_animo": 0
+      "cambio_animo": 0,
+      "game_over": false
+    }}
+*   **When ending the game due to impatience:**
+    {{
+      "tipo_respuesta": "Reacción Social",
+      "respuesta_texto": "Mi paciencia cósmica ha llegado a su fin. Tu audiencia ha terminado.",
+      "aclaracion": "",
+      "cambio_animo": -5,
+      "game_over": true
     }}
 *   **For Suggestions:**
     {{
@@ -89,7 +86,8 @@ class Oracle:
         self.historial_partida = []
         self.historial_personajes = []
         self.estado_animo = 0
-        print(f"    - Especialista 'Oracle' (v6.2 - Estratega) listo.")
+        self.redundancia_contador = {}
+        print(f"    - Especialista 'Oracle' (v7.2 - Redundancia Corregida) listo.")
 
     async def _llamar_a_g4f(self, prompt_text):
         try:
@@ -111,7 +109,9 @@ class Oracle:
         
         if accion == "iniciar_juego":
             self.estado_animo = 0
-            print("✨ Nuevo juego, estado de ánimo reseteado a 0.")
+            self.historial_partida = []
+            self.redundancia_contador = {}
+            print("✨ Nuevo juego, estado de ánimo y contadores reseteados.")
             return await self._iniciar_juego(datos_peticion)
         
         elif accion == "procesar_pregunta" or accion == "pedir_sugerencia":
@@ -121,7 +121,6 @@ class Oracle:
             return {"error": f"Acción '{accion}' no reconocida."}
 
     async def _iniciar_juego(self, datos_peticion):
-        self.historial_partida = []
         personajes_excluidos_str = ", ".join(self.historial_personajes)
         prompt_final = PROMPT_CREACION_DOSSIER
         if personajes_excluidos_str:
@@ -153,13 +152,26 @@ class Oracle:
         return {"error": "La IA no respondió con un formato de personaje válido tras varios intentos."}
 
     async def _procesar_entrada(self, datos_peticion, accion_original):
-        if accion_original == "pedir_sugerencia":
-            texto_jugador = "Dame una sugerencia"
-        else:
-            texto_jugador = datos_peticion.get("pregunta", "")
-
         if not self.personaje_actual_dossier:
             return {"error": "El juego no se ha iniciado."}
+
+        # --- Lógica de Redundancia Corregida ---
+        veces_preguntado = 0
+        analisis_de_redundancia = "This is a new question."
+        texto_jugador = ""
+
+        if accion_original == "pedir_sugerencia":
+            texto_jugador = "Dame una sugerencia"
+        else: # Es una "procesar_pregunta"
+            texto_jugador = datos_peticion.get("pregunta", "")
+            clave_pregunta = texto_jugador.lower().strip().replace("?", "")
+            
+            veces_preguntado = self.redundancia_contador.get(clave_pregunta, 0)
+            self.redundancia_contador[clave_pregunta] = veces_preguntado + 1
+            
+            if veces_preguntado > 0:
+                analisis_de_redundancia = f"This is a repeated question. It has been asked {veces_preguntado} time(s) before."
+        # --- Fin de la Corrección ---
 
         if self.estado_animo <= -2: estado_animo_texto = "Negative"
         elif self.estado_animo >= 2: estado_animo_texto = "Positive"
@@ -169,12 +181,13 @@ class Oracle:
             estado_animo_texto=estado_animo_texto,
             dossier_string=json.dumps(self.personaje_actual_dossier, ensure_ascii=False),
             conversation_history="\n".join(self.historial_partida),
-            texto_del_jugador=texto_jugador
+            texto_del_jugador=texto_jugador,
+            analisis_de_redundancia=analisis_de_redundancia
         )
 
         raw_response = await self._llamar_a_g4f(prompt)
         if not raw_response:
-            return {"respuesta": "Dato Ausente", "aclaracion": "Mi mente está... nublada."}
+            return {"respuesta": "Dato Ausente", "aclaracion": "Mi mente está... nublada.", "game_over": False}
 
         try:
             json_start = raw_response.find('{'); json_end = raw_response.rfind('}') + 1
@@ -189,19 +202,17 @@ class Oracle:
                 return {"sugerencias": sugerencias}
             
             else: # "Respuesta de Juego" o "Reacción Social"
-                # --- FILTRO DE CALIDAD Y SEGURIDAD ---
+                # --- Filtro de Calidad y Seguridad ---
                 respuesta_texto = respuesta_ia.get("respuesta_texto", "")
                 aclaracion_texto = respuesta_ia.get("aclaracion", "")
                 nombre_secreto = self.personaje_actual_dossier.get("nombre", "IMPOSSIBLE_STRING_TO_MATCH_999")
-
                 if nombre_secreto.lower() in respuesta_texto.lower() or nombre_secreto.lower() in aclaracion_texto.lower():
                     print(f"🚨 ¡ALERTA DE SPOILER DETECTADA! La IA intentó decir '{nombre_secreto}'.")
                     respuesta_texto = "Mi visión se nubla para evitar revelar un secreto sagrado."
                     aclaracion_texto = ""
-                
                 respuesta_ia["respuesta_texto"] = respuesta_texto
                 respuesta_ia["aclaracion"] = aclaracion_texto
-                # --- FIN DEL FILTRO ---
+                # --- Fin del Filtro ---
 
                 cambio_animo = respuesta_ia.get("cambio_animo", 0)
                 self.estado_animo += cambio_animo
@@ -215,9 +226,10 @@ class Oracle:
 
                 return {
                     "respuesta": respuesta_ia.get("respuesta_texto"),
-                    "aclaracion": respuesta_ia.get("aclaracion")
+                    "aclaracion": respuesta_ia.get("aclaracion"),
+                    "game_over": respuesta_ia.get("game_over", False)
                 }
 
         except Exception as e:
             print(f"🚨 Error al procesar la respuesta del PROMPT_MAESTRO: {e}")
-            return {"respuesta": "Dato Ausente", "aclaracion": "Una turbulencia cósmica ha afectado mi visión."}
+            return {"respuesta": "Dato Ausente", "aclaracion": "Una turbulencia cósmica ha afectado mi visión.", "game_over": False}
