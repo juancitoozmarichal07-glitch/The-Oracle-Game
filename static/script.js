@@ -1,9 +1,9 @@
 // ===================================================================
-// == THE ORACLE GAME - SCRIPT.JS - v13.0 (La Versión Final)        ==
+// == THE ORACLE GAME - SCRIPT.JS - v13.1 ("El Depurador")          ==
 // ===================================================================
-// - Reconstruido desde la base ESTABLE v9.2.
-// - Reintroduce TODAS las funcionalidades avanzadas con extremo cuidado.
-// - Sincronizado con oracle.py v8.0 y la interfaz completa.
+// - CORREGIDO: Error fatal "addMessageToChat is not defined" moviendo la función.
+// - CORREGIDO: Error fatal "Cannot read properties of undefined" añadiendo
+//   el backToMenu a la lista de elements.
 
 // --- CONFIGURACIÓN Y ESTADO ---
 const config = {
@@ -57,12 +57,12 @@ async function callALE(datos_peticion) {
     }
 }
 
-// --- SELECTORES DEL DOM (Completos) ---
+// --- SELECTORES DEL DOM (Completos y Corregidos) ---
 const elements = {
     arcadeScreen: document.getElementById('arcade-screen'),
     screens: { title: document.getElementById('title-screen'), stage: document.getElementById('game-stage'), mainGame: document.getElementById('main-game-screen'), win: document.getElementById('win-screen'), lose: document.getElementById('lose-screen') },
     title: { layout: document.getElementById('title-layout'), introBrain: document.getElementById('intro-brain'), startButton: document.getElementById('start-button'), exitButton: document.getElementById('exit-button'), lightning: document.getElementById('lightning-overlay') },
-    stage: { menuButtons: document.getElementById('menu-buttons') },
+    stage: { menuButtons: document.getElementById('menu-buttons'), dialog: document.getElementById('stage-dialog'), curtainLeft: document.getElementById('curtain-left'), curtainRight: document.getElementById('curtain-right') },
     game: {
         chatHistory: document.getElementById('chat-history'),
         questionCounter: document.getElementById('question-counter'),
@@ -72,7 +72,7 @@ const elements = {
         classicControls: document.getElementById('classic-mode-controls'),
         input: document.getElementById('user-question-input'),
         askButton: document.getElementById('ask-button'),
-        backToMenu: document.getElementById('back-to-menu-button')
+        backToMenu: document.getElementById('back-to-menu-button') // <-- ¡AÑADIDO EL ELEMENTO QUE FALTABA!
     },
     popups: { guess: document.getElementById('guess-popup'), suggestion: document.getElementById('suggestion-popup') },
     guessPopup: { content: document.querySelector('#guess-popup .popup-content-guess'), instruction: document.getElementById('guess-popup-instruction'), input: document.getElementById('guess-input'), confirmButton: document.getElementById('confirm-guess-button') },
@@ -81,10 +81,7 @@ const elements = {
     sounds: { applause: document.getElementById('applause-sound'), thunder: document.getElementById('thunder-sound'), materialize: document.getElementById('materialize-sound'), curtain: document.getElementById('curtain-sound'), typewriter: document.getElementById('typewriter-sound') }
 };
 
-// --- LÓGICA DE AJUSTE DE PANTALLA ---
-function adjustScreenHeight() { if (elements.arcadeScreen) { elements.arcadeScreen.style.height = `${window.innerHeight}px`; } }
-
-// --- LÓGICA DE MENSAJES ---
+// --- LÓGICA DE MENSAJES (Movida al principio para estar siempre disponible) ---
 function addMessageToChat(text, sender, callback) {
     const messageLine = document.createElement('div');
     messageLine.className = `message-line message-line-${sender}`;
@@ -93,12 +90,17 @@ function addMessageToChat(text, sender, callback) {
     avatar.textContent = sender === 'brain' ? '🧠' : '👤';
     const textContainer = document.createElement('div');
     textContainer.className = 'message-text-container';
+    const prefix = sender === 'brain' ? 'Oráculo: ' : 'Tú: ';
+    const fullText = text ? prefix + text : prefix; // Previene "Oráculo: undefined"
     messageLine.appendChild(avatar);
     messageLine.appendChild(textContainer);
     elements.game.chatHistory.appendChild(messageLine);
     elements.game.chatHistory.scrollTop = elements.game.chatHistory.scrollHeight;
-    typewriterEffect(textContainer, text, callback);
+    typewriterEffect(textContainer, fullText, callback);
 }
+
+// --- LÓGICA DE AJUSTE DE PANTALLA ---
+function adjustScreenHeight() { if (elements.arcadeScreen) { elements.arcadeScreen.style.height = `${window.innerHeight}px`; } }
 
 // --- LÓGICA PRINCIPAL DEL JUEGO ---
 
@@ -130,17 +132,17 @@ async function startGame(mode) {
 
         if (mode === 'oracle') {
             prepararInterfazModoOraculo();
-            addMessageToChat("Oráculo: Concibiendo un nuevo enigma del cosmos...", "brain");
+            addMessageToChat("Concibiendo un nuevo enigma del cosmos...", "brain");
             const respuesta = await callALE({ skillset_target: "oracle", accion: "iniciar_juego" });
             if (respuesta.error) {
-                addMessageToChat("Oráculo: No he podido concebir un enigma. Mi mente está en conflicto. Inténtalo de nuevo.", "brain");
+                addMessageToChat("No he podido concebir un enigma. Mi mente está en conflicto. Inténtalo de nuevo.", "brain");
                 return;
             }
             state.secretCharacter = respuesta.personaje_secreto;
             console.log("PERSONAJE CREADO POR A.L.E.:", state.secretCharacter);
             elements.game.chatHistory.innerHTML = '';
             state.isGameActive = true;
-            addMessageToChat(`Oráculo: He concebido mi enigma. Comienza.`, 'brain', () => {
+            addMessageToChat(`He concebido mi enigma. Comienza.`, 'brain', () => {
                 elements.game.input.disabled = false;
                 elements.game.askButton.disabled = false;
                 elements.game.input.focus();
@@ -159,7 +161,7 @@ async function handlePlayerInput() {
     state.isAwaitingBrainResponse = true;
     elements.game.input.disabled = true;
     elements.game.askButton.disabled = true;
-    addMessageToChat(`Tú: ${questionText}`, 'player');
+    addMessageToChat(questionText, 'player');
     elements.game.input.value = '';
     state.questionCount++;
     elements.game.questionCounter.textContent = `Pregunta: ${state.questionCount}/${config.questionsLimit}`;
@@ -176,7 +178,7 @@ async function handlePlayerInput() {
         return;
     }
     
-    const fullResponse = `Oráculo: ${respuesta.respuesta || ''} ${respuesta.aclaracion || ''}`.trim();
+    const fullResponse = `${respuesta.respuesta || ''} ${respuesta.aclaracion || ''}`.trim();
     addMessageToChat(fullResponse, 'brain', () => {
         if (respuesta.game_over === true) {
             setTimeout(() => endGame(false, "patience"), 1000);
@@ -206,7 +208,7 @@ async function showSuggestions() {
     if (timeLeft > 0) return;
 
     if (state.suggestionUses >= config.suggestionLimit) {
-        addMessageToChat("Oráculo: Has agotado todas tus sugerencias para esta partida.", "brain");
+        addMessageToChat("Has agotado todas tus sugerencias para esta partida.", "brain");
         elements.game.suggestionButton.disabled = true;
         return;
     }
@@ -334,7 +336,7 @@ function openCurtains(callback, speed = 1) { if (elements.sounds.curtain) elemen
 
 // --- PUNTO DE ENTRADA ---
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Página cargada. Asignando eventos (v13.0 - La Versión Final).");
+    console.log("Página cargada. Asignando eventos (v13.1 - El Depurador).");
     
     adjustScreenHeight();
     window.addEventListener('resize', adjustScreenHeight);
