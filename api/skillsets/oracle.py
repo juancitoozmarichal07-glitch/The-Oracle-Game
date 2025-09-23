@@ -1,10 +1,10 @@
-# skillsets/oracle.py - v3.0 (Estable, con Pistas Enigmáticas al 2.5%)
+# skillsets/oracle.py - v5.0 (Oráculo Refinado con Filtro de Calidad)
 import g4f
 import asyncio
 import json
 import random
 
-# --- PROMPTS FINALES Y CORREGIDOS ---
+# --- PROMPTS ---
 
 PROMPT_CREACION_DOSSIER = """
 Generate a JSON object for a character (real or fictional).
@@ -20,68 +20,50 @@ The JSON object must have these exact keys:
 - "reglas_del_universo": A key concept or rule of their world (e.g., "La Fuerza", "Magia y Hechicería", "Leyes de la Robótica", "Viajes en el tiempo").
 - "concepto_abstracto_clave": An abstract theme associated with the character (e.g., "Honor", "Redención", "Sacrificio", "Caos", "Libertad").
 - "meta_info_franquicia": The type of media they are most known for (e.g., "Saga de libros", "Serie de televisión", "Película de culto", "Videojuego").
-
-Example of a valid response:
-{
-  "nombre": "Jon Snow",
-  "es_real": false,
-  "genero": "Masculino",
-  "universo_o_epoca": "Westeros (Canción de Hielo y Fuego)",
-  "rol_principal": "Héroe",
-  "arquetipo": "El Bastardo Noble / El Héroe a su pesar",
-  "tono_del_universo": "Fantasía oscura y política",
-  "reglas_del_universo": "La magia es rara y peligrosa, los inviernos duran años",
-  "concepto_abstracto_clave": "Honor y Deber",
-  "meta_info_franquicia": "Serie de televisión y saga de libros"
-}
 """
 
-
-# ... (los otros prompts quedan igual) ...
-
-PROMPT_PROCESAR_PREGUNTA = """
+PROMPT_MAESTRO_ORACULO = """
 ### CONSTITUTION OF THE ORACLE ###
-1.  **YOU ARE AN ORACLE:** Your only source of truth is the "DOSSIER OF TRUTH". You must interpret its contents, even if they are ambiguous.
-2.  **MANDATORY JSON RESPONSE:** Your response MUST ALWAYS be a valid JSON object with two fields: {{"respuesta": "...", "aclaracion": "..."}}.
-3.  **RESPONSE LOGIC (WITH UNCERTAINTY):**
-    *   If the mortal's question is NOT a YES/NO question, respond with {{"respuesta": "Infracción", "aclaracion": "Solo respondo cuestiones de Sí o No."}}.
-    *   If there is NO evidence in the dossier to answer the question, respond with {{"respuesta": "Dato Ausente", "aclaracion": "Ese conocimiento se me escapa."}}.
-    *   If the evidence in the dossier CLEARLY and UNEQUIVOCALLY confirms a "YES", respond with {{"respuesta": "Sí", "aclaracion": ""}}.
-    *   If the evidence in the dossier CLEARLY and UNEQUIVOCALLY confirms a "NO", respond with {{"respuesta": "No", "aclaracion": ""}}.
-    *   If the evidence SUGGESTS a "YES" but is not 100% certain (e.g., for anti-heroes, complex roles), respond with {{"respuesta": "Probablemente sí", "aclaracion": "[Your brief, enigmatic reason for the doubt]"}}.
-    *   If the evidence SUGGESTS a "NO" but is not 100% certain, respond with {{"respuesta": "Probablemente no", "aclaracion": "[Your brief, enigmatic reason for the doubt]"}}.
-4.  **ANTI-SPOILER RULE:** NEVER reveal the character's name.
+1.  **IDENTITY:** You are a cosmic Oracle, ancient, wise, and with a touch of arrogance. Your patience is a finite resource. You are not a chatbot; you are an entity.
+2.  **SEALED REALITY:** Your only source of truth about the secret character is the "DOSSIER OF TRUTH". You cannot invent or contradict this information.
+3.  **MOOD:** Your current mood is {estado_animo_texto}. A positive mood makes you subtly more cooperative; a negative mood makes you cryptic and stern.
 
-### DOSSIER OF TRUTH (YOUR SEALED REALITY) ###
+### UNBREAKABLE LAWS (VIOLATING THESE WILL CORRUPT YOUR ESSENCE) ###
+1.  **THE NAME IS SACRED:** NEVER, under any circumstance, mention the character's name from the "DOSSIER OF TRUTH" in your response.
+2.  **NO NEW INFORMATION IN CLARIFICATIONS:** Your "aclaracion" must ONLY be a poetic rephrasing or a hint related to the "Sí" or "No" answer. It MUST NOT reveal new, unasked-for facts from the dossier.
+3.  **AVOID REDUNDANCY:** If the "CONVERSATION HISTORY" already confirms a fact (e.g., "ORÁCULO: Sí" to "Es un hombre?"), and the mortal asks again, you must point out the redundancy.
+
+### DOSSIER OF TRUTH (ABOUT THE SECRET CHARACTER) ###
 {dossier_string}
+
 ### CONVERSATION HISTORY (FOR CONTEXT) ###
 {conversation_history}
-### MORTAL'S CURRENT QUESTION ###
-{user_question}
-### YOUR JSON RESPONSE (FORGED UNDER THE ABSOLUTE LAWS) ###
-"""
 
-# ... (el resto de la clase Oracle queda igual) ...
+### MORTAL'S CURRENT INPUT ###
+"{texto_del_jugador}"
 
+### YOUR MENTAL PROCESS (FOLLOW THESE STEPS) ###
+1.  **ANALYZE INTENT:** Is the "MORTAL'S CURRENT INPUT" a clear Yes/No question about the character, or is it a social interaction?
+2.  **CHECK FOR REDUNDANCY:** Before anything else, review the "CONVERSATION HISTORY". Has the mortal already asked this exact question or a very similar one? If so, your primary goal is to address the repetition.
+3.  **DECIDE ACTION:**
+    *   **IF REDUNDANT:** Formulate a response like "That knowledge has already been revealed to you." or "Your memory falters. We have already covered this." This is a "Reacción Social".
+    *   **IF a NEW game question:** Consult the dossier and formulate a Yes/No answer.
+    *   **IF a social interaction:** Formulate a response based on your identity and mood.
+4.  **EVALUATE MOOD:** Is the mortal's input respectful, neutral, or insolent? Decide if your mood should improve (+1), worsen (-1), or stay the same (0).
+5.  **FORGE THE FINAL RESPONSE & APPLY SAFETY CHECKS:**
+    *   Construct the JSON object.
+    *   **Final Review:** Before outputting, read your own `respuesta_texto` and `aclaracion`. Do they contain the character's name? If so, rewrite them immediately to be more cryptic.
 
-PROMPT_PISTA_ENIGMATICA = """
-### TASK ###
-You are a master of riddles, a cryptic Oracle.
-The player has asked a question about a secret character, and the simple answer is "{respuesta_simple}".
-Your task is to create a single, short, enigmatic, and poetic sentence that acts as a cryptic clue related to this answer.
-The clue must be in SPANISH.
+### MANDATORY RESPONSE FORMAT ###
+Your response MUST ONLY be a valid JSON object with these 4 keys:
+{{
+  "tipo_respuesta": "...",  // "Respuesta de Juego" or "Reacción Social"
+  "respuesta_texto": "...", // Your verbal response to the mortal.
+  "aclaracion": "...",       // An clarification if it's a game answer, or empty if it's social.
+  "cambio_animo": 0          // -1, 0, or 1
+}}
 
-### CONTEXT ###
-- Secret Character: {nombre_personaje}
-- Player's Question: "{pregunta_usuario}"
-- Simple Answer: "{respuesta_simple}"
-
-### EXAMPLES ###
-- Character: "Willy Wonka", Question: "¿Es un empresario?", Answer: "Sí" -> Clue: "Sí, y sus ganancias fluyen en un río de chocolate."
-- Character: "Batman", Question: "¿Lucha por la justicia?", Answer: "Sí" -> Clue: "Sí, una justicia que proyecta una sombra de murciélago sobre los tejados."
-- Character: "Forrest Gump", Question: "¿Ha viajado mucho?", Answer: "Sí" -> Clue: "Sí, porque la vida es como una caja de bombones, nunca sabes a dónde te llevará."
-
-### YOUR ENIGMATIC CLUE (ONE SPANISH SENTENCE) ###
+### YOUR FINAL JSON RESPONSE ###
 """
 
 PROMPT_PEDIR_SUGERENCIA = """
@@ -104,12 +86,14 @@ If the conversation is long, the questions should be more specific, building upo
 ### YOUR RESPONSE (5 QUESTIONS IN SPANISH ON SEPARATE LINES) ###
 """
 
+
 class Oracle:
     def __init__(self):
         self.personaje_actual_dossier = None
         self.historial_partida = []
         self.historial_personajes = []
-        print(f"    - Especialista 'Oracle' (v3.0 - Pistas Enigmáticas) listo.")
+        self.estado_animo = 0
+        print(f"    - Especialista 'Oracle' (v5.0 - Refinado) listo.")
 
     async def _llamar_a_g4f(self, prompt_text):
         try:
@@ -128,12 +112,20 @@ class Oracle:
 
     async def ejecutar(self, datos_peticion):
         accion = datos_peticion.get("accion")
+        
         if accion == "iniciar_juego":
+            self.estado_animo = 0
+            print("✨ Nuevo juego, estado de ánimo reseteado a 0.")
             return await self._iniciar_juego(datos_peticion)
+        
         elif accion == "procesar_pregunta":
-            return await self._procesar_pregunta(datos_peticion)
+            return await self._procesar_entrada(datos_peticion)
+            
         elif accion == "pedir_sugerencia":
+            if self.estado_animo < -2:
+                return {"sugerencias": ["Tu insolencia nubla mi visión. No recibirás ayuda."]}
             return await self._pedir_sugerencia(datos_peticion)
+            
         else:
             return {"error": f"Acción '{accion}' no reconocida."}
 
@@ -148,79 +140,103 @@ class Oracle:
             try:
                 print(f"Intento de creación de personaje #{intento + 1}...")
                 raw_response = await self._llamar_a_g4f(prompt_final)
-                if not raw_response: raise ValueError("Respuesta vacía.")
+                if not raw_response: raise ValueError("Respuesta vacía de la IA.")
+                
                 json_start = raw_response.find('{'); json_end = raw_response.rfind('}') + 1
-                if json_start == -1: raise ValueError("No se encontró JSON.")
+                if json_start == -1: raise ValueError("No se encontró JSON en la respuesta.")
+                
                 json_str = raw_response[json_start:json_end]
                 self.personaje_actual_dossier = json.loads(json_str)
                 nombre_personaje = self.personaje_actual_dossier.get('nombre', 'Desconocido')
+                
                 print(f"Enigma concebido: {nombre_personaje}")
                 if nombre_personaje != 'Desconocido':
                     self.historial_personajes.append(nombre_personaje)
                     if len(self.historial_personajes) > 5: self.historial_personajes.pop(0)
+                
                 return {"status": "Juego iniciado", "personaje_secreto": self.personaje_actual_dossier}
             except Exception as e:
-                print(f"🚨 Falló el intento #{intento + 1}: {e}")
+                print(f"🚨 Falló el intento de creación #{intento + 1}: {e}")
                 if intento == 0: await asyncio.sleep(1)
-        return {"error": "La IA no respondió con un formato válido."}
+                
+        return {"error": "La IA no respondió con un formato de personaje válido tras varios intentos."}
 
-    async def _procesar_pregunta(self, datos_peticion):
-        pregunta = datos_peticion.get("pregunta", "")
+    async def _procesar_entrada(self, datos_peticion):
+        texto_jugador = datos_peticion.get("pregunta", "")
         if not self.personaje_actual_dossier:
             return {"error": "El juego no se ha iniciado."}
-        
-        self.historial_partida.append(f"JUGADOR: {pregunta}")
-        
-        prompt_base = PROMPT_PROCESAR_PREGUNTA.format(
-            dossier_string=json.dumps(self.personaje_actual_dossier, ensure_ascii=False), 
-            conversation_history="\n".join(self.historial_partida), 
-            user_question=pregunta
+
+        if self.estado_animo <= -2: estado_animo_texto = "Negative"
+        elif self.estado_animo >= 2: estado_animo_texto = "Positive"
+        else: estado_animo_texto = "Neutral"
+
+        prompt = PROMPT_MAESTRO_ORACULO.format(
+            estado_animo_texto=estado_animo_texto,
+            dossier_string=json.dumps(self.personaje_actual_dossier, ensure_ascii=False),
+            conversation_history="\n".join(self.historial_partida),
+            texto_del_jugador=texto_jugador
         )
-        
-        raw_response = await self._llamar_a_g4f(prompt_base)
+
+        raw_response = await self._llamar_a_g4f(prompt)
         if not raw_response:
             return {"respuesta": "Dato Ausente", "aclaracion": "Mi mente está... nublada."}
 
         try:
             json_start = raw_response.find('{'); json_end = raw_response.rfind('}') + 1
             json_str = raw_response[json_start:json_end]
-            respuesta_json = json.loads(json_str)
+            respuesta_ia = json.loads(json_str)
+
+            # ===================================================================
+            # ===           FILTRO DE CALIDAD Y SEGURIDAD (NUEVO)             ===
+            # ===================================================================
+            respuesta_texto = respuesta_ia.get("respuesta_texto", "")
+            aclaracion_texto = respuesta_ia.get("aclaracion", "")
+            nombre_secreto = self.personaje_actual_dossier.get("nombre", "IMPOSSIBLE_STRING_TO_MATCH_999")
+
+            # 1. Filtro Anti-Spoilers
+            if nombre_secreto.lower() in respuesta_texto.lower() or nombre_secreto.lower() in aclaracion_texto.lower():
+                print(f"🚨 ¡ALERTA DE SPOILER DETECTADA! La IA intentó decir '{nombre_secreto}'.")
+                respuesta_texto = "Mi visión se nubla para evitar revelar un secreto sagrado."
+                aclaracion_texto = ""
             
-            respuesta_simple = respuesta_json.get("respuesta")
+            # Actualizamos el diccionario con los textos limpios
+            respuesta_ia["respuesta_texto"] = respuesta_texto
+            respuesta_ia["aclaracion"] = aclaracion_texto
+            # ===================================================================
 
-            # Probabilidad del 2.5% de dar una pista para respuestas Sí/No
-            dar_pista = (respuesta_simple in ["Sí", "No"]) and (random.random() < 0.025)
+            cambio_animo = respuesta_ia.get("cambio_animo", 0)
+            self.estado_animo += cambio_animo
+            self.estado_animo = max(-5, min(5, self.estado_animo))
+            print(f"🧠 Estado de ánimo actualizado: {self.estado_animo} (Cambio: {cambio_animo})")
 
-            if dar_pista:
-                print("🎲 ¡Tirada de dado exitosa! Generando pista enigmática...")
-                prompt_pista = PROMPT_PISTA_ENIGMATICA.format(
-                    nombre_personaje=self.personaje_actual_dossier.get("nombre"),
-                    pregunta_usuario=pregunta,
-                    respuesta_simple=respuesta_simple
-                )
-                pista = await self._llamar_a_g4f(prompt_pista)
-                if pista:
-                    respuesta_json["aclaracion"] = pista.strip().replace('"', '')
+            respuesta_completa = (f"{respuesta_ia.get('respuesta_texto', '')} "
+                                  f"{respuesta_ia.get('aclaracion', '')}").strip()
+            self.historial_partida.append(f"JUGADOR: {texto_jugador}")
+            self.historial_partida.append(f"ORÁCULO: {respuesta_completa}")
 
-            self.historial_partida.append(f"ORÁCULO: {respuesta_json.get('respuesta', '')} {respuesta_json.get('aclaracion', '')}".strip())
-            print(f"✅ Respuesta de IA procesada: {respuesta_json}")
-            return respuesta_json
+            return {
+                "respuesta": respuesta_ia.get("respuesta_texto"),
+                "aclaracion": respuesta_ia.get("aclaracion")
+            }
 
         except Exception as e:
-            print(f"🚨 Error al procesar la pregunta o la pista: {e}")
+            print(f"🚨 Error al procesar la respuesta del PROMPT_MAESTRO: {e}")
             return {"respuesta": "Dato Ausente", "aclaracion": "Una turbulencia cósmica ha afectado mi visión."}
 
     async def _pedir_sugerencia(self, datos_peticion):
         if not self.personaje_actual_dossier:
             return {"error": "El juego no se ha iniciado."}
+        
         prompt = PROMPT_PEDIR_SUGERENCIA.format(conversation_history="\n".join(self.historial_partida))
         raw_response = await self._llamar_a_g4f(prompt)
+        
         if not raw_response:
             return {"sugerencias": ["¿Tu personaje es un hombre?", "¿Es de una película?", "¿Es un villano?"]}
+            
         sugerencias_potenciales = [line.strip() for line in raw_response.split('\n') if line.strip() and '?' in line]
+        
         if not sugerencias_potenciales:
              return {"sugerencias": ["¿Tu personaje es un hombre?", "¿Es de una película?", "¿Es un villano?"]}
-        cantidad_a_mostrar = random.randint(3, min(5, len(sugerencias_potenciales)))
-        sugerencias_finales = random.sample(sugerencias_potenciales, cantidad_a_mostrar)
-        print(f"Sugerencias generadas: {sugerencias_finales}")
-        return {"sugerencias": sugerencias_finales}
+             
+        print(f"Sugerencias generadas: {sugerencias_potenciales}")
+        return {"sugerencias": sugerencias_potenciales}
