@@ -1,6 +1,9 @@
 # =================================================================
-# == MAIN.PY - EDICIÓN "BACKEND PURO" PARA RENDER (CORS CORREGIDO) ==
+# == MAIN.PY - EDICIÓN "ORACLE GAME" PARA VERCEL                 ==
 # =================================================================
+# - Esta versión solo importa y carga lo estrictamente necesario
+#   para que The Oracle Game funcione.
+
 import sys
 import os
 import asyncio
@@ -9,47 +12,45 @@ from flask_cors import CORS
 
 # --- CONFIGURACIÓN DE LA APLICACIÓN Y CORS ---
 app = Flask(__name__)
-
-# ===================================================================
-# ===       ¡AQUÍ ESTÁ LA CORRECCIÓN PARA EL ERROR DE CORS!       ===
-# ===================================================================
-# En lugar de permitir '*', le damos permiso explícito y único a tu
-# dominio de Vercel. Esto es más seguro y evita bloqueos.
-CORS(app, resources={
-    r"/execute": {
-        "origins": "https://the-oracle-game-ny7nyna98-juan-s-projects-1a87dbe4.vercel.app"
-    }
-})
-
-@app.after_request
-def after_request(response):
-    # Estas cabeceras son importantes, las mantenemos.
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
-    return response
+# Permitimos que cualquier origen hable con nuestra API.
+# Vercel gestionará la seguridad.
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # --- PREPARAR EL CAMINO A LOS MÓDULOS ---
+# Esto asegura que Python pueda encontrar 'ale_core' y 'skillsets'
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# --- INICIALIZAR EL CEREBRO ---
+# --- IMPORTAR E INICIALIZAR EL CEREBRO (SOLO ORACLE) ---
 from ale_core import ALE_Core
 from skillsets.oracle import Oracle
-ale = ALE_Core()
-ale.cargar_skillset("oracle", Oracle())
-print("✅ Servidor de API listo. A.L.E. está online para The Oracle Game.")
 
-# --- RUTA DE LA API ---
-@app.route('/execute', methods=['POST'])
+# 1. Creamos la instancia del motor A.L.E.
+ale = ALE_Core()
+
+# 2. Cargamos ÚNICAMENTE el skillset del Oráculo.
+print("Cargando skillset 'oracle' en el motor A.L.E...")
+ale.cargar_skillset("oracle", Oracle())
+
+print("✅ Servidor listo. A.L.E. está online exclusivamente para The Oracle Game.")
+
+# --- DEFINIR LA RUTA DE EJECUCIÓN ---
+# Vercel redirigirá las peticiones de /api/execute a esta función.
+@app.route('/api/execute', methods=['POST'])
 def handle_execution():
     datos_peticion = request.json
     try:
+        # Bucle de eventos para manejar tareas asíncronas (como las de g4f)
         loop = asyncio.get_running_loop()
     except RuntimeError:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+    
+    # Procesamos la petición y obtenemos la respuesta
     respuesta_de_ale = loop.run_until_complete(ale.procesar_peticion(datos_peticion))
+    
+    # Devolvemos la respuesta al frontend en formato JSON
     return jsonify(respuesta_de_ale)
 
-# --- PUNTO DE ARRANQUE (Gunicorn lo ignora, útil para pruebas locales) ---
+# --- PUNTO DE ARRANQUE (Útil para pruebas locales, Vercel lo ignora) ---
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
