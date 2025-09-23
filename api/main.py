@@ -1,8 +1,8 @@
 # =================================================================
-# == MAIN.PY - EDICIÓN "ORACLE GAME" PARA VERCEL                 ==
+# == MAIN.PY - EDICIÓN "ORACLE GAME" PARA VERCEL (CON AKINATOR)  ==
 # =================================================================
-# - Esta versión solo importa y carga lo estrictamente necesario
-#   para que The Oracle Game funcione.
+# - Esta versión importa y carga los skillsets para ambos modos de
+#   juego: Oracle y Clásico (Akinator).
 
 import sys
 import os
@@ -20,18 +20,20 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 # Esto asegura que Python pueda encontrar 'ale_core' y 'skillsets'
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# --- IMPORTAR E INICIALIZAR EL CEREBRO (SOLO ORACLE) ---
+# --- IMPORTAR E INICIALIZAR EL CEREBRO (ORACLE Y AKINATOR) ---
 from ale_core import ALE_Core
 from skillsets.oracle import Oracle
+from skillsets.akinator import Akinator  # <-- CAMBIO 1: Importamos el nuevo skillset
 
 # 1. Creamos la instancia del motor A.L.E.
 ale = ALE_Core()
 
-# 2. Cargamos ÚNICAMENTE el skillset del Oráculo.
-print("Cargando skillset 'oracle' en el motor A.L.E...")
+# 2. Cargamos AMBOS skillsets para los dos modos de juego.
+print("Cargando skillsets en el motor A.L.E...")
 ale.cargar_skillset("oracle", Oracle())
+ale.cargar_skillset("akinator", Akinator()) # <-- CAMBIO 2: Cargamos el skillset en el motor
 
-print("✅ Servidor listo. A.L.E. está online exclusivamente para The Oracle Game.")
+print("✅ Servidor listo. A.L.E. está online para The Oracle Game (Modo Oráculo y Clásico).")
 
 # --- DEFINIR LA RUTA DE EJECUCIÓN ---
 # Vercel redirigirá las peticiones de /api/execute a esta función.
