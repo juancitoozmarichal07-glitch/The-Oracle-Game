@@ -1,17 +1,16 @@
 // ===================================================================
-// == THE ORACLE GAME - SCRIPT.JS - v13.1 ("El Depurador")          ==
+// == THE ORACLE GAME - SCRIPT.JS - v14.2 (La Versión Original Adaptada) ==
 // ===================================================================
-// - CORREGIDO: Error fatal "addMessageToChat is not defined" moviendo la función.
-// - CORREGIDO: Error fatal "Cannot read properties of undefined" añadiendo
-//   el backToMenu a la lista de elements.
+// - Esta es TU versión funcional (v14.2), adaptada para ser compatible
+//   con la lógica del oracle.py v8.0 y la nueva interfaz.
 
-// --- CONFIGURACIÓN Y ESTADO ---
+// --- CONFIGURACIÓN Y ESTADO (Tu código original) ---
 const config = {
     questionsLimit: 20,
     typewriterSpeed: 45,
     suggestionCooldown: 15000,
-    guessButtonCooldown: 15000,
     suggestionLimit: 5,
+    guessButtonCooldown: 15000
 };
 const phrases = {
     challenge: "Tu humilde tarea será adivinar el ser, real o ficticio, que yo, el Gran Oráculo, he concebido. Tienes 20 preguntas.",
@@ -20,7 +19,9 @@ const phrases = {
         strike1: "No puedo adivinar el vacío. ¡Escribe un nombre!",
         strike2: "¿Intentas agotar mi paciencia? Escribe una respuesta o cancela.",
         strike3: "Has agotado mi paciencia. El privilegio de adivinar te ha sido revocado... por ahora."
-    }
+    },
+    apiError: "Mi mente está... nublada. No puedo procesar tu petición ahora.",
+    incomprehensible: "No he podido comprender tu galimatías. Inténtalo de nuevo."
 };
 let state = {
     questionCount: 0,
@@ -30,13 +31,15 @@ let state = {
     suggestionUses: 0,
     lastSuggestionTimestamp: 0,
     guessPopupPatience: 3,
-    currentGameMode: null
+    characterHistory: [],
+    currentGameMode: null // <-- CAMBIO 1: Añadido para saber en qué modo estamos
 };
 
-// --- CONEXIÓN CON A.L.E. ---
+// --- CONEXIÓN CON A.L.E. (Tu código original, URL corregida) ---
 const ALE_URL = '/api/execute';
 
 async function callALE(datos_peticion) {
+    // CAMBIO 2: Ahora el skillset se pasa desde la llamada, no está fijo aquí.
     try {
         const response = await fetch(ALE_URL, {
             method: 'POST',
@@ -57,61 +60,57 @@ async function callALE(datos_peticion) {
     }
 }
 
-// --- SELECTORES DEL DOM (Completos y Corregidos) ---
+// --- SELECTORES DEL DOM (Tu código original, con los nuevos elementos) ---
 const elements = {
     arcadeScreen: document.getElementById('arcade-screen'),
     screens: { title: document.getElementById('title-screen'), stage: document.getElementById('game-stage'), mainGame: document.getElementById('main-game-screen'), win: document.getElementById('win-screen'), lose: document.getElementById('lose-screen') },
     title: { layout: document.getElementById('title-layout'), introBrain: document.getElementById('intro-brain'), startButton: document.getElementById('start-button'), exitButton: document.getElementById('exit-button'), lightning: document.getElementById('lightning-overlay') },
-    stage: { menuButtons: document.getElementById('menu-buttons'), dialog: document.getElementById('stage-dialog'), curtainLeft: document.getElementById('curtain-left'), curtainRight: document.getElementById('curtain-right') },
+    stage: { lights: document.getElementById('stage-lights'), content: document.getElementById('stage-content-container'), curtainLeft: document.getElementById('curtain-left'), curtainRight: document.getElementById('curtain-right'), brain: document.getElementById('stage-brain'), dialog: document.getElementById('stage-dialog'), menuButtons: document.getElementById('menu-buttons') },
     game: {
         chatHistory: document.getElementById('chat-history'),
         questionCounter: document.getElementById('question-counter'),
-        suggestionButton: document.getElementById('suggestion-button'),
-        guessButton: document.getElementById('guess-button'),
-        oracleControls: document.getElementById('oracle-mode-controls'),
-        classicControls: document.getElementById('classic-mode-controls'),
         input: document.getElementById('user-question-input'),
         askButton: document.getElementById('ask-button'),
-        backToMenu: document.getElementById('back-to-menu-button') // <-- ¡AÑADIDO EL ELEMENTO QUE FALTABA!
+        suggestionButton: document.getElementById('suggestion-button'),
+        guessButton: document.getElementById('guess-button'),
+        backToMenu: document.getElementById('back-to-menu-button'),
+        // CAMBIO 3: Añadimos los selectores para los controles de cada modo
+        oracleControls: document.getElementById('oracle-mode-controls'),
+        classicControls: document.getElementById('classic-mode-controls')
     },
     popups: { guess: document.getElementById('guess-popup'), suggestion: document.getElementById('suggestion-popup') },
-    guessPopup: { content: document.querySelector('#guess-popup .popup-content-guess'), instruction: document.getElementById('guess-popup-instruction'), input: document.getElementById('guess-input'), confirmButton: document.getElementById('confirm-guess-button') },
+    guessPopup: { content: document.querySelector('#guess-popup .popup-content-guess'), brainIcon: document.getElementById('guess-popup-brain-icon'), instruction: document.getElementById('guess-popup-instruction'), input: document.getElementById('guess-input'), confirmButton: document.getElementById('confirm-guess-button') },
     suggestionPopup: { buttonsContainer: document.getElementById('suggestion-buttons-container') },
     endScreens: { winMessage: document.getElementById('win-message'), loseMessage: document.getElementById('lose-message') },
-    sounds: { applause: document.getElementById('applause-sound'), thunder: document.getElementById('thunder-sound'), materialize: document.getElementById('materialize-sound'), curtain: document.getElementById('curtain-sound'), typewriter: document.getElementById('typewriter-sound') }
+    sounds: { 
+        applause: document.getElementById('applause-sound'),
+        thunder: document.getElementById('thunder-sound'),
+        materialize: document.getElementById('materialize-sound'),
+        curtain: document.getElementById('curtain-sound'),
+        typewriter: document.getElementById('typewriter-sound')
+    }
 };
 
-// --- LÓGICA DE MENSAJES (Movida al principio para estar siempre disponible) ---
-function addMessageToChat(text, sender, callback) {
-    const messageLine = document.createElement('div');
-    messageLine.className = `message-line message-line-${sender}`;
-    const avatar = document.createElement('div');
-    avatar.className = 'message-avatar';
-    avatar.textContent = sender === 'brain' ? '🧠' : '👤';
-    const textContainer = document.createElement('div');
-    textContainer.className = 'message-text-container';
-    const prefix = sender === 'brain' ? 'Oráculo: ' : 'Tú: ';
-    const fullText = text ? prefix + text : prefix; // Previene "Oráculo: undefined"
-    messageLine.appendChild(avatar);
-    messageLine.appendChild(textContainer);
-    elements.game.chatHistory.appendChild(messageLine);
-    elements.game.chatHistory.scrollTop = elements.game.chatHistory.scrollHeight;
-    typewriterEffect(textContainer, fullText, callback);
+// --- FUNCIÓN DE AJUSTE DE PANTALLA (Tu código original) ---
+function adjustScreenHeight() {
+    const arcadeScreen = elements.arcadeScreen;
+    if (arcadeScreen) {
+        const realHeight = window.innerHeight;
+        arcadeScreen.style.height = `${realHeight}px`;
+        console.log(`Ajustando altura de la pantalla a: ${realHeight}px`);
+    }
 }
-
-// --- LÓGICA DE AJUSTE DE PANTALLA ---
-function adjustScreenHeight() { if (elements.arcadeScreen) { elements.arcadeScreen.style.height = `${window.innerHeight}px`; } }
 
 // --- LÓGICA PRINCIPAL DEL JUEGO ---
 
-function resetGameState() {
+function resetGameState() { // Tu código original, con un añadido
     state.questionCount = 0;
     state.secretCharacter = null;
     state.isGameActive = false;
     state.isAwaitingBrainResponse = false;
     state.suggestionUses = 0;
     state.lastSuggestionTimestamp = 0;
-    state.guessPopupPatience = 3;
+    state.guessPopupPatience = 3; // CAMBIO 4: Reseteamos la paciencia del popup
     elements.game.questionCounter.textContent = `Pregunta: 0/${config.questionsLimit}`;
     elements.game.chatHistory.innerHTML = '';
     elements.game.input.value = '';
@@ -123,6 +122,7 @@ function resetGameState() {
     elements.game.guessButton.textContent = "¡Adivinar!";
 }
 
+// CAMBIO 5: La función startGame ahora acepta un 'mode'
 async function startGame(mode) {
     state.currentGameMode = mode;
     closeCurtains(async () => {
@@ -132,17 +132,17 @@ async function startGame(mode) {
 
         if (mode === 'oracle') {
             prepararInterfazModoOraculo();
-            addMessageToChat("Concibiendo un nuevo enigma del cosmos...", "brain");
+            addMessageToChat("Oráculo: Concibiendo un nuevo enigma del cosmos...", "brain");
             const respuesta = await callALE({ skillset_target: "oracle", accion: "iniciar_juego" });
             if (respuesta.error) {
-                addMessageToChat("No he podido concebir un enigma. Mi mente está en conflicto. Inténtalo de nuevo.", "brain");
+                addMessageToChat("Oráculo: No he podido concebir un enigma. Mi mente está en conflicto. Inténtalo de nuevo.", "brain");
                 return;
             }
             state.secretCharacter = respuesta.personaje_secreto;
             console.log("PERSONAJE CREADO POR A.L.E.:", state.secretCharacter);
             elements.game.chatHistory.innerHTML = '';
             state.isGameActive = true;
-            addMessageToChat(`He concebido mi enigma. Comienza.`, 'brain', () => {
+            addMessageToChat(`Oráculo: He concebido mi enigma. Comienza.`, 'brain', () => {
                 elements.game.input.disabled = false;
                 elements.game.askButton.disabled = false;
                 elements.game.input.focus();
@@ -153,6 +153,7 @@ async function startGame(mode) {
     }, 1);
 }
 
+// CAMBIO 6: handlePlayerInput ahora es compatible con la respuesta del oracle.py v8
 async function handlePlayerInput() {
     if (!state.isGameActive || state.isAwaitingBrainResponse) return;
     const questionText = elements.game.input.value.trim();
@@ -161,7 +162,7 @@ async function handlePlayerInput() {
     state.isAwaitingBrainResponse = true;
     elements.game.input.disabled = true;
     elements.game.askButton.disabled = true;
-    addMessageToChat(questionText, 'player');
+    addMessageToChat(`Tú: ${questionText}`, 'player');
     elements.game.input.value = '';
     state.questionCount++;
     elements.game.questionCounter.textContent = `Pregunta: ${state.questionCount}/${config.questionsLimit}`;
@@ -178,7 +179,7 @@ async function handlePlayerInput() {
         return;
     }
     
-    const fullResponse = `${respuesta.respuesta || ''} ${respuesta.aclaracion || ''}`.trim();
+    const fullResponse = `Oráculo: ${respuesta.respuesta || ''} ${respuesta.aclaracion || ''}`.trim();
     addMessageToChat(fullResponse, 'brain', () => {
         if (respuesta.game_over === true) {
             setTimeout(() => endGame(false, "patience"), 1000);
@@ -202,13 +203,14 @@ async function handlePlayerInput() {
     });
 }
 
+// CAMBIO 7: showSuggestions ahora es compatible con la respuesta del oracle.py v8
 async function showSuggestions() {
     const now = Date.now();
     const timeLeft = Math.ceil((state.lastSuggestionTimestamp + config.suggestionCooldown - now) / 1000);
     if (timeLeft > 0) return;
 
     if (state.suggestionUses >= config.suggestionLimit) {
-        addMessageToChat("Has agotado todas tus sugerencias para esta partida.", "brain");
+        addMessageToChat("Oráculo: Has agotado todas tus sugerencias para esta partida.", "brain");
         elements.game.suggestionButton.disabled = true;
         return;
     }
@@ -267,6 +269,7 @@ async function showSuggestions() {
     }
 }
 
+// CAMBIO 8: endGame ahora maneja las diferentes razones de derrota
 function endGame(isWin, reason = "guess") {
     state.isGameActive = false;
     elements.screens.mainGame.classList.add('hidden');
@@ -280,15 +283,15 @@ function endGame(isWin, reason = "guess") {
             loseMessage = `El Oráculo ha agotado su paciencia cósmica. El personaje era ${state.secretCharacter.nombre}.`;
         } else if (reason === "guess_abuse") {
             loseMessage = `Has agotado la paciencia del Oráculo con tus intentos vacíos. El personaje era ${state.secretCharacter.nombre}.`;
-        } else { // "questions" o "guess"
-            loseMessage = `Has fallado. El personaje era ${state.secretCharacter.nombre}. Una mente simple no puede comprender lo complejo.`;
+        } else { // "questions" o "guess" por defecto
+            loseMessage = `Has agotado tus preguntas. El personaje era ${state.secretCharacter.nombre}. Una mente simple no puede comprender lo complejo.`;
         }
         elements.endScreens.loseMessage.textContent = loseMessage;
         elements.screens.lose.classList.remove('hidden');
     }
 }
 
-function showGuessPopup() {
+function showGuessPopup() { // Tu código original
     state.guessPopupPatience = 3;
     elements.guessPopup.instruction.textContent = phrases.guessPopup.initial;
     elements.guessPopup.input.value = '';
@@ -296,6 +299,7 @@ function showGuessPopup() {
     elements.guessPopup.input.focus();
 }
 
+// CAMBIO 9: handleGuessAttempt ahora maneja la derrota por abuso
 function handleGuessAttempt() {
     const guess = elements.guessPopup.input.value.trim();
     if (guess === '') {
@@ -322,21 +326,60 @@ function handleGuessAttempt() {
     endGame(isCorrect);
 }
 
-// --- FUNCIONES VISUALES Y DE NAVEGACIÓN ---
+// --- FUNCIONES VISUALES Y DE NAVEGACIÓN (Tu código original, con añadidos) ---
 
 function unlockAudio() { Object.values(elements.sounds).forEach(sound => { if (sound) { sound.play().then(() => { sound.pause(); sound.currentTime = 0; }).catch(e => {}); } }); document.body.removeEventListener('click', unlockAudio); document.body.removeEventListener('touchstart', unlockAudio); }
 function typewriterEffect(element, text, callback) { let i = 0; element.textContent = ''; if (elements.sounds.typewriter) { elements.sounds.typewriter.currentTime = 0; elements.sounds.typewriter.play().catch(e => {}); } const interval = setInterval(() => { if (i < text.length) { element.textContent += text.charAt(i); i++; } else { clearInterval(interval); if (elements.sounds.typewriter) { elements.sounds.typewriter.pause(); } if (callback) callback(); } }, config.typewriterSpeed); }
 function runTitleSequence() { Object.values(elements.screens).forEach(s => s.classList.add('hidden')); elements.screens.title.classList.remove('hidden'); elements.title.layout.classList.add('hidden'); elements.title.introBrain.classList.add('hidden'); setTimeout(() => { if (elements.sounds.thunder) elements.sounds.thunder.play().catch(e => {}); elements.title.lightning.classList.add('flash'); setTimeout(() => elements.title.lightning.classList.remove('flash'), 500); }, 500); setTimeout(() => { if (elements.sounds.thunder) elements.sounds.thunder.play().catch(e => {}); elements.title.lightning.classList.add('flash'); setTimeout(() => elements.title.lightning.classList.remove('flash'), 500); if (elements.sounds.materialize) elements.sounds.materialize.play().catch(e => {}); elements.title.introBrain.classList.remove('hidden'); elements.title.introBrain.style.animation = 'materialize 2s forwards ease-out'; }, 1500); setTimeout(() => { elements.title.introBrain.classList.add('hidden'); if (elements.sounds.thunder) elements.sounds.thunder.play().catch(e => {}); elements.title.lightning.classList.add('flash-long'); setTimeout(() => { elements.title.lightning.classList.remove('flash-long'); elements.title.layout.classList.remove('hidden'); }, 2000); }, 4000); }
-function showGameStage() { Object.values(elements.screens).forEach(s => s.classList.add('hidden')); elements.screens.stage.classList.remove('hidden'); const stage = document.getElementById('game-stage'); if(stage) { stage.querySelector('#stage-brain').classList.add('hidden'); stage.querySelector('#stage-dialog').classList.add('hidden'); stage.querySelector('#stage-lights').classList.remove('hidden'); stage.querySelector('#menu-buttons').innerHTML = `<button class="menu-button button-green" data-action="play-oracle">Modo Oráculo</button><button class="menu-button button-grey" data-action="play-classic">Modo Clásico</button><button class="menu-button button-red" data-action="flee-to-title">Huir</button>`; stage.querySelector('#menu-buttons').classList.remove('hidden'); stage.querySelector('#curtain-left').style.transition = 'width 1s ease-in-out'; stage.querySelector('#curtain-right').style.transition = 'width 1s ease-in-out'; stage.querySelector('#curtain-left').style.width = '50%'; stage.querySelector('#curtain-right').style.width = '50%'; setTimeout(() => { if (elements.sounds.applause) elements.sounds.applause.play().catch(e => {}); openCurtains(null, 1); }, 1000); setTimeout(() => { stage.querySelector('#stage-lights').classList.add('hidden'); }, 2000); setTimeout(() => { stage.querySelector('#stage-brain').classList.remove('hidden'); }, 2200); setTimeout(() => { stage.querySelector('#stage-dialog').classList.remove('hidden'); typewriterEffect(stage.querySelector('#stage-dialog'), "El conocimiento aguarda al audaz. Elige tu camino."); }, 2700); } }
-function showChallengeScreen() { const stage = document.getElementById('game-stage'); if(stage) { stage.querySelector('#menu-buttons').classList.add('hidden'); closeCurtains(() => { stage.querySelector('#stage-dialog').classList.add('hidden'); openCurtains(() => { stage.querySelector('#stage-dialog').classList.remove('hidden'); stage.querySelector('#menu-buttons').innerHTML = `<button class="button-green" data-action="accept-challenge">Aceptar Reto</button><button class="button-red" data-action="flee-challenge">Huir</button>`; stage.querySelector('#menu-buttons').classList.remove('hidden'); typewriterEffect(stage.querySelector('#stage-dialog'), phrases.challenge); }, 2.5); }, 1); } }
-function prepararInterfazModoOraculo() { elements.game.oracleControls.classList.remove('hidden'); elements.game.classicControls.classList.add('hidden'); elements.game.suggestionButton.classList.remove('hidden'); elements.game.guessButton.textContent = "¡Adivinar!"; elements.game.input.disabled = true; elements.game.askButton.disabled = true; }
-function prepararInterfazModoClasico() { elements.game.oracleControls.classList.add('hidden'); elements.game.classicControls.classList.remove('hidden'); elements.game.suggestionButton.classList.add('hidden'); elements.game.guessButton.textContent = "¡Adivina ahora!"; addMessageToChat("Oráculo: Has elegido el Camino del Clásico. Piensa en un personaje. Yo haré las preguntas. Responde con sinceridad.", 'brain', () => { setTimeout(() => { addMessageToChat("Oráculo: ¿Tu personaje es un hombre?", 'brain'); }, 1000); }); }
-function closeCurtains(callback, speed = 1) { const left = document.getElementById('curtain-left'); const right = document.getElementById('curtain-right'); if(left && right) { left.style.width = '50%'; right.style.width = '50%'; } setTimeout(callback, speed * 1000 + 100); }
-function openCurtains(callback, speed = 1) { if (elements.sounds.curtain) elements.sounds.curtain.play().catch(e => {}); const left = document.getElementById('curtain-left'); const right = document.getElementById('curtain-right'); if(left && right) { left.style.width = '0%'; right.style.width = '0%'; } if (callback) setTimeout(callback, speed * 1000 + 100); }
 
-// --- PUNTO DE ENTRADA ---
+// CAMBIO 10: showGameStage ahora es más simple y delega en los botones
+function showGameStage() {
+    Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
+    elements.screens.stage.classList.remove('hidden');
+    elements.stage.menuButtons.innerHTML = `
+        <button class="menu-button button-green" data-action="play-oracle">Modo Oráculo</button>
+        <button class="menu-button button-grey" data-action="play-classic">Modo Clásico</button>
+        <button class="menu-button button-red" data-action="flee-to-title">Huir</button>
+    `;
+    openCurtains(() => {
+        typewriterEffect(elements.stage.dialog, "El conocimiento aguarda al audaz. Elige tu camino.");
+    }, 1);
+}
+
+function showChallengeScreen() {
+    elements.stage.menuButtons.innerHTML = `
+        <button class="button-green" data-action="accept-challenge">Aceptar Reto</button>
+        <button class="button-red" data-action="flee-challenge">Huir</button>
+    `;
+    typewriterEffect(elements.stage.dialog, phrases.challenge);
+}
+
+// CAMBIO 11: Añadimos las funciones para preparar la interfaz de cada modo
+function prepararInterfazModoOraculo() {
+    elements.game.oracleControls.classList.remove('hidden');
+    elements.game.classicControls.classList.add('hidden');
+    elements.game.suggestionButton.classList.remove('hidden');
+    elements.game.guessButton.textContent = "¡Adivinar!";
+}
+
+function prepararInterfazModoClasico() {
+    elements.game.oracleControls.classList.add('hidden');
+    elements.game.classicControls.classList.remove('hidden');
+    elements.game.suggestionButton.classList.add('hidden');
+    elements.game.guessButton.textContent = "¡Adivina ahora!";
+    addMessageToChat("Oráculo: Has elegido el Camino del Clásico. Piensa en un personaje. Yo haré las preguntas.", 'brain', () => {
+        setTimeout(() => {
+            addMessageToChat("Oráculo: ¿Tu personaje es un hombre?", 'brain');
+        }, 1000);
+    });
+}
+
+function closeCurtains(callback, speed = 1) { elements.stage.curtainLeft.style.width = '50%'; elements.stage.curtainRight.style.width = '50%'; if (callback) setTimeout(callback, speed * 1000 + 100); }
+function openCurtains(callback, speed = 1) { if (elements.sounds.curtain) elements.sounds.curtain.play().catch(e => {}); elements.stage.curtainLeft.style.width = '0%'; elements.stage.curtainRight.style.width = '0%'; if (callback) setTimeout(callback, speed * 1000 + 100); }
+
+// --- PUNTO DE ENTRADA (Tu código original, con los listeners adaptados) ---
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Página cargada. Asignando eventos (v13.1 - El Depurador).");
+    console.log("Página cargada. Asignando eventos (v14.2 - Adaptada).");
     
     adjustScreenHeight();
     window.addEventListener('resize', adjustScreenHeight);
@@ -345,19 +388,21 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.title.exitButton.addEventListener('click', () => { elements.arcadeScreen.classList.add('shutdown-effect'); });
     elements.game.askButton.addEventListener('click', handlePlayerInput);
     elements.game.input.addEventListener('keyup', (e) => { if (e.key === 'Enter') handlePlayerInput(); });
-    elements.game.guessButton.addEventListener('click', showGuessPopup);
+    elements.game.guessButton.addEventListener('click', () => { if (!elements.game.guessButton.disabled) showGuessPopup(); });
     elements.guessPopup.confirmButton.addEventListener('click', handleGuessAttempt);
-    elements.game.suggestionButton.addEventListener('click', showSuggestions);
+    elements.game.suggestionButton.addEventListener('click', () => { if (!elements.game.suggestionButton.disabled) showSuggestions(); });
     elements.game.backToMenu.addEventListener('click', () => closeCurtains(showGameStage, 1));
     
     document.body.addEventListener('click', (e) => { if (e.target.dataset.close) { e.target.closest('.popup-overlay').classList.add('hidden'); } });
 
+    // CAMBIO 12: El listener del menú ahora entiende los nuevos modos
     elements.stage.menuButtons.addEventListener('click', (e) => {
         const action = e.target.dataset.action;
         if (action === 'play-oracle') showChallengeScreen();
-        if (action === 'play-classic') startGame('classic');
-        if (action === 'accept-challenge') startGame('oracle');
-        if (action === 'flee-to-title' || action === 'flee-challenge') showGameStage();
+        else if (action === 'play-classic') startGame('classic');
+        else if (action === 'accept-challenge') startGame('oracle');
+        else if (action === 'flee-to-title') runTitleSequence();
+        else if (action === 'flee-challenge') showGameStage();
     });
 
     document.querySelectorAll('.end-buttons button').forEach(btn => {
