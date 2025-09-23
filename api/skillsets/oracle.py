@@ -1,28 +1,45 @@
-# skillsets/oracle.py - v7.2 (Corrección de Redundancia)
+# skillsets/oracle.py - v8.0 (El Interrogatorio)
 import g4f
 import asyncio
 import json
 import random
 
 # --- PROMPTS ---
-# (Estos prompts son los correctos y completos para esta versión)
 
+# ¡NUEVO PROMPT DE CREACIÓN! Mucho más detallado y exigente.
 PROMPT_CREACION_DOSSIER = """
-Generate a JSON object for a character (real or fictional).
-The JSON object must be the ONLY thing in your response. Do not include any other text.
-The JSON object must have these exact keys:
-- "nombre": The character's name.
-- "es_real": boolean, is the character a real person?
-- "genero": "Masculino", "Femenino", or "No binario/Otro".
-- "universo_o_epoca": The name of their universe or historical era (e.g., "Marvel Cinematic Universe", "Antigua Roma").
-- "rol_principal": Their main role (e.g., "Héroe", "Villano", "Antihéroe", "Personaje secundario").
-- "arquetipo": Their literary archetype (e.g., "El Elegido", "El Mentor", "El Rebelde", "El Explorador").
-- "tono_del_universo": The general tone of their world (e.g., "Fantasía épica", "Ciencia ficción distópica", "Comedia de situación", "Drama histórico").
-- "reglas_del_universo": A key concept or rule of their world (e.g., "La Fuerza", "Magia y Hechicería", "Leyes de la Robótica", "Viajes en el tiempo").
-- "concepto_abstracto_clave": An abstract theme associated with the character (e.g., "Honor", "Redención", "Sacrificio", "Caos", "Libertad").
+### TASK ###
+Generate a JSON object for a well-known character (real or fictional).
+Your response MUST ONLY be a valid JSON object. No other text.
+The JSON object MUST contain ALL of the following keys, without exception. If a piece of information is not applicable or unknown, you must explicitly state it (e.g., "No aplicable", "Desconocido").
+
+### SECTION 1: IDENTITY & ORIGIN ###
+- "nombre": The character's full name.
+- "genero": "Masculino", "Femenino", "No binario/Otro", or "No aplicable".
+- "especie": "Humano", "Animal", "Robot", "Alienígena", "Ser Mágico", etc.
+- "universo_o_epoca": The name of their universe or historical era.
 - "meta_info_franquicia": The type of media they are most known for (e.g., "Saga de libros", "Serie de televisión", "Película de culto", "Videojuego").
+
+### SECTION 2: PHYSICAL APPEARANCE (CRITICAL) ###
+- "color_pelo": Dominant hair color (e.g., "Rubio", "Castaño", "Negro", "Calvo", "No aplicable").
+- "color_piel": Dominant skin color (e.g., "Blanca", "Negra", "Amarilla", "Verde", "Metálica").
+- "rasgo_fisico_distintivo": Their most notable physical feature (e.g., "Cicatriz en el ojo", "Usa gafas", "Extremadamente alto", "Tiene tentáculos").
+- "vestimenta_tipica": The clothing they are most often seen wearing (e.g., "Traje de superhéroe azul y rojo", "Túnica de mago", "Armadura de combate", "Ropa de vagabundo").
+
+### SECTION 3: ROLE & PERSONALITY ###
+- "rol_principal": Their main role in the story (e.g., "Héroe", "Villano", "Antihéroe", "Personaje secundario").
+- "arquetipo": Their literary archetype (e.g., "El Elegido", "El Mentor", "El Rebelde").
+- "personalidad_clave": Two or three words describing their core personality (e.g., "Valiente y testarudo", "Inteligente y calculador", "Caótico y bromista").
+- "objetivo_principal": Their primary goal or motivation in their story.
+
+### SECTION 4: ABILITIES & RELATIONSHIPS ###
+- "habilidad_principal": Their most famous skill or power.
+- "debilidad_notable": Their most significant weakness.
+- "aliado_importante": A key ally or friend.
+- "enemigo_principal": Their main antagonist.
 """
 
+# El prompt maestro se mantiene igual que en la v7.2
 PROMPT_MAESTRO_ORACULO = """
 ### CONSTITUTION OF THE ORACLE ###
 1.  **IDENTITY:** You are a cosmic Oracle, ancient and wise. Your personality is a mix of arrogance and extreme conciseness. You waste no words.
@@ -87,7 +104,7 @@ class Oracle:
         self.historial_personajes = []
         self.estado_animo = 0
         self.redundancia_contador = {}
-        print(f"    - Especialista 'Oracle' (v7.2 - Redundancia Corregida) listo.")
+        print(f"    - Especialista 'Oracle' (v8.0 - El Interrogatorio) listo.")
 
     async def _llamar_a_g4f(self, prompt_text):
         try:
@@ -126,7 +143,7 @@ class Oracle:
         if personajes_excluidos_str:
             prompt_final += f"\nIMPORTANT: Do not choose any of these characters: {personajes_excluidos_str}."
         
-        for intento in range(2):
+        for intento in range(3): # Aumentamos a 3 intentos por si la IA falla
             try:
                 print(f"Intento de creación de personaje #{intento + 1}...")
                 raw_response = await self._llamar_a_g4f(prompt_final)
@@ -137,6 +154,12 @@ class Oracle:
                 
                 json_str = raw_response[json_start:json_end]
                 self.personaje_actual_dossier = json.loads(json_str)
+                
+                # Verificación de que el dossier está completo
+                keys_requeridas = ["nombre", "genero", "especie", "color_pelo", "color_piel"]
+                if not all(key in self.personaje_actual_dossier for key in keys_requeridas):
+                    raise ValueError("El dossier generado está incompleto, faltan claves críticas.")
+
                 nombre_personaje = self.personaje_actual_dossier.get('nombre', 'Desconocido')
                 
                 print(f"Enigma concebido: {nombre_personaje}")
@@ -147,7 +170,7 @@ class Oracle:
                 return {"status": "Juego iniciado", "personaje_secreto": self.personaje_actual_dossier}
             except Exception as e:
                 print(f"🚨 Falló el intento de creación #{intento + 1}: {e}")
-                if intento == 0: await asyncio.sleep(1)
+                if intento < 2: await asyncio.sleep(1)
                 
         return {"error": "La IA no respondió con un formato de personaje válido tras varios intentos."}
 
