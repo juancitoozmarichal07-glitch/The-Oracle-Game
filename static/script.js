@@ -39,7 +39,7 @@ let state = {
 };
 
 // --- CONEXIÓN CON A.L.E. (Tu código original) ---
-const ALE_URL = '/api/execute';
+const ALE_URL = '/execute';
 
 async function callALE(datos_peticion) {
     datos_peticion.skillset_target = "oracle";
