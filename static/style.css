@@ -519,3 +519,44 @@ button:disabled {
 .end-screen-btn {
     font-size: 1em;
 }
+/* ================================================== */
+/* === ESTILOS PARA EL MODO CLÁSICO (BOTONES VERDES) === */
+/* ================================================== */
+
+/* Contenedor principal para los botones de respuesta */
+.classic-answer-buttons {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los botones pasen a la siguiente línea si no caben */
+    justify-content: center;
+    gap: 10px; /* Espacio entre botones */
+    padding: 10px;
+}
+
+/* Estilo base para cada botón de respuesta */
+.answer-btn {
+    padding: 12px 20px;
+    font-family: 'Press Start 2P', cursive; /* Asumo que usas una fuente pixelada */
+    font-size: 16px;
+    color: #FFFFFF;
+    text-shadow: 2px 2px #000000;
+    border: 2px solid #000000;
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+
+    /* --- ¡AQUÍ ESTÁ LA MAGIA VERDE! --- */
+    background-color: #2a9d8f; /* Un verde azulado, tipo 'teal' */
+    box-shadow: 0 6px #1a6a5f, 0 8px 6px rgba(0,0,0,0.3); /* Sombra 3D verde oscuro */
+}
+
+/* Efecto al pasar el ratón por encima */
+.answer-btn:hover {
+    background-color: #3cafa1; /* Un verde un poco más claro */
+    transform: translateY(-2px);
+    box-shadow: 0 8px #1a6a5f, 0 10px 8px rgba(0,0,0,0.4);
+}
+
+/* Efecto al hacer clic */
+.answer-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px #1a6a5f;
+}
