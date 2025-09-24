@@ -1,9 +1,9 @@
 // ===================================================================
-// == THE ORACLE GAME - SCRIPT.JS - v16.0 (Definitiva Unificada)  ==
+// == THE ORACLE GAME - SCRIPT.JS - v16.1 (Final y Sincronizado)  ==
 // ===================================================================
-// - Implementa COMPLETAMENTE el Modo Clásico (Akinator).
-// - Es 100% compatible con el oracle.py v11 (paciencia, game_over, etc.).
-// - Unifica toda la lógica en un solo archivo robusto.
+// - Implementa Modo Clásico y Modo Oráculo.
+// - Compatible con oracle.py v11+ (paciencia, game_over, etc.).
+// - Sincronizado con el index.html para evitar errores de 'null'.
 
 // --- CONFIGURACIÓN Y ESTADO ---
 const config = {
@@ -11,7 +11,6 @@ const config = {
     typewriterSpeed: 45,
     suggestionCooldown: 15000,
     suggestionLimit: 5,
-    guessButtonCooldown: 15000
 };
 const phrases = {
     challenge: "Tu humilde tarea será adivinar el ser, real o ficticio, que yo, el Gran Oráculo, he concebido. Tienes 20 preguntas.",
@@ -34,7 +33,7 @@ let state = {
 };
 
 // --- CONEXIÓN CON A.L.E. (Backend) ---
-const ALE_URL = '/execute';
+const ALE_URL = '/api/execute';
 
 async function callALE(datos_peticion) {
     try {
@@ -285,26 +284,19 @@ function endGame(isWin, reason = "guess") {
     }
 }
 
-function addMessageToChat(text, sender, callback) {
-    const messageLine = document.createElement('div');
-    messageLine.className = `message-line message-line-${sender}`;
-    const avatar = document.createElement('div');
-    avatar.className = 'message-avatar';
-    avatar.textContent = sender === 'brain' ? '🧠' : '👤';
-    const textContainer = document.createElement('div');
-    textContainer.className = 'message-text-container';
-    const prefix = sender === 'brain' ? 'Oráculo: ' : 'Tú: ';
-    const fullText = prefix + text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Reemplaza ** con <strong>
-    messageLine.appendChild(avatar);
-    messageLine.appendChild(textContainer);
-    elements.game.chatHistory.appendChild(messageLine);
+function addMessageToChat(text, sender) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${sender}-message`;
+    // Reemplaza **texto** con <strong>texto</strong> para que el navegador lo entienda como negrita
+    const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    messageDiv.innerHTML = formattedText;
+    elements.game.chatHistory.appendChild(messageDiv);
     elements.game.chatHistory.scrollTop = elements.game.chatHistory.scrollHeight;
-    typewriterEffect(textContainer, fullText, callback);
 }
 
 function typewriterEffect(element, text, callback) {
     let i = 0;
-    element.innerHTML = ''; // Usamos innerHTML para que las etiquetas <strong> funcionen
+    element.innerHTML = ''; // Usar innerHTML para que etiquetas como <strong> se rendericen
     if (elements.sounds.typewriter) {
         elements.sounds.typewriter.currentTime = 0;
         elements.sounds.typewriter.play().catch(e => {});
@@ -391,7 +383,7 @@ function adjustScreenHeight() {
 
 // --- PUNTO DE ENTRADA Y LISTENERS ---
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Página cargada. Asignando eventos (v16.0 - Definitiva Unificada).");
+    console.log("Página cargada. Asignando eventos (v16.1 - Final y Sincronizado).");
 
     adjustScreenHeight();
     window.addEventListener('resize', adjustScreenHeight);
@@ -413,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.game.input.addEventListener('keyup', (e) => { if (e.key === 'Enter') handlePlayerInput(); });
     elements.game.guessButton.addEventListener('click', showGuessPopup);
     elements.guessPopup.confirmButton.addEventListener('click', handleGuessAttempt);
-    // elements.game.suggestionButton.addEventListener('click', showSuggestions); // Si tienes la función, descomenta
+    // elements.game.suggestionButton.addEventListener('click', showSuggestions); // Descomenta si tienes la función showSuggestions
 
     document.querySelectorAll('.classic-answer-buttons .answer-btn').forEach(button => {
         button.addEventListener('click', () => {
