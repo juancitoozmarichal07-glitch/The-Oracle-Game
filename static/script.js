@@ -33,7 +33,7 @@ let state = {
 };
 
 // --- CONEXIÓN CON A.L.E. (Backend) ---
-const ALE_URL = '/api/execute';
+const ALE_URL = '/execute';
 
 async function callALE(datos_peticion) {
     try {
