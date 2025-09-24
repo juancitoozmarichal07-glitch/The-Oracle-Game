@@ -7,4 +7,3 @@ cloudscraper
 typing-extensions
 pytz
 
-este es el.requeriments.txt esta bien??
