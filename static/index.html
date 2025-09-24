@@ -163,3 +163,74 @@
     <script src="script.js"></script>
 </body>
 </html>
+# backend/main.py (Versión Final con todos los Skillsets)
+
+import sys
+import os
+import asyncio
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+
+# --- CONFIGURACIÓN DE LA APLICACIÓN Y CORS ---
+# Esto prepara el servidor web.
+app = Flask(__name__)
+# CORS es importante para permitir que tu frontend (en Vercel) se comunique con tu backend (en otro servidor).
+CORS(app, resources={r"/*": {"origins": "*"}})
+
+@app.after_request
+def after_request(response):
+    """Asegura que las cabeceras CORS estén presentes en cada respuesta."""
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
+# --- PREPARAR EL CAMINO A LOS MÓDULOS ---
+# Esto le dice a Python que busque los skillsets en la carpeta correcta.
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# --- IMPORTAR E INICIALIZAR EL CEREBRO Y TODOS LOS SKILLSETS ---
+# 1. Importamos el motor principal y cada uno de los "cerebros" especialistas.
+from ale_core import ALE_Core
+from skillsets.guardian import Guardian
+from skillsets.oracle import Oracle
+from skillsets.veridian import Veridian
+from skillsets.akinator import Akinator  # <-- ¡AQUÍ ESTÁ LA IMPORTACIÓN CLAVE!
+
+# 2. Creamos la instancia del motor A.L.E. que orquestará todo.
+ale = ALE_Core()
+
+# 3. Cargamos CADA UNO de los skillsets en el motor, dándoles un nombre clave.
+print("Cargando skillsets en el motor A.L.E...")
+ale.cargar_skillset("guardian", Guardian())
+ale.cargar_skillset("oracle", Oracle())       # Para el Modo Oráculo
+ale.cargar_skillset("veridian", Veridian())
+ale.cargar_skillset("akinator", Akinator())   # Para el Modo Clásico
+
+# Mensaje de confirmación que verás al iniciar el servidor.
+print("✅ Servidor listo. A.L.E. está online con los skillsets Guardian, Oracle, Veridian y Akinator.")
+
+# --- DEFINIR LA RUTA DE EJECUCIÓN ---
+# Esta es la única "puerta" de entrada a nuestro backend.
+@app.route('/api/execute', methods=['POST'])
+def handle_execution():
+    # Recibimos la petición (JSON) desde el frontend (script.js).
+    datos_peticion = request.json
+    
+    # Manejamos el bucle de eventos asíncronos para que g4f funcione correctamente.
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    
+    # Le pasamos la petición completa al motor A.L.E. para que decida qué hacer.
+    respuesta_de_ale = loop.run_until_complete(ale.procesar_peticion(datos_peticion))
+    
+    # Devolvemos la respuesta del skillset al frontend en formato JSON.
+    return jsonify(respuesta_de_ale)
+
+# --- ARRANQUE DEL SERVIDOR ---
+# Esto hace que el servidor se ponga en marcha cuando ejecutas "python main.py".
+if __name__ == "__main__":
+    # 'debug=True' hace que el servidor se reinicie automáticamente cuando guardas cambios en el código.
+    app.run(host='0.0.0.0', port=5000, debug=True)
