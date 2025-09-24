@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>The Oracle Game</title>
     
-    <!-- Enlace a tu hoja de estilos (asegúrate que la ruta sea correcta) -->
+    <!-- Asegúrate de que la ruta a tu hoja de estilos sea la correcta -->
     <link rel="stylesheet" href="style.css">
     
-    <!-- Futura implementación de PWA -->
+    <!-- Preparado para PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
 </head>
@@ -39,7 +39,7 @@
                     <div id="stage-brain">🧠</div>
                 </div>
                 <div id="stage-dialog"></div>
-                <!-- El script.js generará los botones aquí dentro -->
+                <!-- Este div está vacío a propósito. El script.js lo llenará dinámicamente. -->
                 <div id="menu-buttons"></div>
             </div>
             <div id="curtain-left" class="curtain"></div>
@@ -53,13 +53,11 @@
                 <p id="question-counter">Pregunta: 0/20</p>
             </div>
             <div id="chat-history">
-                <!-- El historial del chat se insertará aquí -->
+                <!-- El historial del chat se insertará aquí dinámicamente -->
             </div>
             <div class="player-controls">
                 
-                <!-- ================================================== -->
-                <!-- ===      CONTROLES PARA EL MODO ORÁCULO          === -->
-                <!-- ================================================== -->
+                <!-- CONTROLES PARA EL MODO ORÁCULO -->
                 <div id="oracle-mode-controls">
                     <div class="input-area">
                         <input type="text" id="user-question-input" placeholder="Escribe tu pregunta...">
@@ -71,9 +69,7 @@
                     </div>
                 </div>
 
-                <!-- ================================================== -->
-                <!-- ===    CONTROLES PARA EL MODO CLÁSICO (AKINATOR) === -->
-                <!-- ================================================== -->
+                <!-- CONTROLES PARA EL MODO CLÁSICO (AKINATOR) -->
                 <div id="classic-mode-controls" class="hidden">
                     <div class="classic-answer-buttons">
                         <button class="answer-btn" data-answer="Sí">Sí</button>
@@ -87,7 +83,7 @@
             </div>
         </div>
 
-        <!-- PANTALLAS FINALES -->
+        <!-- PANTALLAS FINALES (VICTORIA / DERROTA) -->
         <div id="win-screen" class="end-screen screen hidden">
             <div class="end-screen-content">
                 <h1>¡VICTORIA!</h1>
@@ -116,9 +112,7 @@
             <div class="popup-content-guess">
                 <div class="popup-header">
                     <div id="guess-popup-brain-icon">🧠</div>
-                    <div id="guess-popup-dialog">
-                        <p id="guess-popup-brain-text">Susurra tu respuesta al vacío...</p>
-                    </div>
+                    <p id="guess-popup-brain-text">Susurra tu respuesta al vacío...</p>
                 </div>
                 <div class="popup-body">
                     <h3 id="guess-popup-title">Tu Adivinanza Final</h3>
@@ -150,7 +144,7 @@
     <audio id="curtain-sound" src="https://www.myinstants.com/media/sounds/opening-curtains.mp3" preload="auto"></audio>
     <audio id="typewriter-sound" src="https://www.myinstants.com/media/sounds/typewriter-1.mp3" preload="auto" loop></audio>
 
-    <!-- Enlace a tu script (asegúrate que la ruta sea correcta) -->
+    <!-- El script se carga al final para asegurar que todo el HTML de arriba ya exista -->
     <script src="script.js"></script>
 </body>
 </html>
