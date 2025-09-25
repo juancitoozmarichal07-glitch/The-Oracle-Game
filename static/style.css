@@ -1,3 +1,4 @@
+/* ... (TODO TU CSS ORIGINAL VA AQUÍ, DESDE :root HASTA .button-cooldown) ... */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 :root {
@@ -19,32 +20,24 @@ body {
     overflow: hidden;
 }
 
-/* =================================================================== */
-/* ===      SOLUCIÓN DEFINITIVA PARA EL CENTRADO Y PANTALLA COMPLETA      === */
-/* =================================================================== */
 #arcade-screen {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    
-    /* Las dimensiones son controladas por JavaScript, pero definimos un máximo */
     width: 100vw;
-    height: 100vh; /* Esta será sobrescrita por JS si es necesario */
+    height: 100vh;
     max-width: 100vw;
     max-height: 100vh;
-    
     border: 5px solid var(--main-green);
     border-radius: 15px;
     box-shadow: 0 0 20px var(--main-green), inset 0 0 20px var(--main-green);
     background-color: var(--background-dark);
-    
     display: flex;
     flex-direction: column;
     box-sizing: border-box; 
     overflow: hidden;
 }
-
 
 .screen {
     width: 100%;
@@ -58,7 +51,6 @@ body {
 
 .hidden { display: none !important; }
 
-/* --- BOTONES GENÉRICOS --- */
 button {
     font-family: 'Press Start 2P', cursive;
     padding: 15px 25px;
@@ -85,7 +77,6 @@ button:disabled {
 .button-red:hover:not(:disabled) { background-color: var(--bright-red); color: var(--background-dark); }
 .button-grey { background-color: #222; color: #888; border-color: #888; }
 
-/* --- PANTALLA DE TÍTULO --- */
 #title-screen { justify-content: center; align-items: center; }
 #lightning-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--text-light); z-index: 5; opacity: 0; pointer-events: none; }
 
@@ -146,39 +137,22 @@ button:disabled {
 .shutdown-effect { animation: shutdown 0.5s forwards; }
 @keyframes shutdown { 0% { transform: scaleY(1); opacity: 1; } 80% { transform: scaleY(0.01) scaleX(1.3); opacity: 1; } 100% { transform: scaleY(0); opacity: 0; } }
 
-/* --- ESCENA DEL TELÓN Y MENÚ --- */
 #game-stage { z-index: 200; background-color: var(--background-dark); }
 #stage-content-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; z-index: 2; }
 #stage-brain { font-size: 100px; filter: drop-shadow(0 0 15px var(--main-purple)); margin-bottom: 20px; }
 #stage-dialog { background-color: rgba(0, 0, 0, 0.7); padding: 20px; border: 2px solid var(--main-purple); border-radius: 10px; text-align: center; color: var(--text-light); line-height: 1.6; margin-bottom: 30px; width: 90%; box-shadow: 0 0 15px var(--main-purple); }
 #menu-buttons { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 80%; max-width: 300px; }
 
-/* TELÓN DE TERCIOPELO */
 .curtain {
     position: absolute;
     top: 0;
     width: 50%;
     height: 100%;
-    background: linear-gradient(to right, 
-        #4c0000 0%, 
-        #8B0000 15%, 
-        #a52a2a 25%, 
-        #8B0000 35%, 
-        #610000 50%, 
-        #8B0000 65%, 
-        #a52a2a 75%, 
-        #8B0000 85%, 
-        #4c0000 100%);
+    background: linear-gradient(to right, #4c0000 0%, #8B0000 15%, #a52a2a 25%, #8B0000 35%, #610000 50%, #8B0000 65%, #a52a2a 75%, #8B0000 85%, #4c0000 100%);
     z-index: 3;
 }
-#curtain-left { 
-    left: 0; 
-    box-shadow: inset 20px 0 30px -15px rgba(0,0,0,0.8); 
-}
-#curtain-right { 
-    right: 0; 
-    box-shadow: inset -20px 0 30px -15px rgba(0,0,0,0.8); 
-}
+#curtain-left { left: 0; box-shadow: inset 20px 0 30px -15px rgba(0,0,0,0.8); }
+#curtain-right { right: 0; box-shadow: inset -20px 0 30px -15px rgba(0,0,0,0.8); }
 .curtain::after {
     content: '';
     position: absolute;
@@ -191,7 +165,6 @@ button:disabled {
     filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
 }
 
-/* --- Luces del Escenario --- */
 #stage-lights {
     position: absolute;
     top: 0;
@@ -214,27 +187,11 @@ button:disabled {
     animation-timing-function: ease-in-out;
     transform-origin: center top;
 }
-.spotlight:first-child {
-    left: -50px;
-    animation-name: sweep-left;
-}
-.spotlight:last-child {
-    right: -50px;
-    animation-name: sweep-right;
-}
-@keyframes sweep-left {
-    0% { transform: rotate(-60deg); }
-    50% { transform: rotate(-15deg); }
-    100% { transform: rotate(-60deg); }
-}
-@keyframes sweep-right {
-    0% { transform: rotate(60deg); }
-    50% { transform: rotate(15deg); }
-    100% { transform: rotate(60deg); }
-}
+.spotlight:first-child { left: -50px; animation-name: sweep-left; }
+.spotlight:last-child { right: -50px; animation-name: sweep-right; }
+@keyframes sweep-left { 0% { transform: rotate(-60deg); } 50% { transform: rotate(-15deg); } 100% { transform: rotate(-60deg); } }
+@keyframes sweep-right { 0% { transform: rotate(60deg); } 50% { transform: rotate(15deg); } 100% { transform: rotate(60deg); } }
 
-
-/* --- PANTALLA DE JUEGO PRINCIPAL --- */
 #main-game-screen { padding: 10px; box-sizing: border-box; }
 .game-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; border-bottom: 2px solid var(--main-green); flex-shrink: 0; }
 #back-to-menu-button { background: none; border: none; box-shadow: none; color: var(--main-green); font-size: 0.8em; padding: 5px; text-transform: uppercase; width: auto; }
@@ -250,19 +207,10 @@ button:disabled {
 }
 @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.message-avatar {
-    font-size: 24px;
-    flex-shrink: 0;
-}
-.message-text-container {
-    word-wrap: break-word;
-}
-.message-line-player .message-text-container {
-    color: var(--main-green);
-}
-.message-line-brain .message-text-container {
-    color: var(--main-purple);
-}
+.message-avatar { font-size: 24px; flex-shrink: 0; }
+.message-text-container { word-wrap: break-word; }
+.message-line-player .message-text-container { color: var(--main-green); }
+.message-line-brain .message-text-container { color: var(--main-purple); }
 
 .player-controls { padding-top: 10px; border-top: 2px solid var(--main-green); flex-shrink: 0; }
 .input-area { display: flex; width: 100%; margin-bottom: 10px; }
@@ -286,7 +234,6 @@ button:disabled {
 .action-buttons { display: flex; gap: 10px; }
 .action-buttons > button { flex-grow: 1; font-size: 0.8em; padding: 12px 5px; }
 
-/* --- POP-UPS --- */
 .popup-overlay {
     position: absolute;
     top: 0;
@@ -296,8 +243,7 @@ button:disabled {
     background-color: rgba(0, 0, 0, 0.8);
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Alinea al inicio para que el padding-top funcione */
-    padding-top: 15vh;
+    align-items: center;
     z-index: 500;
     padding: 20px;
     box-sizing: border-box;
@@ -315,7 +261,59 @@ button:disabled {
     animation: fade-in 0.3s;
 }
 
-/* --- POP-UP DE ADIVINANZA (DISEÑO FLOTANTE) --- */
+#guess-popup-title { color: var(--main-purple); margin-top: 0; margin-bottom: 15px; word-wrap: break-word; }
+#guess-popup-instruction {
+    font-size: 0.9em;
+    color: #ccc;
+    line-height: 1.5;
+    margin: 0 auto 20px auto;
+    margin-bottom: 25px;
+    min-height: 40px;
+}
+
+#guess-input {
+    width: 100%;
+    background-color: #222;
+    border: 2px solid #FFD700;
+    color: var(--text-light);
+    padding: 12px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1em;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.popup-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 20px; width: 100%; }
+
+.shake { animation: shake-hard 0.4s; }
+@keyframes shake-hard {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+#suggestion-popup .popup-content h3 { color: var(--main-purple); }
+#suggestion-buttons-container { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+.suggestion-option-button {
+    background-color: #222;
+    border: 2px solid #888;
+    color: #ccc;
+    text-transform: none;
+    font-size: 0.9em;
+    padding: 15px;
+    width: 100%;
+    box-shadow: none;
+}
+.suggestion-option-button:hover {
+    border-color: var(--main-purple);
+    color: var(--main-purple);
+    box-shadow: 0 0 10px var(--main-purple);
+}
+
+.popup-overlay { align-items: flex-start; padding-top: 15vh; }
 #guess-popup .popup-content-guess {
     background-color: transparent;
     border: none;
@@ -374,189 +372,44 @@ button:disabled {
     padding-top: 20px;
 }
 
-#guess-popup-instruction {
-    font-size: 0.9em;
-    color: #ccc;
-    line-height: 1.5;
-    margin: 0 auto 20px auto;
-    margin-bottom: 25px;
-    min-height: 40px;
-}
-
-#guess-input {
-    width: 100%;
-    background-color: #222;
-    border: 2px solid #FFD700;
-    color: var(--text-light);
-    padding: 12px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 1em;
-    margin-bottom: 20px;
-    box-sizing: border-box;
-    border-radius: 5px;
-    text-align: center;
-}
-
-.popup-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
-    width: 100%;
-}
-
-.shake {
-    animation: shake-hard 0.4s;
-}
-@keyframes shake-hard {
-    10%, 90% { transform: translate3d(-1px, 0, 0); }
-    20%, 80% { transform: translate3d(2px, 0, 0); }
-    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-    40%, 60% { transform: translate3d(4px, 0, 0); }
-}
-
-/* --- POP-UP DE SUGERENCIAS --- */
-#suggestion-popup .popup-content h3 {
-    color: var(--main-purple);
-}
-#suggestion-buttons-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin: 20px 0;
-}
-.suggestion-option-button {
-    background-color: #222;
-    border: 2px solid #888;
-    color: #ccc;
-    text-transform: none;
-    font-size: 0.9em;
-    padding: 15px;
-    width: 100%;
-    box-shadow: none;
-}
-.suggestion-option-button:hover {
-    border-color: var(--main-purple);
-    color: var(--main-purple);
-    box-shadow: 0 0 10px var(--main-purple);
-}
-
-/* ================================================== */
-/* ===      ESTILOS PARA LOS BOTONES EN COOLDOWN    === */
-/* ================================================== */
 .button-cooldown {
     background-color: #222 !important;
-    color: #ff8c00 !important; /* Naranja para indicar "espera" */
+    color: #ff8c00 !important;
     border-color: #ff8c00 !important;
     box-shadow: 0 0 10px #ff8c00 !important;
     cursor: not-allowed !important;
     animation: none !important;
 }
 
-/* ================================================== */
-/* ===      ESTILOS PARA EL MODO CLÁSICO            === */
-/* ================================================== */
+/* =================================================================== */
+/* ===      ESTILOS PARA EL MODO CLÁSICO (BOTONES VERDES)          === */
+/* =================================================================== */
 .classic-answer-buttons {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Dos columnas */
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
-    width: 100%;
+    padding: 0 10px;
 }
 
-.classic-answer-buttons .answer-btn {
-    padding: 15px 10px;
-    font-size: 0.9em;
-    background-color: #2a2a2a;
-    border: 2px solid var(--main-purple);
-    color: var(--main-purple);
-    box-shadow: 0 0 8px var(--main-purple);
-}
-
-.classic-answer-buttons .answer-btn:hover:not(:disabled) {
-    background-color: var(--main-purple);
-    color: var(--background-dark);
-}
-
-/* Hacemos que el botón "No lo sé" ocupe las dos columnas */
-.classic-answer-buttons .answer-btn[data-answer="No lo sé"] {
-    grid-column: 1 / -1; /* Ocupa desde la primera a la última columna */
-}
-
-/* --- PANTALLAS FINALES --- */
-.end-screen {
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-.end-screen-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.end-screen h1 {
-    font-size: 3em;
-    margin-bottom: 20px;
-}
-#win-screen h1 {
-    color: var(--main-green);
-    text-shadow: 0 0 10px var(--main-green);
-}
-#lose-screen h1 {
-    color: var(--bright-red);
-    text-shadow: 0 0 10px var(--bright-red);
-}
-.end-screen-content p {
-    font-size: 1.1em;
-    line-height: 1.6;
-    margin-bottom: 40px;
-    max-width: 600px;
-    padding: 0 20px;
-}
-.end-buttons {
-    display: flex;
-    gap: 20px;
-}
-.end-screen-btn {
-    font-size: 1em;
-}
-/* ================================================== */
-/* === ESTILOS PARA EL MODO CLÁSICO (BOTONES VERDES) === */
-/* ================================================== */
-
-/* Contenedor principal para los botones de respuesta */
-.classic-answer-buttons {
-    display: flex;
-    flex-wrap: wrap; /* Permite que los botones pasen a la siguiente línea si no caben */
-    justify-content: center;
-    gap: 10px; /* Espacio entre botones */
-    padding: 10px;
-}
-
-/* Estilo base para cada botón de respuesta */
 .answer-btn {
-    padding: 12px 20px;
-    font-family: 'Press Start 2P', cursive; /* Asumo que usas una fuente pixelada */
-    font-size: 16px;
-    color: #FFFFFF;
-    text-shadow: 2px 2px #000000;
-    border: 2px solid #000000;
-    cursor: pointer;
-    transition: all 0.1s ease-in-out;
-
-    /* --- ¡AQUÍ ESTÁ LA MAGIA VERDE! --- */
-    background-color: #2a9d8f; /* Un verde azulado, tipo 'teal' */
-    box-shadow: 0 6px #1a6a5f, 0 8px 6px rgba(0,0,0,0.3); /* Sombra 3D verde oscuro */
+    background-color: #222;
+    color: var(--main-green);
+    border: 2px solid var(--main-green);
+    box-shadow: 0 6px #1a6a5f, 0 8px 6px rgba(0,0,0,0.4);
+    font-size: 0.9em;
+    padding: 15px 5px;
+    text-transform: none;
+    transition: all 0.1s ease-out;
 }
 
-/* Efecto al pasar el ratón por encima */
-.answer-btn:hover {
-    background-color: #3cafa1; /* Un verde un poco más claro */
+.answer-btn:hover:not(:disabled) {
+    background-color: var(--main-green);
+    color: var(--background-dark);
     transform: translateY(-2px);
     box-shadow: 0 8px #1a6a5f, 0 10px 8px rgba(0,0,0,0.4);
 }
 
-/* Efecto al hacer clic */
-.answer-btn:active {
+.answer-btn:active:not(:disabled) {
     transform: translateY(4px);
     box-shadow: 0 2px #1a6a5f;
 }
