@@ -37,7 +37,7 @@ let state = {
 };
 
 // --- CONEXIÓN CON A.L.E. (VERSIÓN A PRUEBA DE BALAS) ---
-const ALE_URL = 'http://127.0.0.1:5000/api/execute';
+const ALE_URL = '/execute';
 
 async function callALE(datos_peticion) {
     try {
