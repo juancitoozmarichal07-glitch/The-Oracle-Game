@@ -1,6 +1,6 @@
 Flask
 Flask-Cors
-g4f==0.6.1.5
+g4f==0.6.3.0
 httpx
 aiohttp
 cloudscraper
