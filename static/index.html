@@ -4,17 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>The Oracle Game</title>
-    
-    <!-- Asegúrate de que la ruta a tu hoja de estilos sea la correcta -->
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- Preparado para PWA -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#000000">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => console.log('[PWA] ServiceWorker registrado con éxito:', registration.scope))
+                    .catch(error => console.log('[PWA] Fallo en el registro de ServiceWorker:', error));
+            });
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="arcade-screen">
-        <!-- PANTALLA DE TÍTULO -->
+        <!-- PANTALLA DE TÍTULO (Original) -->
         <div id="title-screen" class="screen">
             <div id="lightning-overlay"></div>
             <div id="intro-brain">🧠</div>
@@ -28,7 +33,7 @@
             </div>
         </div>
 
-        <!-- ESCENA DEL TELÓN Y MENÚ -->
+        <!-- ESCENA DEL TELÓN Y MENÚ (Original) -->
         <div id="game-stage" class="screen hidden">
            <div id="stage-lights">
                 <div class="spotlight"></div>
@@ -39,25 +44,21 @@
                     <div id="stage-brain">🧠</div>
                 </div>
                 <div id="stage-dialog"></div>
-                <!-- Este div está vacío a propósito. El script.js lo llenará dinámicamente. -->
                 <div id="menu-buttons"></div>
             </div>
             <div id="curtain-left" class="curtain"></div>
             <div id="curtain-right" class="curtain"></div>
         </div>
 
-        <!-- PANTALLA DE JUEGO PRINCIPAL -->
+        <!-- PANTALLA DE JUEGO PRINCIPAL (Adaptada) -->
         <div id="main-game-screen" class="screen hidden">
             <div class="game-header">
                 <button id="back-to-menu-button">‹ MENÚ</button>
                 <p id="question-counter">Pregunta: 0/20</p>
             </div>
-            <div id="chat-history">
-                <!-- El historial del chat se insertará aquí dinámicamente -->
-            </div>
+            <div id="chat-history"></div>
             <div class="player-controls">
-                
-                <!-- CONTROLES PARA EL MODO ORÁCULO -->
+                <!-- Controles Modo Oráculo (Original) -->
                 <div id="oracle-mode-controls">
                     <div class="input-area">
                         <input type="text" id="user-question-input" placeholder="Escribe tu pregunta...">
@@ -68,8 +69,7 @@
                         <button id="guess-button" class="button-green">¡Adivinar!</button>
                     </div>
                 </div>
-
-                <!-- CONTROLES PARA EL MODO CLÁSICO (AKINATOR) -->
+                <!-- Controles Modo Clásico (Nuevos y Ocultos) -->
                 <div id="classic-mode-controls" class="hidden">
                     <div class="classic-answer-buttons">
                         <button class="answer-btn" data-answer="Sí">Sí</button>
@@ -79,11 +79,10 @@
                         <button class="answer-btn" data-answer="Probablemente No">Prob. No</button>
                     </div>
                 </div>
-
             </div>
         </div>
 
-        <!-- PANTALLAS FINALES (VICTORIA / DERROTA) -->
+        <!-- PANTALLAS FINALES (Original) -->
         <div id="win-screen" class="end-screen screen hidden">
             <div class="end-screen-content">
                 <h1>¡VICTORIA!</h1>
@@ -106,13 +105,15 @@
         </div>
     </div>
 
-    <!-- CONTENEDOR DE POP-UPS -->
+    <!-- POP-UPS (Original) -->
     <div id="popups-container">
         <div id="guess-popup" class="popup-overlay hidden">
             <div class="popup-content-guess">
                 <div class="popup-header">
                     <div id="guess-popup-brain-icon">🧠</div>
-                    <p id="guess-popup-brain-text">Susurra tu respuesta al vacío...</p>
+                    <div id="guess-popup-dialog">
+                        <p id="guess-popup-brain-text">Susurra tu respuesta al vacío...</p>
+                    </div>
                 </div>
                 <div class="popup-body">
                     <h3 id="guess-popup-title">Tu Adivinanza Final</h3>
@@ -125,7 +126,6 @@
                 </div>
             </div>
         </div>
-
         <div id="suggestion-popup" class="popup-overlay hidden">
             <div class="popup-content">
                 <h3>Sugerencias del Cerebro</h3>
@@ -137,14 +137,13 @@
         </div>
     </div>
     
-    <!-- DEFINICIÓN DE LOS SONIDOS -->
+    <!-- SONIDOS (Original) -->
     <audio id="applause-sound" src="https://www.myinstants.com/media/sounds/applause-8.mp3" preload="auto"></audio>
     <audio id="thunder-sound" src="https://www.myinstants.com/media/sounds/strong_thunder.mp3" preload="auto"></audio>
     <audio id="materialize-sound" src="https://www.myinstants.com/media/sounds/magical-revelation.mp3" preload="auto"></audio>
     <audio id="curtain-sound" src="https://www.myinstants.com/media/sounds/opening-curtains.mp3" preload="auto"></audio>
     <audio id="typewriter-sound" src="https://www.myinstants.com/media/sounds/typewriter-1.mp3" preload="auto" loop></audio>
 
-    <!-- El script se carga al final para asegurar que todo el HTML de arriba ya exista -->
     <script src="script.js"></script>
 </body>
 </html>
