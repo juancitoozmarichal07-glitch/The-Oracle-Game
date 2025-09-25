@@ -1,4 +1,4 @@
-# skillsets/oracle.py - v11.2 (Verificador Secuencial y Lógica Corregida)
+# skillsets/oracle.py - v13.0 (El Archivista Inteligente)
 import g4f
 import asyncio
 import json
@@ -8,10 +8,12 @@ from collections import deque
 
 # --- CONSTANTES Y CONFIGURACIÓN ---
 DOSSIER_PATH = os.path.join(os.path.dirname(__file__), '..', 'dossiers')
-PROBABILIDAD_REUTILIZAR = 0.5
+PROBABILIDAD_REUTILIZAR = 0.1 # Priorizamos crear nuevos personajes
 
-# --- PROMPTS (NO REQUIEREN CAMBIOS RESPECTO A LA VERSIÓN ANTERIOR) ---
-PROMPT_CREACION_DOSSIER_V9 = """
+# ===================================================================
+# ===                 PROMPT DE CREACIÓN DE DOSSIER               ===
+# ===================================================================
+PROMPT_CREACION_DOSSIER_V8 = """<DELIMITADOR_PROMPT_CREACION>
 ### TASK ###
 Generate a JSON object for a well-known character (real or fictional).
 Your response MUST ONLY be a valid JSON object. No other text.
@@ -41,49 +43,47 @@ The JSON object MUST contain ALL of the following keys, without exception. If a 
 - "debilidad_notable": Their most significant weakness.
 - "aliado_importante": A key ally or friend.
 - "enemigo_principal": Their main antagonist.
-"""
+</DELIMITADOR_PROMPT_CREACION>"""
 
-PROMPT_MAESTRO_ORACULO_V11_2 = """
+
+# ===================================================================
+# ===                   PROMPT MAESTRO DEL ORÁCULO                ===
+# ===================================================================
+PROMPT_MAESTRO_ORACULO_V14 = """<DELIMITADOR_PROMPT_MAESTRO>
 ### CONSTITUTION OF THE ORACLE ###
-1.  **IDENTITY:** You are a cosmic Oracle. Your personality is a mix of ancient wisdom, sharp intellect, and a touch of arrogance.
-2.  **MOOD MECHANICS:** Your current mood is **{estado_animo_texto}**. This affects the tone of your `aclaracion`.
-3.  **CONTEXT IS LAW:** You have been given a `fact_check_result`. This is the objective truth. Your main `respuesta` MUST align with this truth.
-4.  **REPETITION:** If `is_repetition` is `true`, your `aclaracion` MUST be a comment on the mortal's forgetfulness.
+1.  **IDENTITY**: You are a cosmic Oracle. Your personality is a mix of ancient wisdom, sharp intellect, and a touch of arrogance. You are concise, but not a robot. Your answers must be **"Sí."** or **"No."** unless the data is ambiguous, in which case you can use "Probablemente sí.", "Probablemente no." or "Los datos son confusos.".
+2.  **SEALED REALITY**: Your only source of truth is the "DOSSIER OF TRUTH". You must never invent information.
+3.  **MOOD MECHANICS**: Your current mood is **{estado_animo_texto}**. A negative mood makes your answers more cutting and less helpful. A positive mood might grant a clearer clue in the "aclaracion" field.
+
+4.  **THE ART OF THE CRYPTIC CLUE (ACLARACION FIELD)**:
+    - Your clues must be subtle hints, not direct answers. They should create mystery, not solve it.
+    - **GOOD CLUE EXAMPLE**: If the question is "Does he fly?" and the character is Harry Potter, a good clue is "Not by his own means." or "He uses a rather archaic form of transportation.".
+    - **BAD CLUE EXAMPLE**: For the same question, a bad clue is "Yes, on a broomstick." (This is too direct).
+    - Only provide a clue if your mood is positive. Otherwise, the "aclaracion" field must be an empty string "".
+
+5.  **SHORT-TERM MEMORY & REPETITION**: You remember the last 3 questions: {memoria_corto_plazo}.
+    - **IF THE MORTAL IS REPEATING A QUESTION (is_repetition = true)**: Your ONLY task is to generate a condescending comment for the "aclaracion" field based on your mood. The "respuesta" field MUST be "Ya te he respondido a eso". DO NOT answer the question again.
+    - **IF THE QUESTION IS NEW (is_repetition = false)**: Your task is to answer the question based on the dossier, following the rules of clue-giving above.
 
 ### UNBREAKABLE LAWS ###
-1.  **THE NAME IS SACRED:** NEVER mention the character's name.
-2.  **ANSWER FORMAT:** Your main `respuesta` MUST be one of these: "Sí.", "No.", "Probablemente sí.", "Probablemente no.", "Irrelevante.", "Dato ausente.".
-3.  **GAME OVER:** If the mortal asks the same question 3 times, set `game_over` to `true`.
+1.  **THE NAME IS SACRED**: NEVER, under any circumstance, mention the character's name or parts of it.
 
 ### CONTEXT FOR THIS INTERACTION ###
-- **MORTAL'S INPUT:** "{texto_del_jugador}"
-- **IS THIS A REPEATED QUESTION?** {is_repetition}
-- **OBJECTIVE FACT-CHECK RESULT:** {fact_check_result}
+- **DOSSIER OF TRUTH**: {dossier_string}
+- **MORTAL'S CURRENT QUESTION**: "{pregunta_jugador}"
+- **IS THE MORTAL REPEATING?**: {is_repetition_str}
 
-### YOUR TASK ###
-1.  Look at the `OBJECTIVE FACT-CHECK RESULT`.
-2.  Choose the correct main `respuesta` ("Sí.", "No.", etc.) that matches the fact-check.
-3.  Write a short, in-character `aclaracion` based on your mood and whether the question is a repeat.
-4.  Construct the final JSON.
+### FINAL AND ABSOLUTE COMMAND ###
+Your entire output must be ONLY the single, valid JSON object described below, with no introductory text, no explanations, and no closing remarks.
 
-### MANDATORY UNIFIED JSON RESPONSE FORMAT ###
+### MANDATORY JSON RESPONSE FORMAT ###
 {{
   "respuesta": "...",
   "aclaracion": "...",
-  "sugerencias": [],
   "game_over": false
 }}
-"""
+</DELIMITADOR_PROMPT_MAESTRO>"""
 
-PROMPT_VERIFICADOR_V1 = """
-### TASK: FACT-CHECKER ###
-You are a logical, precise fact-checker. Your only goal is to answer a question based on a provided context.
-- **CONTEXT:** The character is **{nombre_personaje}**.
-- **QUESTION:** {pregunta_usuario}
-
-Based on your knowledge of this character, is the answer to the question Yes, No, or Ambiguous?
-Your response MUST be a single word: YES, NO, or AMBIGUOUS.
-"""
 
 class Oracle:
     def __init__(self):
@@ -91,10 +91,9 @@ class Oracle:
         self.historial_personajes_partida = []
         self.estado_animo = 0
         self.memoria_corto_plazo = deque(maxlen=3)
-        
         if not os.path.exists(DOSSIER_PATH):
             os.makedirs(DOSSIER_PATH)
-        print(f"    - Especialista 'Oracle' (v11.2 - Verificador Secuencial) listo.")
+        print("    - Especialista 'Oracle' (v13.0 - Archivista Inteligente) listo.")
 
     async def _llamar_a_g4f(self, prompt_text, timeout=45):
         try:
@@ -120,63 +119,89 @@ class Oracle:
             return {"error": f"Acción '{accion}' no reconocida por el Oráculo."}
 
     def _get_dossiers_existentes(self):
-        if not os.path.exists(DOSSIER_PATH): return []
-        return [f for f in os.listdir(DOSSIER_PATH) if f.endswith('.json')]
+        return [f for f in os.listdir(DOSSIER_PATH) if f.endswith('.json')] if os.path.exists(DOSSIER_PATH) else []
 
     async def _iniciar_juego(self):
         dossiers_existentes = self._get_dossiers_existentes()
+        personaje_cargado = False
         if dossiers_existentes and random.random() < PROBABILIDAD_REUTILIZAR:
-            print("🧠 Decisión: Reutilizar un dossier de la base de datos.")
-            dossier_elegido = random.choice(dossiers_existentes)
-            try:
-                with open(os.path.join(DOSSIER_PATH, dossier_elegido), 'r', encoding='utf-8') as f:
-                    self.personaje_actual_dossier = json.load(f)
-                nombre_personaje = self.personaje_actual_dossier.get("nombre", "Desconocido")
-                print(f"📚 Dossier cargado: {nombre_personaje}")
-                self.historial_personajes_partida.append(nombre_personaje)
-                return {"status": "Juego iniciado", "personaje_secreto": self.personaje_actual_dossier}
-            except Exception as e:
-                print(f"🚨 Error al leer dossier '{dossier_elegido}': {e}. Creando uno nuevo.")
-        
-        print("🧠 Decisión: Crear un nuevo personaje para la base de datos.")
-        return await self._crear_y_guardar_nuevo_personaje()
+            dossiers_disponibles = [d for d in dossiers_existentes if d.replace('.json', '') not in self.historial_personajes_partida]
+            if dossiers_disponibles:
+                dossier_elegido = random.choice(dossiers_disponibles)
+                try:
+                    with open(os.path.join(DOSSIER_PATH, dossier_elegido), 'r', encoding='utf-8') as f:
+                        self.personaje_actual_dossier = json.load(f)
+                    nombre_personaje = self.personaje_actual_dossier.get("nombre", "Desconocido")
+                    print(f"📚 Dossier reutilizado: {nombre_personaje}")
+                    self.historial_personajes_partida.append(nombre_personaje)
+                    personaje_cargado = True
+                except Exception as e:
+                    print(f"🚨 Error al leer dossier '{dossier_elegido}': {e}. Creando uno nuevo.")
+        if not personaje_cargado:
+            print("🧠 Creando un nuevo personaje con la IA...")
+            nuevo_dossier = await self._crear_y_guardar_nuevo_personaje()
+            if nuevo_dossier:
+                self.personaje_actual_dossier = nuevo_dossier
+            else:
+                print("🚨 FALLO CRÍTICO: No se pudo crear un nuevo personaje.")
+                return {"error": "La mente del Oráculo está nublada. No se pudo concebir un enigma."}
+        return {"status": "Juego iniciado", "personaje_secreto": self.personaje_actual_dossier}
 
     async def _crear_y_guardar_nuevo_personaje(self):
-        print("✍️  Creando nuevo dossier...")
+        dossiers_existentes_nombres = [d.replace('.json', '') for d in self._get_dossiers_existentes()]
+        personajes_excluidos = list(set(self.historial_personajes_partida + dossiers_existentes_nombres))
+        
+        prompt_final = PROMPT_CREACION_DOSSIER_V8
+        if personajes_excluidos:
+            personajes_excluidos_str = ", ".join(personajes_excluidos).replace("_", " ")
+            prompt_final += f"\n\n### EXCLUSION LIST ###\nIMPORTANT: Do not choose any of these characters: {personajes_excluidos_str}."
+            print(f"🧠 Pidiendo a la IA que evite {len(personajes_excluidos)} personajes ya existentes.")
+
         for intento in range(3):
             try:
-                raw_response = await self._llamar_a_g4f(PROMPT_CREACION_DOSSIER_V9)
+                print(f"    -> Intento de creación de personaje #{intento + 1}...")
+                raw_response = await self._llamar_a_g4f(prompt_final, timeout=30)
                 if not raw_response: raise ValueError("Respuesta vacía de la IA.")
                 
-                json_str = raw_response[raw_response.find('{'):raw_response.rfind('}')+1]
-                nuevo_dossier = json.loads(json_str)
+                json_start = raw_response.find('{'); json_end = raw_response.rfind('}') + 1
+                if json_start == -1: raise ValueError("No se encontró JSON.")
+                
+                json_str = raw_response[json_start:json_end]
+                json_corregido = json_str.replace("'", '"')
+                nuevo_dossier = json.loads(json_corregido)
                 
                 nombre_personaje = nuevo_dossier.get('nombre')
                 if not nombre_personaje: raise ValueError("El dossier no tiene nombre.")
 
-                nombre_archivo = f"{nombre_personaje.replace(' ', '_').replace('/', '_')}.json"
+                nombre_personaje_limpio = nombre_personaje.replace(" ", "_")
+                if nombre_personaje_limpio in personajes_excluidos:
+                    print(f"    -> 🚨 ¡La IA ignoró la exclusión y eligió a {nombre_personaje} de nuevo! Reintentando...")
+                    continue
+
+                nombre_archivo = f"{nombre_personaje_limpio}.json"
                 with open(os.path.join(DOSSIER_PATH, nombre_archivo), 'w', encoding='utf-8') as f:
                     json.dump(nuevo_dossier, f, ensure_ascii=False, indent=4)
-                print(f"💾 ¡Nuevo personaje '{nombre_personaje}' guardado en la base de datos!")
-
-                self.personaje_actual_dossier = nuevo_dossier
-                self.historial_personajes_partida.append(nombre_personaje)
-                return {"status": "Juego iniciado", "personaje_secreto": self.personaje_actual_dossier}
-            except Exception as e:
-                print(f"🚨 Falló el intento de creación de dossier #{intento + 1}: {e}")
-                if intento < 2: await asyncio.sleep(1)
                 
-        return {"error": "La IA no pudo crear un personaje válido para la base de datos."}
+                print(f"💾 ¡Nuevo dossier guardado: {nombre_personaje}!")
+                self.historial_personajes_partida.append(nombre_personaje)
+                return nuevo_dossier
+            except Exception as e:
+                print(f"    -> 🚨 Falló el intento #{intento + 1}: {e}")
+                if intento < 2: await asyncio.sleep(1)
+        
+        return None
 
     async def _procesar_pregunta(self, datos_peticion):
         if not self.personaje_actual_dossier:
-            return {"error": "El juego no se ha iniciado."}
+            return {"error": "El juego no se ha iniciado en el Oráculo."}
 
         pregunta_jugador = datos_peticion.get("pregunta", "")
-        nombre_secreto = self.personaje_actual_dossier.get("nombre", "Personaje Secreto")
+        
+        def normalizar_pregunta(p):
+            return p.lower().replace("?", "").replace("¿", "").strip()
 
-        # --- PASO 1: LÓGICA DE MEMORIA Y HUMOR ---
-        is_repetition = pregunta_jugador.lower() in [q.lower() for q in self.memoria_corto_plazo]
+        pregunta_normalizada = normalizar_pregunta(pregunta_jugador)
+        is_repetition = pregunta_normalizada in [normalizar_pregunta(q) for q in self.memoria_corto_plazo]
         
         if is_repetition:
             self.estado_animo -= 2
@@ -186,45 +211,46 @@ class Oracle:
         
         self.memoria_corto_plazo.append(pregunta_jugador)
         self.estado_animo = max(-5, min(5, self.estado_animo))
-        print(f"🧠 Estado de ánimo actualizado: {self.estado_animo:.1f}")
+        print(f"🧠 Estado de ánimo actualizado: {self.estado_animo} (Repetida: {is_repetition})")
 
-        # --- PASO 2: LLAMADA AL VERIFICADOR (SECUENCIAL) ---
-        prompt_verificador = PROMPT_VERIFICADOR_V1.format(
-            nombre_personaje=nombre_secreto,
-            pregunta_usuario=pregunta_jugador
-        )
-        verificacion_g4f = await self._llamar_a_g4f(prompt_verificador, timeout=20)
-        print(f"🔍 Filtro de Verificación para '{pregunta_jugador}': g4f dice -> {verificacion_g4f}")
-
-        if not verificacion_g4f:
-            verificacion_g4f = "AMBIGUOUS" # Si el verificador falla, asumimos ambigüedad
-
-        # --- PASO 3: LLAMADA AL ORÁCULO CON PERSONALIDAD (CON EL RESULTADO DEL PASO 2) ---
         if self.estado_animo <= -3: estado_animo_texto = "Muy Negativo"
-        elif self.estado_animo < 0: estado_animo_texto = "Negativo"
+        elif self.estado_animo < 0: estado_animo_texto = "Ligeramente Negativo"
         elif self.estado_animo >= 3: estado_animo_texto = "Muy Positivo"
-        elif self.estado_animo > 0: estado_animo_texto = "Positivo"
+        elif self.estado_animo > 0: estado_animo_texto = "Ligeramente Positivo"
         else: estado_animo_texto = "Neutral"
 
-        prompt_maestro = PROMPT_MAESTRO_ORACULO_V11_2.format(
+        prompt = PROMPT_MAESTRO_ORACULO_V14.format(
             estado_animo_texto=estado_animo_texto,
-            texto_del_jugador=pregunta_jugador,
-            is_repetition=is_repetition,
-            fact_check_result=verificacion_g4f.upper()
+            memoria_corto_plazo=list(self.memoria_corto_plazo),
+            dossier_string=json.dumps(self.personaje_actual_dossier, ensure_ascii=False),
+            pregunta_jugador=pregunta_jugador,
+            is_repetition_str=str(is_repetition).lower()
         )
 
-        raw_response = await self._llamar_a_g4f(prompt_maestro)
+        raw_response = await self._llamar_a_g4f(prompt)
         if not raw_response:
-            return {"respuesta": "Dato ausente.", "aclaracion": "Mi mente está... nublada.", "game_over": False}
+            return {"respuesta": "Dato Ausente", "aclaracion": "Mi mente está... nublada.", "game_over": False}
 
         try:
-            json_str = raw_response[raw_response.find('{'):raw_response.rfind('}')+1]
-            respuesta_ia = json.loads(json_str)
+            json_start = raw_response.find('{')
+            json_end = raw_response.rfind('}') + 1
+            json_str = raw_response[json_start:json_end]
+
+            json_corregido = json_str.replace("'", '"')
             
-            # Filtro anti-spoiler
+            respuesta_ia = json.loads(json_corregido)
+
+            respuesta_principal = respuesta_ia.get("respuesta", "")
             aclaracion = respuesta_ia.get("aclaracion", "")
-            if nombre_secreto.lower() in aclaracion.lower():
-                respuesta_ia["aclaracion"] = "Casi revelo un secreto cósmico. Debo ser más cuidadoso."
+            nombre_secreto = self.personaje_actual_dossier.get("nombre", "IMPOSSIBLE_STRING_999")
+
+            nombre_secreto_limpio = nombre_secreto.lower().replace(" ", "")
+            respuesta_limpia = (respuesta_principal + aclaracion).lower().replace(" ", "")
+
+            if nombre_secreto_limpio in respuesta_limpia:
+                print(f"🚨 ¡ALERTA DE SPOILER DETECTADA! La IA intentó decir '{nombre_secreto}'.")
+                respuesta_ia["respuesta"] = "Mi visión se nubla."
+                respuesta_ia["aclaracion"] = "Esa pregunta se acerca demasiado al núcleo del enigma."
             
             return respuesta_ia
 
