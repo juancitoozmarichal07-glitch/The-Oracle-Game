@@ -15,7 +15,10 @@
             });
         }
     </script>
-    <link rel="stylesheet" href="style.css">
+    <!-- =================================================================== -->
+    <!-- ===   CORRECCIÓN: Ruta absoluta para que Vercel la encuentre    === -->
+    <!-- =================================================================== -->
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div id="arcade-screen">
@@ -154,16 +157,16 @@
         </div>
     </div>
     
-    <!-- =================================================================== -->
-    <!-- ===   DEFINICIÓN DE LOS SONIDOS (RUTAS LOCALES CORREGIDAS)      === -->
-    <!-- =================================================================== -->
+    <!-- SONIDOS (Rutas absolutas) -->
     <audio id="applause-sound" src="/sounds/applause-8.mp3" preload="auto"></audio>
     <audio id="thunder-sound" src="/sounds/strong_thunder.mp3" preload="auto"></audio>
     <audio id="materialize-sound" src="/sounds/magical-revelation.mp3" preload="auto"></audio>
     <audio id="curtain-sound" src="/sounds/opening-curtains.mp3" preload="auto"></audio>
     <audio id="typewriter-sound" src="/sounds/typewriter-1.mp3" preload="auto" loop></audio>
 
-    <script src="script.js"></script>
+    <!-- =================================================================== -->
+    <!-- ===   CORRECCIÓN: Ruta absoluta para que Vercel la encuentre    === -->
+    <!-- =================================================================== -->
+    <script src="/script.js"></script>
 </body>
 </html>
-
