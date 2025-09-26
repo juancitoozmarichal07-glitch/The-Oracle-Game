@@ -1,0 +1,3 @@
+Flask
+Flask-Cors
+g4f==0.6.3.0
