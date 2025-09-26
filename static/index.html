@@ -19,7 +19,7 @@
 </head>
 <body>
     <div id="arcade-screen">
-        <!-- PANTALLA DE TÍTULO (Original) -->
+        <!-- PANTALLA DE TÍTULO (Tu Original) -->
         <div id="title-screen" class="screen">
             <div id="lightning-overlay"></div>
             <div id="intro-brain">🧠</div>
@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <!-- ESCENA DEL TELÓN Y MENÚ (Original) -->
+        <!-- ESCENA DEL TELÓN Y MENÚ (Tu Original) -->
         <div id="game-stage" class="screen hidden">
            <div id="stage-lights">
                 <div class="spotlight"></div>
@@ -50,7 +50,7 @@
             <div id="curtain-right" class="curtain"></div>
         </div>
 
-        <!-- PANTALLA DE JUEGO PRINCIPAL (Adaptada) -->
+        <!-- PANTALLA DE JUEGO PRINCIPAL (Adaptada para Pistas y Sugerencias) -->
         <div id="main-game-screen" class="screen hidden">
             <div class="game-header">
                 <button id="back-to-menu-button">‹ MENÚ</button>
@@ -58,18 +58,22 @@
             </div>
             <div id="chat-history"></div>
             <div class="player-controls">
-                <!-- Controles Modo Oráculo (Original) -->
+                <!-- Controles Modo Oráculo -->
                 <div id="oracle-mode-controls">
                     <div class="input-area">
                         <input type="text" id="user-question-input" placeholder="Escribe tu pregunta...">
                         <button id="ask-button"><svg viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" /></svg></button>
                     </div>
+                    <!-- CAMBIO: Dos botones de ayuda -->
                     <div class="action-buttons">
-                        <button id="suggestion-button" class="button-green">Sugerencia 5/5</button>
-                        <button id="guess-button" class="button-green">¡Adivinar!</button>
+                        <button id="clue-button" class="button-purple">Pista 3/3</button>
+                        <button id="suggestion-button" class="button-green">Sugerencias 5/5</button>
+                    </div>
+                    <div class="action-buttons">
+                         <button id="guess-button" class="button-red">¡Adivinar!</button>
                     </div>
                 </div>
-                <!-- Controles Modo Clásico (Nuevos y Ocultos) -->
+                <!-- Controles Modo Clásico -->
                 <div id="classic-mode-controls" class="hidden">
                     <div class="classic-answer-buttons">
                         <button class="answer-btn" data-answer="Sí">Sí</button>
@@ -82,7 +86,7 @@
             </div>
         </div>
 
-        <!-- PANTALLAS FINALES (Original) -->
+        <!-- PANTALLAS FINALES (Tu Original) -->
         <div id="win-screen" class="end-screen screen hidden">
             <div class="end-screen-content">
                 <h1>¡VICTORIA!</h1>
@@ -105,7 +109,7 @@
         </div>
     </div>
 
-    <!-- POP-UPS (Original) -->
+    <!-- POP-UPS (Adaptados para Pistas y Sugerencias) -->
     <div id="popups-container">
         <div id="guess-popup" class="popup-overlay hidden">
             <div class="popup-content-guess">
@@ -126,9 +130,24 @@
                 </div>
             </div>
         </div>
+        
+        <!-- POPUP DE LA CARTA DE PISTA (Nuevo) -->
+        <div id="clue-card-popup" class="popup-overlay hidden">
+            <div id="clue-card">
+                <div class="card-front">
+                    <div class="card-symbol">?</div>
+                </div>
+                <div class="card-back">
+                    <div class="card-header">Un Susurro del Cosmos</div>
+                    <div id="clue-card-text"></div>
+                    <button data-close="clue-card-popup" class="card-close-button">Cerrar</button>
+                </div>
+            </div>
+        </div>
+
         <div id="suggestion-popup" class="popup-overlay hidden">
             <div class="popup-content">
-                <h3>Sugerencias del Cerebro</h3>
+                <h3>Sugerencias del Oráculo</h3>
                 <div id="suggestion-buttons-container"></div>
                 <div class="popup-buttons">
                     <button data-close="suggestion-popup" class="button-green">Cerrar</button>
@@ -137,7 +156,7 @@
         </div>
     </div>
     
-    <!-- SONIDOS (Original) -->
+    <!-- SONIDOS (Tu Original) -->
     <audio id="applause-sound" src="https://www.myinstants.com/media/sounds/applause-8.mp3" preload="auto"></audio>
     <audio id="thunder-sound" src="https://www.myinstants.com/media/sounds/strong_thunder.mp3" preload="auto"></audio>
     <audio id="materialize-sound" src="https://www.myinstants.com/media/sounds/magical-revelation.mp3" preload="auto"></audio>
