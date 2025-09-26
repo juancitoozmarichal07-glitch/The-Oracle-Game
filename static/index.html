@@ -19,7 +19,7 @@
 </head>
 <body>
     <div id="arcade-screen">
-        <!-- PANTALLA DE TÍTULO (Tu Original) -->
+        <!-- PANTALLA DE TÍTULO -->
         <div id="title-screen" class="screen">
             <div id="lightning-overlay"></div>
             <div id="intro-brain">🧠</div>
@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <!-- ESCENA DEL TELÓN Y MENÚ (Tu Original) -->
+        <!-- ESCENA DEL TELÓN Y MENÚ -->
         <div id="game-stage" class="screen hidden">
            <div id="stage-lights">
                 <div class="spotlight"></div>
@@ -50,7 +50,7 @@
             <div id="curtain-right" class="curtain"></div>
         </div>
 
-        <!-- PANTALLA DE JUEGO PRINCIPAL (Adaptada para Pistas y Sugerencias) -->
+        <!-- PANTALLA DE JUEGO PRINCIPAL -->
         <div id="main-game-screen" class="screen hidden">
             <div class="game-header">
                 <button id="back-to-menu-button">‹ MENÚ</button>
@@ -64,7 +64,6 @@
                         <input type="text" id="user-question-input" placeholder="Escribe tu pregunta...">
                         <button id="ask-button"><svg viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" /></svg></button>
                     </div>
-                    <!-- CAMBIO: Dos botones de ayuda -->
                     <div class="action-buttons">
                         <button id="clue-button" class="button-purple">Pista 3/3</button>
                         <button id="suggestion-button" class="button-green">Sugerencias 5/5</button>
@@ -86,7 +85,7 @@
             </div>
         </div>
 
-        <!-- PANTALLAS FINALES (Tu Original) -->
+        <!-- PANTALLAS FINALES -->
         <div id="win-screen" class="end-screen screen hidden">
             <div class="end-screen-content">
                 <h1>¡VICTORIA!</h1>
@@ -109,7 +108,7 @@
         </div>
     </div>
 
-    <!-- POP-UPS (Adaptados para Pistas y Sugerencias) -->
+    <!-- POP-UPS -->
     <div id="popups-container">
         <div id="guess-popup" class="popup-overlay hidden">
             <div class="popup-content-guess">
@@ -131,7 +130,6 @@
             </div>
         </div>
         
-        <!-- POPUP DE LA CARTA DE PISTA (Nuevo) -->
         <div id="clue-card-popup" class="popup-overlay hidden">
             <div id="clue-card">
                 <div class="card-front">
@@ -156,13 +154,16 @@
         </div>
     </div>
     
-    <!-- SONIDOS (Tu Original) -->
-    <audio id="applause-sound" src="https://www.myinstants.com/media/sounds/applause-8.mp3" preload="auto"></audio>
-    <audio id="thunder-sound" src="https://www.myinstants.com/media/sounds/strong_thunder.mp3" preload="auto"></audio>
-    <audio id="materialize-sound" src="https://www.myinstants.com/media/sounds/magical-revelation.mp3" preload="auto"></audio>
-    <audio id="curtain-sound" src="https://www.myinstants.com/media/sounds/opening-curtains.mp3" preload="auto"></audio>
-    <audio id="typewriter-sound" src="https://www.myinstants.com/media/sounds/typewriter-1.mp3" preload="auto" loop></audio>
+    <!-- =================================================================== -->
+    <!-- ===   DEFINICIÓN DE LOS SONIDOS (RUTAS LOCALES CORREGIDAS)      === -->
+    <!-- =================================================================== -->
+    <audio id="applause-sound" src="/sounds/applause-8.mp3" preload="auto"></audio>
+    <audio id="thunder-sound" src="/sounds/strong_thunder.mp3" preload="auto"></audio>
+    <audio id="materialize-sound" src="/sounds/magical-revelation.mp3" preload="auto"></audio>
+    <audio id="curtain-sound" src="/sounds/opening-curtains.mp3" preload="auto"></audio>
+    <audio id="typewriter-sound" src="/sounds/typewriter-1.mp3" preload="auto" loop></audio>
 
     <script src="script.js"></script>
 </body>
 </html>
+
