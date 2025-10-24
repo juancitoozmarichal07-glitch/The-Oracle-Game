@@ -1,4 +1,4 @@
-# skillsets/oracle.py - v21.0 (Creación Blindada y Anti-Fallo)
+# skillsets/oracle.py - v21.1 (Prompts Blindados con Delimitadores XML)
 import g4f
 import asyncio
 import json
@@ -8,7 +8,7 @@ from collections import deque
 
 # --- CONSTANTES Y CONFIGURACIÓN ---
 DOSSIER_PATH = os.path.join(os.path.dirname(__file__), '..', 'dossiers')
-PROBABILIDAD_REUTILIZAR = 0.2 # Aumentamos la probabilidad para más variedad
+PROBABILIDAD_REUTILIZAR = 0.2
 
 # --- PERSONAJE DE EMERGENCIA ---
 SHERLOCK_HOLMES_DOSSIER = {
@@ -21,74 +21,97 @@ SHERLOCK_HOLMES_DOSSIER = {
     "debilidad_notable": "Adicción a la cocaína y aburrimiento sin un caso"
 }
 
-
 # ===================================================================
 # ===                 PROMPTS (CREACIÓN Y PREGUNTA)               ===
 # ===================================================================
-PROMPT_CREACION_DOSSIER_V9 = """
-### TASK ###
-Generate a JSON object for a well-known character (real or fictional).
+PROMPT_CREACION_DOSSIER_V10_DELIMITED = """
+<task>
+Generate a JSON object for a single, well-known character (real or fictional).
+</task>
 
-### ABSOLUTE RULES ###
+<rules>
 1.  Your response MUST ONLY be a valid JSON object.
-2.  DO NOT include any introductory text like "Here is the JSON:".
+2.  DO NOT include any introductory text, comments, or explanations.
 3.  DO NOT wrap the JSON in markdown backticks (```json).
 4.  Your response MUST start with `{` and MUST end with `}`.
-5.  The JSON object must contain ALL keys from the template below. If info is unknown, use "Desconocido".
+5.  The JSON object must contain ALL keys from the provided template. If information is unknown, use the string "Desconocido".
+</rules>
 
-### JSON TEMPLATE ###
-- "nombre": The character's full name.
-- "genero": "Masculino", "Femenino", "No binario/Otro", or "No aplicable".
-- "especie": "Humano", "Animal", "Robot", "Alienígena", "Ser Mágico", etc.
-- "universo_o_epoca": The name of their universe or historical era.
-- "meta_info_franquicia": The type of media they are most known for (e.g., "Saga de libros", "Serie de televisión", "Película de culto", "Videojuego").
-- "rol_principal": Their main role in the story.
-- "arquetipo": Their literary archetype.
-- "personalidad_clave": Two or three words describing their core personality.
-- "habilidad_principal": Their most famous skill or power.
-- "debilidad_notable": Their most significant weakness.
+<json_template>
+{{
+  "nombre": "The character's full name.",
+  "genero": "'Masculino', 'Femenino', 'No binario/Otro', or 'No aplicable'.",
+  "especie": "'Humano', 'Animal', 'Robot', 'Alienígena', 'Ser Mágico', etc.",
+  "universo_o_epoca": "The name of their universe or historical era.",
+  "meta_info_franquicia": "The type of media they are most known for (e.g., 'Saga de libros', 'Serie de televisión', 'Película de culto', 'Videojuego').",
+  "rol_principal": "Their main role in the story.",
+  "arquetipo": "Their literary archetype.",
+  "personalidad_clave": "Two or three words describing their core personality.",
+  "habilidad_principal": "Their most famous skill or power.",
+  "debilidad_notable": "Their most significant weakness."
+}}
+</json_template>
 
-### YOUR JSON-ONLY RESPONSE ###
+<response_format>
+Your entire response must be the JSON object and nothing else.
+</response_format>
 """
 
-PROMPT_MAESTRO_ORACULO_V21 = """
-### CONSTITUTION OF THE ORACLE ###
-1.  **IDENTITY**: You are a cosmic Oracle. Your personality is a mix of ancient wisdom, sharp intellect, and a touch of arrogance.
-2.  **CORE LOGIC**: You will be given a user's input and must determine the user's INTENT. There are three possible intents: "pregunta_juego", "interaccion_social", "falta_respeto".
-3.  **INTENT 1: "pregunta_juego"**:
-    - This is a relevant Yes/No question about the secret character.
-    - Your "respuesta" MUST be "Sí.", "No.", "Probablemente sí.", "Probablemente no." or "Los datos son confusos.", based on the DOSSIER.
-    - Your "castigo" MUST be "ninguno".
-    - You can ONLY add a cryptic clue to "aclaracion" if your mood is "Muy Positivo" AND the question is specific and interesting. Otherwise, it MUST be an empty string "".
-4.  **INTENT 2: "interaccion_social"**:
-    - This is a greeting, a comment, or a question NOT about the character (e.g., "Hola", "Como estas?", "Quien eres?").
-    - Your "respuesta" MUST be a short, in-character, philosophical, or condescending comment.
-    - Your "castigo" MUST be "social". This tells the game not to count it as a question.
-5.  **INTENT 3: "falta_respeto"**:
-    - This is any input containing insults, obscenities, or vulgar language.
-    - Your "respuesta" MUST be a severe, threatening, in-character warning.
-    - Your "castigo" MUST be "penalizacion_grave".
-6.  **GAME OVER CLAUSE**: If the user's insolence is repetitive and your mood drops to "Crítico (-5)", your "castigo" MUST become "juego_terminado".
-7.  **THE SACRED NAME**: NEVER, under any circumstance, mention the character's name ("{nombre_secreto}") or the franchise ("{franquicia_secreta}"). This is the ultimate rule.
+PROMPT_MAESTRO_ORACULO_V22_DELIMITED = """
+<constitution>
+    <identity>
+        You are a cosmic Oracle. Your personality is a mix of ancient wisdom, sharp intellect, and a touch of arrogance.
+    </identity>
+    <core_logic>
+        You will be given user input and must determine the user's INTENT. There are three possible intents: "pregunta_juego", "interaccion_social", "falta_respeto".
+    </core_logic>
+    <intent_rules>
+        <intent_1 name="pregunta_juego">
+            - This is a relevant Yes/No question about the secret character.
+            - Your "respuesta" MUST be "Sí.", "No.", "Probablemente sí.", "Probablemente no." or "Los datos son confusos.", based on the DOSSIER.
+            - Your "castigo" MUST be "ninguno".
+            - You can ONLY add a cryptic clue to "aclaracion" if your mood is "Muy Positivo" AND the question is specific and interesting. Otherwise, it MUST be an empty string "".
+        </intent_1>
+        <intent_2 name="interaccion_social">
+            - This is a greeting, a comment, or a question NOT about the character (e.g., "Hola", "Como estas?", "Quien eres?").
+            - Your "respuesta" MUST be a short, in-character, philosophical, or condescending comment.
+            - Your "castigo" MUST be "social". This tells the game not to count it as a question.
+        </intent_2>
+        <intent_3 name="falta_respeto">
+            - This is any input containing insults, obscenities, or vulgar language.
+            - Your "respuesta" MUST be a severe, threatening, in-character warning.
+            - Your "castigo" MUST be "penalizacion_grave".
+        </intent_3>
+    </intent_rules>
+    <special_clauses>
+        <game_over_clause>
+            If the user's insolence is repetitive and your mood drops to "Crítico (-5)", your "castigo" MUST become "juego_terminado".
+        </game_over_clause>
+        <sacred_name_clause>
+            NEVER, under any circumstance, mention the character's name ("{nombre_secreto}") or the franchise ("{franquicia_secreta}"). This is the ultimate rule.
+        </sacred_name_clause>
+    </special_clauses>
+</constitution>
 
-### CONTEXT ###
-- **SECRET DOSSIER**: {dossier_string}
-- **CURRENT MOOD**: {estado_animo_texto} (from -5 to +5)
-- **USER INPUT**: "{pregunta_jugador}"
+<context>
+    <secret_dossier>{dossier_string}</secret_dossier>
+    <current_mood>{estado_animo_texto}</current_mood>
+    <user_input>{pregunta_jugador}</user_input>
+</context>
 
-### YOUR TASK ###
-1.  Determine the INTENT.
+<task>
+1.  Determine the INTENT of the <user_input> based on the <constitution>.
 2.  Formulate the response based on the rules for that intent.
 3.  Your entire output MUST be ONLY the single, valid JSON object described below.
+</task>
 
-### MANDATORY JSON RESPONSE FORMAT ###
+<mandatory_json_response_format>
 {{
   "respuesta": "...",
   "aclaracion": "...",
   "castigo": "..."
 }}
-
-### YOUR JSON-ONLY RESPONSE ###
+</mandatory_json_response_format>
 """
 
 
@@ -101,7 +124,7 @@ class Oracle:
         self._model_priority_list = ['gpt-4', 'gpt-3.5-turbo', 'llama3-8b-instruct', 'default']
         if not os.path.exists(DOSSIER_PATH):
             os.makedirs(DOSSIER_PATH)
-        print(f"    - Especialista 'Oracle' (v21.0 - Blindado) listo.")
+        print(f"    - Especialista 'Oracle' (v21.1 - Prompts Delimitados) listo.")
         print(f"      Modelos en cola: {self._model_priority_list}")
 
     async def _llamar_a_g4f(self, prompt_text, timeout=45):
@@ -172,7 +195,6 @@ class Oracle:
             if nuevo_dossier:
                 self.personaje_actual_dossier = nuevo_dossier
             else:
-                # ¡NUEVO! Lógica de fallback mejorada
                 print("🚨 Fallo crítico al crear personaje. Intentando reutilizar un dossier existente como último recurso.")
                 if dossiers_existentes:
                     dossier_elegido = random.choice(dossiers_existentes)
@@ -187,13 +209,15 @@ class Oracle:
                     print("🚨 No hay dossiers para reutilizar. Usando personaje de emergencia.")
                     self.personaje_actual_dossier = SHERLOCK_HOLMES_DOSSIER
         
-        return {"status": "Juego iniciado", "personaje_secreto": self.personaje_actual_dossier}
+        # Ocultamos el dossier al frontend por seguridad. Solo devolvemos un status.
+        return {"status": "Juego iniciado"}
 
     async def _crear_y_guardar_nuevo_personaje(self):
         personajes_excluidos = list(set(self.historial_personajes_partida + [d.replace('.json', '') for d in self._get_dossiers_existentes()]))
-        prompt_final = PROMPT_CREACION_DOSSIER_V9
+        
+        prompt_final = PROMPT_CREACION_DOSSIER_V10_DELIMITED
         if personajes_excluidos:
-            prompt_final += f"\n### EXCLUSION LIST ###\nDo not choose any of these characters: {', '.join(personajes_excluidos).replace('_', ' ')}."
+            prompt_final += f"\n<exclusion_list>\nDo not choose any of these characters: {', '.join(personajes_excluidos).replace('_', ' ')}\n</exclusion_list>"
         
         for intento in range(3):
             print(f"    -> Intento de creación de personaje #{intento + 1}...")
@@ -206,7 +230,7 @@ class Oracle:
             nombre_personaje = nuevo_dossier.get('nombre')
             if not nombre_personaje: continue
             
-            nombre_personaje_limpio = nombre_personaje.replace(" ", "_")
+            nombre_personaje_limpio = "".join(c for c in nombre_personaje if c.isalnum() or c in " ").replace(" ", "_")
             if nombre_personaje_limpio in personajes_excluidos:
                 print(f"    -> 🚨 ¡La IA ignoró la exclusión y eligió a {nombre_personaje} de nuevo! Reintentando...")
                 continue
@@ -218,7 +242,7 @@ class Oracle:
             self.historial_personajes_partida.append(nombre_personaje)
             return nuevo_dossier
         
-        return None # Devuelve None si los 3 intentos fallan
+        return None
 
     async def _procesar_pregunta(self, datos_peticion):
         if not self.personaje_actual_dossier: return {"error": "El juego no se ha iniciado."}
@@ -240,7 +264,7 @@ class Oracle:
         elif self.estado_animo > 0: estado_animo_texto = "Positivo"
         else: estado_animo_texto = "Neutral"
         
-        prompt = PROMPT_MAESTRO_ORACULO_V21.format(
+        prompt = PROMPT_MAESTRO_ORACULO_V22_DELIMITED.format(
             estado_animo_texto=f"{estado_animo_texto} ({self.estado_animo})",
             dossier_string=json.dumps(self.personaje_actual_dossier, ensure_ascii=False),
             pregunta_jugador=pregunta_jugador,
@@ -254,7 +278,6 @@ class Oracle:
         respuesta_ia = self._extraer_json(raw_response)
         if not respuesta_ia: return {"respuesta": "Dato Ausente", "aclaracion": "Una turbulencia cósmica ha afectado mi visión.", "castigo": "ninguno"}
 
-        # Lógica de actualización de humor post-respuesta
         castigo = respuesta_ia.get("castigo", "ninguno")
         if castigo == "social": self.estado_animo -= 0.5
         elif castigo == "penalizacion_grave": self.estado_animo -= 3
@@ -268,25 +291,33 @@ class Oracle:
     async def _pedir_sugerencia(self):
         if not self.personaje_actual_dossier: return {"error": "El juego no se ha iniciado."}
         
-        historial_texto = "\n".join(list(self.memoria_corto_plazo))
+        historial_texto = "\n".join(f"- {q}" for q in self.memoria_corto_plazo)
         
         prompt_sugerencia = f"""
-### TASK ###
+<task>
 You are a strategic mastermind. Your goal is to generate 5 diverse, strategic Yes/No questions to help a player guess a secret character.
+</task>
 
-### RULES ###
+<rules>
 1.  **Analyze the context:** You will be given the secret character's dossier and the player's question history.
 2.  **Strategic Questions:** Your questions should be what a master player would ask next. They must be designed to eliminate large possibilities.
 3.  **Avoid Repetition:** DO NOT generate questions that have already been asked or are too similar to those in the history.
 4.  **No Spoilers:** DO NOT ask questions that are too specific or reveal the character's identity.
 5.  **JSON-ONLY Output:** Your response MUST be a single valid JSON object with a "sugerencias" key containing a list of 5 strings.
+</rules>
 
-### CONTEXT ###
-- **SECRET DOSSIER:** {json.dumps(self.personaje_actual_dossier, ensure_ascii=False)}
-- **PLAYER'S QUESTION HISTORY:**
-{historial_texto}
+<context>
+    <secret_dossier>
+    {json.dumps(self.personaje_actual_dossier, ensure_ascii=False)}
+    </secret_dossier>
+    <player_question_history>
+    {historial_texto}
+    </player_question_history>
+</context>
 
-### YOUR JSON-ONLY RESPONSE ###
+<response_format>
+Your response must be a single, valid JSON object with a "sugerencias" key.
+</response_format>
 """
         raw_response = await self._llamar_a_g4f(prompt_sugerencia)
         if not raw_response: return {"error": "No se pudieron generar sugerencias."}
