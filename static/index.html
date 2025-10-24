@@ -20,7 +20,7 @@
 </head>
 <body>
     <div id="arcade-screen">
-        <!-- PANTALLA DE TÍTULO (Original) -->
+        <!-- PANTALLA DE TÍTULO -->
         <div id="title-screen" class="screen">
             <div id="lightning-overlay"></div>
             <div id="intro-brain">🧠</div>
@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <!-- ESCENA DEL TELÓN Y MENÚ (Original) -->
+        <!-- ESCENA DEL TELÓN Y MENÚ -->
         <div id="game-stage" class="screen hidden">
            <div id="stage-lights">
                 <div class="spotlight"></div>
@@ -51,7 +51,7 @@
             <div id="curtain-right" class="curtain"></div>
         </div>
 
-        <!-- PANTALLA DE JUEGO PRINCIPAL (Adaptada) -->
+        <!-- PANTALLA DE JUEGO PRINCIPAL -->
         <div id="main-game-screen" class="screen hidden">
             <div class="game-header" id="game-header">
                 <button id="back-to-menu-button" class="header-button">‹ MENÚ</button>
@@ -81,7 +81,7 @@
                         <button class="answer-btn" data-answer="Probablemente No">Prob. No</button>
                     </div>
                 </div>
-                <!-- ¡NUEVO! Controles para Duelo 1vs1 (cuando eres el Oráculo) -->
+                <!-- Controles para Duelo 1vs1 (cuando eres el Oráculo) -->
                 <div id="duelo-oraculo-controls" class="hidden">
                     <div class="classic-answer-buttons">
                         <button class="answer-btn" data-answer="Sí">Sí</button>
@@ -94,7 +94,7 @@
             </div>
         </div>
 
-        <!-- PANTALLAS FINALES (Original) -->
+        <!-- PANTALLAS FINALES -->
         <div id="win-screen" class="end-screen screen hidden">
             <div class="end-screen-content">
                 <h1>¡VICTORIA!</h1>
@@ -117,7 +117,7 @@
         </div>
     </div>
 
-    <!-- POP-UPS (Original) -->
+    <!-- POP-UPS -->
     <div id="popups-container">
         <div id="guess-popup" class="popup-overlay hidden">
             <div class="popup-content-guess">
@@ -149,17 +149,12 @@
         </div>
     </div>
     
-    <!-- SONIDOS (Original) -->
-    <audio id="applause-sound" src="https://www.myinstants.com/media/sounds/applause-8.mp3" preload="auto"></audio>
-    <audio id="thunder-sound" src="https://www.myinstants.com/media/sounds/strong_thunder.mp3" preload="auto"></audio>
-    <audio id="materialize-sound" src="https://www.myinstants.com/media/sounds/magical-revelation.mp3" preload="auto"></audio>
-    <audio id="curtain-sound" src="https://www.myinstants.com/media/sounds/opening-curtains.mp3" preload="auto"></audio>
-    <audio id="typewriter-sound" src="https://www.myinstants.com/media/sounds/typewriter-1.mp3" preload="auto" loop></audio>
+    <!-- SECCIÓN DE SONIDOS ELIMINADA PARA UNA CONSTRUCCIÓN LIMPIA -->
 
-    <!-- ¡NUEVO Y CRUCIAL! Script para la comunicación en tiempo real -->
+    <!-- Script para la comunicación en tiempo real -->
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     
-    <!-- Nuestro script principal, que ahora sabe usar "socket.io" -->
+    <!-- Nuestro script principal -->
     <script src="script.js"></script>
 </body>
 </html>
