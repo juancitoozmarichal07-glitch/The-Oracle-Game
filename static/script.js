@@ -42,7 +42,7 @@ let state = {
 };
 
 // --- CONEXIÓN CON SERVIDORES (A.L.E. y REPLIT) ---
-const ALE_URL = 'https://URL-DE-TU-NUEVO-REPLIT/api/execute';Sigue siendo necesario para el modo 1 Jugador vs IA
+const ALE_URL = 'https://889fe04e-996f-4127-afa0-24c10385465d-00-1wd8ak7x1x36.janeway.replit.dev/api/execute';Sigue siendo necesario para el modo 1 Jugador vs IA
 const REPLIT_URL = 'https://ff849e56-b6b6-4619-8495-996867c9bc5c-00-1rg9nfq7thllg.picard.replit.dev/'; // ¡NUESTRO SERVIDOR CARTERO!
 
 // --- SELECTORES DEL DOM (Ampliados) ---
