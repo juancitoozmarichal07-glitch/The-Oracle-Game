@@ -28,7 +28,8 @@
                 <div id="title-brain">🧠</div>
                 <h1 id="game-title" data-text="THE ORACLE GAME">THE ORACLE GAME</h1>
                 <div id="title-buttons">
-                    <button id="start-button" class="button-green">JUGAR</button>
+                    <!-- BOTÓN MODIFICADO SEGÚN TU PETICIÓN -->
+                    <button id="start-button" class="button-green blink">JUGAR</button>
                     <button id="exit-button" class="button-red">SALIR</button>
                 </div>
             </div>
@@ -60,6 +61,7 @@
             </div>
             <div id="chat-history"></div>
             <div class="player-controls">
+                <!-- Controles Modo Oráculo vs IA -->
                 <div id="oracle-mode-controls">
                     <div class="input-area">
                         <input type="text" id="user-question-input" placeholder="Escribe tu pregunta...">
@@ -70,6 +72,7 @@
                         <button id="guess-button" class="button-green">¡Adivinar!</button>
                     </div>
                 </div>
+                <!-- Controles Modo Clásico vs IA -->
                 <div id="classic-mode-controls" class="hidden">
                     <div class="classic-answer-buttons">
                         <button class="answer-btn" data-answer="Sí">Sí</button>
@@ -79,18 +82,14 @@
                         <button class="answer-btn" data-answer="Probablemente No">Prob. No</button>
                     </div>
                 </div>
+                <!-- Controles para Duelo 1vs1 (cuando eres el Oráculo) -->
                 <div id="duelo-oraculo-controls" class="hidden">
-                    <div class="input-area">
-                        <input type="text" id="duelo-oraculo-input" placeholder="O escribe una respuesta personalizada...">
-                        <button id="duelo-oraculo-send-btn"><svg viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" /></svg></button>
-                    </div>
                     <div class="classic-answer-buttons">
                         <button class="answer-btn" data-answer="Sí">Sí</button>
                         <button class="answer-btn" data-answer="No">No</button>
                         <button class="answer-btn" data-answer="No lo sé">No lo sé</button>
                         <button class="answer-btn" data-answer="Probablemente Sí">Prob. Sí</button>
                         <button class="answer-btn" data-answer="Probablemente No">Prob. No</button>
-                        <button class="answer-btn" data-answer="Dato irrelevante">Irrelevante</button>
                     </div>
                 </div>
             </div>
@@ -98,21 +97,72 @@
 
         <!-- PANTALLAS FINALES -->
         <div id="win-screen" class="end-screen screen hidden">
-            <div class="end-screen-content"><h1>¡VICTORIA!</h1><p id="win-message"></p><div class="end-buttons"><button class="end-screen-btn" data-action="play-again">Jugar de Nuevo</button><button class="end-screen-btn" data-action="main-menu">Menú Principal</button></div></div>
+            <div class="end-screen-content">
+                <h1>¡VICTORIA!</h1>
+                <p id="win-message"></p>
+                <div class="end-buttons">
+                    <button class="end-screen-btn" data-action="play-again">Jugar de Nuevo</button>
+                    <button class="end-screen-btn" data-action="main-menu">Menú Principal</button>
+                </div>
+            </div>
         </div>
         <div id="lose-screen" class="end-screen screen hidden">
-            <div class="end-screen-content"><h1>DERROTA</h1><p id="lose-message"></p><div class="end-buttons"><button class="end-screen-btn" data-action="play-again">Jugar de Nuevo</button><button class="end-screen-btn" data-action="main-menu">Menú Principal</button></div></div>
+            <div class="end-screen-content">
+                <h1>DERROTA</h1>
+                <p id="lose-message"></p>
+                <div class="end-buttons">
+                    <button class="end-screen-btn" data-action="play-again">Jugar de Nuevo</button>
+                    <button class="end-screen-btn" data-action="main-menu">Menú Principal</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- POP-UPS -->
     <div id="popups-container">
-        <div id="guess-popup" class="popup-overlay hidden"><div class="popup-content"><div id="guess-popup-brain-icon">🧠</div><h3 id="guess-popup-title">Tu Adivinanza Final</h3><p id="guess-popup-instruction">Escribe el nombre del ser que tú crees que estoy pensando.</p><p id="guess-popup-brain-text"></p><input type="text" id="guess-input" placeholder="Escribe tu respuesta..."><div class="popup-buttons"><button id="confirm-guess-button" class="button-green">Confirmar</button><button data-close="guess-popup" class="button-red">Cancelar</button></div></div></div>
-        <div id="suggestion-popup" class="popup-overlay hidden"><div class="popup-content"><h3>Sugerencias del Cerebro</h3><div id="suggestion-buttons-container"></div><div class="popup-buttons"><button data-close="suggestion-popup" class="button-green">Cerrar</button></div></div></div>
-        <div id="custom-game-popup" class="popup-overlay hidden"><div class="popup-content"><h3>Configurar Duelo 1 vs 1</h3><div class="custom-game-options"><div class="option-group"><label for="limit-preguntas">Límite de Preguntas:</label><select id="limit-preguntas"><option value="20" selected>20</option><option value="25">25</option><option value="30">30</option></select></div><div class="option-group"><label for="tiempo-ronda">Tiempo por Ronda (segundos):</label><select id="tiempo-ronda"><option value="30">30</option><option value="45" selected>45</option><option value="60">60</option><option value="999">Infinito</option></select></div></div><div class="popup-buttons"><button id="confirm-create-game-btn" class="button-green">Crear Partida</button><button data-close="custom-game-popup" class="button-red">Cancelar</button></div></div></div>
+        <div id="guess-popup" class="popup-overlay hidden">
+            <div class="popup-content-guess">
+                <div class="popup-header">
+                    <div id="guess-popup-brain-icon">🧠</div>
+                    <div id="guess-popup-dialog">
+                        <p id="guess-popup-brain-text">Susurra tu respuesta al vacío...</p>
+                    </div>
+                </div>
+                <div class="popup-body">
+                    <h3 id="guess-popup-title">Tu Adivinanza Final</h3>
+                    <p id="guess-popup-instruction">Escribe el nombre del ser que tú crees que estoy pensando.</p>
+                    <input type="text" id="guess-input" placeholder="Escribe tu respuesta...">
+                    <div class="popup-buttons">
+                        <button id="confirm-guess-button" class="button-green">Confirmar</button>
+                        <button data-close="guess-popup" class="button-red">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="suggestion-popup" class="popup-overlay hidden">
+            <div class="popup-content">
+                <h3>Sugerencias del Cerebro</h3>
+                <div id="suggestion-buttons-container"></div>
+                <div class="popup-buttons">
+                    <button data-close="suggestion-popup" class="button-green">Cerrar</button>
+                </div>
+            </div>
+        </div>
     </div>
     
+    <!-- SECCIÓN DE SONIDOS (Mantenida por si se reintroduce en el futuro) -->
+    <!-- 
+    <audio id="applause-sound" src="path/to/applause.mp3" preload="auto"></audio>
+    <audio id="thunder-sound" src="path/to/thunder.mp3" preload="auto"></audio>
+    <audio id="materialize-sound" src="path/to/materialize.mp3" preload="auto"></audio>
+    <audio id="curtain-sound" src="path/to/curtain.mp3" preload="auto"></audio>
+    <audio id="typewriter-sound" src="path/to/typewriter.mp3" preload="auto" loop></audio>
+    -->
+
+    <!-- Script para la comunicación en tiempo real -->
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    
+    <!-- Nuestro script principal -->
     <script src="script.js"></script>
 </body>
 </html>
