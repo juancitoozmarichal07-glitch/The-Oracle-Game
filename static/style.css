@@ -14,7 +14,6 @@
 body {
     background-color: var(--background-dark);
     color: var(--text-light);
-    /* ¡LA CORRECCIÓN DEFINITIVA! SIN EL SIGNO '+' */
     font-family: 'Press Start 2P', cursive;
     margin: 0;
     overflow: hidden;
@@ -52,7 +51,6 @@ body {
 .hidden { display: none !important; }
 
 button {
-    /* ¡LA CORRECCIÓN TAMBIÉN AQUÍ! */
     font-family: 'Press Start 2P', cursive;
     padding: 15px 25px;
     cursor: pointer;
@@ -76,7 +74,8 @@ button:disabled {
 .button-green:hover:not(:disabled) { background-color: var(--main-green); color: var(--background-dark); }
 .button-red { background-color: #222; color: var(--bright-red); border-color: var(--bright-red); box-shadow: 0 0 10px var(--bright-red); }
 .button-red:hover:not(:disabled) { background-color: var(--bright-red); color: var(--background-dark); }
-.button-grey { background-color: #222; color: #888; border-color: #888; }
+.button-purple { background-color: #222; color: var(--main-purple); border-color: var(--main-purple); box-shadow: 0 0 10px var(--main-purple); }
+.button-purple:hover:not(:disabled) { background-color: var(--main-purple); color: var(--background-dark); }
 
 #title-screen { justify-content: center; align-items: center; }
 #lightning-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--text-light); z-index: 5; opacity: 0; pointer-events: none; }
@@ -235,6 +234,7 @@ button:disabled {
 .action-buttons { display: flex; gap: 10px; margin-bottom: 10px; }
 .action-buttons > button { flex-grow: 1; font-size: 0.8em; padding: 12px 5px; }
 
+/* --- POP-UPS (MODIFICADO) --- */
 .popup-overlay {
     position: absolute;
     top: 0;
@@ -260,16 +260,39 @@ button:disabled {
     width: 95%;
     max-width: 400px;
     animation: fade-in 0.3s;
+    position: relative; /* Necesario para el posicionamiento del cerebro */
 }
 
-#guess-popup-title { color: var(--main-purple); margin-top: 0; margin-bottom: 15px; word-wrap: break-word; }
+/* Cerebro flotante para el pop-up de adivinar */
+#guess-popup-brain-icon {
+    font-size: 80px;
+    filter: drop-shadow(0 0 15px var(--main-purple));
+    position: absolute;
+    top: -60px; /* Lo sube para que flote */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#guess-popup-title {
+    color: var(--main-purple);
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
 #guess-popup-instruction {
     font-size: 0.9em;
     color: #ccc;
     line-height: 1.5;
-    margin: 0 auto 20px auto;
+    margin: 0 auto 10px auto;
+}
+
+/* Nuevo estilo para el texto del Oráculo dentro del pop-up */
+#guess-popup-brain-text {
+    font-size: 0.8em;
+    color: var(--main-purple);
+    font-style: italic;
     margin-bottom: 25px;
-    min-height: 40px;
+    min-height: 20px;
 }
 
 #guess-input {
@@ -286,7 +309,13 @@ button:disabled {
     text-align: center;
 }
 
-.popup-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 20px; width: 100%; }
+.popup-buttons { 
+    display: flex; 
+    justify-content: center; 
+    gap: 10px; 
+    margin-top: 20px; 
+    width: 100%; 
+}
 
 .shake { animation: shake-hard 0.4s; }
 @keyframes shake-hard {
@@ -312,65 +341,6 @@ button:disabled {
     border-color: var(--main-purple);
     color: var(--main-purple);
     box-shadow: 0 0 10px var(--main-purple);
-}
-
-.popup-overlay { align-items: flex-start; padding-top: 15vh; }
-#guess-popup .popup-content-guess {
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
-    padding-top: 130px;
-    position: relative;
-    width: 99%;
-    max-width: 460px;
-    text-align: center;
-}
-
-.popup-header {
-    position: absolute;
-    top: -70px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 70%;
-    z-index: 501;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-#guess-popup-brain-icon {
-    font-size: 80px;
-    filter: drop-shadow(0 0 15px var(--main-purple));
-    margin-bottom: -15px;
-    z-index: 2;
-}
-
-#guess-popup-dialog {
-    background-color: var(--background-medium);
-    border: 3px solid var(--main-purple);
-    border-radius: 10px;
-    box-shadow: 0 0 15px var(--main-purple);
-    font-size: 0.8em;
-    line-height: 1.5;
-    padding: 10px 10px;
-}
-
-.popup-body {
-    background-color: var(--background-dark);
-    border: 3px solid var(--main-purple);
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: 0 0 20px var(--main-purple);
-    position: relative;
-    z-index: 1;
-    text-align: center;
-}
-
-#guess-popup-title {
-    color: var(--main-purple);
-    font-size: 1.2em;
-    margin-bottom: 15px;
-    padding-top: 20px;
 }
 
 .button-cooldown {
@@ -412,95 +382,70 @@ button:disabled {
     box-shadow: 0 2px #1a6a5f;
 }
 
+.end-screen {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+.end-screen-content h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+#win-screen h1 { color: var(--main-green); text-shadow: 0 0 10px var(--main-green); }
+#lose-screen h1 { color: var(--bright-red); text-shadow: 0 0 10px var(--bright-red); }
+.end-screen-content p {
+    font-size: 1em;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    color: #ccc;
+}
+.end-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 80%;
+    max-width: 300px;
+}
 /* =================================================================== */
-/* ===      NUEVOS ESTILOS PARA PISTAS Y SUGERENCIAS (v26.0)       === */
+/* ===           TEMA PARA EL ORÁCULO EN DUELO 1VS1                === */
 /* =================================================================== */
 
-/* --- BOTÓN DE PISTA --- */
-.button-purple {
-    background-color: #222;
+/* Cuando el Oráculo humano está jugando, cambiamos los colores */
+.duelo-oraculo-theme .game-header,
+.duelo-oraculo-theme .player-controls {
+    border-color: var(--main-purple);
+}
+
+.duelo-oraculo-theme #back-to-menu-button {
     color: var(--main-purple);
+}
+
+/* Hacemos que los botones de respuesta rápida también sean morados */
+.duelo-oraculo-theme .answer-btn {
+    color: var(--main-purple);
+    border-color: var(--main-purple);
+    box-shadow: 0 6px #6a1a5f, 0 8px 6px rgba(0,0,0,0.4);
+}
+
+.duelo-oraculo-theme .answer-btn:hover:not(:disabled) {
+    background-color: var(--main-purple);
+    color: var(--background-dark);
+    box-shadow: 0 8px #6a1a5f, 0 10px 8px rgba(0,0,0,0.4);
+}
+
+.duelo-oraculo-theme .answer-btn:active:not(:disabled) {
+    box-shadow: 0 2px #6a1a5f;
+}
+
+/* Estilos para el nuevo input de respuesta personalizada */
+.duelo-oraculo-theme .input-area #user-question-input {
     border-color: var(--main-purple);
     box-shadow: 0 0 10px var(--main-purple);
 }
-.button-purple:hover:not(:disabled) {
-    background-color: var(--main-purple);
-    color: var(--background-dark);
-}
 
-/* --- CARTA DE PISTA --- */
-#clue-card {
-    width: 280px;
-    height: 400px;
-    perspective: 1000px;
-    background-color: transparent;
-    cursor: pointer;
-}
-#clue-card-popup.reveal #clue-card {
-    transform: rotateY(180deg);
-}
-#clue-card {
-    transition: transform 0.8s;
-    transform-style: preserve-3d;
-}
-.card-front, .card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    border-radius: 15px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-}
-.card-front {
-    background: linear-gradient(45deg, #4a004a, #8a2be2);
-    border: 5px solid #c0c0c0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.card-symbol {
-    font-size: 150px;
-    color: #fff;
-    text-shadow: 0 0 10px #fff, 0 0 20px var(--main-purple);
-}
-.card-back {
-    background: linear-gradient(to bottom, #2c2c2c, #1a1a1a);
-    border: 5px solid var(--main-purple);
-    color: white;
-    transform: rotateY(180deg);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 20px;
-    box-sizing: border-box;
-}
-.card-header {
-    font-size: 1.1em;
-    color: var(--main-purple);
-    text-align: center;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--main-purple);
-}
-#clue-card-text {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.2em;
-    text-align: center;
-    line-height: 1.6;
-    color: #f0f0f0;
-}
-.card-close-button {
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 0.8em;
-    text-transform: uppercase;
-    padding: 5px;
-    cursor: pointer;
-}
-.card-close-button:hover {
-    color: var(--text-light);
+.duelo-oraculo-theme .input-area #ask-button {
+    fill: var(--main-purple);
+    border-color: var(--main-purple);
+    box-shadow: 0 0 10px var(--main-purple);
 }
