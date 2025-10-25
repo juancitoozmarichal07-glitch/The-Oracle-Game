@@ -28,7 +28,7 @@
                 <div id="title-brain">🧠</div>
                 <h1 id="game-title" data-text="THE ORACLE GAME">THE ORACLE GAME</h1>
                 <div id="title-buttons">
-                    <button id="start-button" class="button-green blink">PLAYER 1 START</button>
+                    <button id="start-button" class="button-green">JUGAR</button>
                     <button id="exit-button" class="button-red">SALIR</button>
                 </div>
             </div>
@@ -60,7 +60,7 @@
             </div>
             <div id="chat-history"></div>
             <div class="player-controls">
-                <!-- Controles Modo Oráculo vs IA -->
+                <!-- Controles Modo Oráculo vs IA (Adivino) -->
                 <div id="oracle-mode-controls">
                     <div class="input-area">
                         <input type="text" id="user-question-input" placeholder="Escribe tu pregunta...">
@@ -83,12 +83,19 @@
                 </div>
                 <!-- Controles para Duelo 1vs1 (cuando eres el Oráculo) -->
                 <div id="duelo-oraculo-controls" class="hidden">
+                    <!-- Input para respuesta personalizada -->
+                    <div class="input-area">
+                        <input type="text" id="duelo-oraculo-input" placeholder="O escribe una respuesta personalizada...">
+                        <button id="duelo-oraculo-send-btn"><svg viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" /></svg></button>
+                    </div>
+                    <!-- Botones de respuesta rápida -->
                     <div class="classic-answer-buttons">
                         <button class="answer-btn" data-answer="Sí">Sí</button>
                         <button class="answer-btn" data-answer="No">No</button>
                         <button class="answer-btn" data-answer="No lo sé">No lo sé</button>
                         <button class="answer-btn" data-answer="Probablemente Sí">Prob. Sí</button>
                         <button class="answer-btn" data-answer="Probablemente No">Prob. No</button>
+                        <button class="answer-btn" data-answer="Dato irrelevante">Irrelevante</button>
                     </div>
                 </div>
             </div>
@@ -120,21 +127,15 @@
     <!-- POP-UPS -->
     <div id="popups-container">
         <div id="guess-popup" class="popup-overlay hidden">
-            <div class="popup-content-guess">
-                <div class="popup-header">
-                    <div id="guess-popup-brain-icon">🧠</div>
-                    <div id="guess-popup-dialog">
-                        <p id="guess-popup-brain-text">Susurra tu respuesta al vacío...</p>
-                    </div>
-                </div>
-                <div class="popup-body">
-                    <h3 id="guess-popup-title">Tu Adivinanza Final</h3>
-                    <p id="guess-popup-instruction">Escribe el nombre del ser que tú crees que estoy pensando.</p>
-                    <input type="text" id="guess-input" placeholder="Escribe tu respuesta...">
-                    <div class="popup-buttons">
-                        <button id="confirm-guess-button" class="button-green">Confirmar</button>
-                        <button data-close="guess-popup" class="button-red">Cancelar</button>
-                    </div>
+            <div class="popup-content">
+                <div id="guess-popup-brain-icon">🧠</div>
+                <h3 id="guess-popup-title">Tu Adivinanza Final</h3>
+                <p id="guess-popup-instruction">Escribe el nombre del ser que tú crees que estoy pensando.</p>
+                <p id="guess-popup-brain-text"></p>
+                <input type="text" id="guess-input" placeholder="Escribe tu respuesta...">
+                <div class="popup-buttons">
+                    <button id="confirm-guess-button" class="button-green">Confirmar</button>
+                    <button data-close="guess-popup" class="button-red">Cancelar</button>
                 </div>
             </div>
         </div>
@@ -149,8 +150,6 @@
         </div>
     </div>
     
-    <!-- SECCIÓN DE SONIDOS ELIMINADA PARA UNA CONSTRUCCIÓN LIMPIA -->
-
     <!-- Script para la comunicación en tiempo real -->
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     
