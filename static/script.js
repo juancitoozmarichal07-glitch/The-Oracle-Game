@@ -53,7 +53,6 @@ let state = {
 };
 
 // --- CONEXIÓN CON SERVIDORES ---
-const ALE_URL = 'http://127.0.0.1:5000/api/execute';
 const REPLIT_URL = 'https://ff849e56-b6b6-4619-8495-996867c9bc5c-00-1rg9nfq7thllg.picard.replit.dev/';
 
 // --- SELECTORES DEL DOM ---
