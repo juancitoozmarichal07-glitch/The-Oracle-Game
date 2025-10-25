@@ -7,15 +7,27 @@
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#333">
+    <!-- Favicon and App Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
 </head>
 <body>
-    <div id="main-menu">
+    <!-- Pantalla de Carga Inicial -->
+    <div id="initial-loading-screen">
+        <div class="loader"></div>
+        <p>Cargando recursos del cosmos...</p>
+    </div>
+
+    <!-- Menú Principal -->
+    <div id="main-menu" class="hidden">
         <h1 class="game-title">THE ORACLE GAME</h1>
         <div class="version">v7.0 IA / v4.0 COOP</div>
         <button id="play-button" class="menu-button">JUGAR</button>
         <button id="instructions-button" class="menu-button">INSTRUCCIONES</button>
+        <button id="credits-button" class="menu-button">CRÉDITOS</button>
     </div>
-
+    
+    <!-- Menú de Selección de Modo de Juego -->
     <div id="game-mode-menu" class="hidden">
         <h2 class="menu-title">ELIGE TU DESTINO</h2>
         <button id="single-player-button" class="menu-button">SOLITARIO</button>
@@ -23,6 +35,7 @@
         <button id="back-to-main-menu-button" class="menu-button">VOLVER</button>
     </div>
     
+    <!-- Opciones del Modo Solitario -->
     <div id="single-player-options" class="hidden">
         <h2 class="menu-title">MODO SOLITARIO</h2>
         <button id="classic-mode-button" class="menu-button">ORÁCULO CLÁSICO</button>
@@ -30,6 +43,7 @@
         <button id="back-to-game-mode-button1" class="menu-button">VOLVER</button>
     </div>
 
+    <!-- Opciones del Modo Cooperativo -->
     <div id="cooperative-options" class="hidden">
         <h2 class="menu-title">MODO COOPERATIVO</h2>
         <button id="one-vs-one-button" class="menu-button">1 vs 1</button>
@@ -38,6 +52,7 @@
         <button id="back-to-game-mode-button2" class="menu-button">VOLVER</button>
     </div>
 
+    <!-- Pantalla de Carga para Creación de Partida -->
     <div id="loading-screen" class="hidden">
         <div class="loader"></div>
         <p id="loading-text">Contactando a A.L.E. en el núcleo de la galaxia...</p>
@@ -48,14 +63,21 @@
         </div>
     </div>
 
+    <!-- Contenedor Principal del Juego -->
     <div id="game-container" class="hidden">
+        <!-- Información del Juego -->
         <div id="game-info">
             <p>Turno de: <span id="current-turn"></span></p>
             <p>Tu ID: <span id="player-id"></span></p>
+            <p>Oponente: <span id="opponent-id"></span></p>
         </div>
+
+        <!-- Contenedor de la Pregunta -->
         <div id="question-container">
             <p id="question-text"></p>
         </div>
+
+        <!-- Botones de Respuesta -->
         <div id="answer-buttons">
             <button class="answer-btn" data-answer="si">SÍ</button>
             <button class="answer-btn" data-answer="no">NO</button>
@@ -63,28 +85,76 @@
             <button class="answer-btn" data-answer="probablemente si">PROBABLEMENTE SÍ</button>
             <button class="answer-btn" data-answer="probablemente no">PROBABLEMENTE NO</button>
         </div>
+
+        <!-- Proceso de Pensamiento de la IA -->
         <div id="thinking-process" class="hidden">
             <p>A.L.E. está analizando las respuestas...</p>
         </div>
+
+        <!-- Contenedor de Adivinanza -->
         <div id="guess-container" class="hidden">
             <p id="guess-text"></p>
             <button id="correct-guess-btn">¡SÍ, ACERTÓ!</button>
             <button id="incorrect-guess-btn">NO, FALLÓ</button>
         </div>
+
+        <!-- Contenedor de Fin de Partida -->
         <div id="game-over-container" class="hidden">
             <p id="game-over-text"></p>
             <button id="play-again-btn">JUGAR DE NUEVO</button>
         </div>
+        
+        <!-- Pantalla de Espera para el Oponente -->
+        <div id="waiting-for-opponent" class="hidden">
+            <p>Esperando a que el oponente se una...</p>
+            <div class="loader"></div>
+        </div>
     </div>
 
-    <!-- ================================================================== -->
-    <!--                LA LÍNEA IMPORTANTE ESTÁ AQUÍ ABAJO                 -->
-    <!-- ================================================================== -->
+    <!-- Pantalla de Instrucciones -->
+    <div id="instructions-screen" class="hidden">
+        <h2 class="menu-title">Instrucciones</h2>
+        <div class="instructions-content">
+            <p><strong>Modo Oráculo Clásico:</strong> Piensa en un personaje, real o ficticio. A.L.E., nuestra Inteligencia Artificial, te hará preguntas para adivinarlo. Responde con sinceridad.</p>
+            <p><strong>Modo Akinator:</strong> Similar al clásico, pero con un algoritmo más avanzado para adivinar personajes populares.</p>
+            <p><strong>Modo Cooperativo (1 vs 1):</strong> Un jugador piensa en el personaje y responde las preguntas de A.L.E. El otro jugador observa e intenta adivinar el personaje antes que la IA. ¡Compite contra tu amigo y contra la máquina!</p>
+        </div>
+        <button id="back-from-instructions-button" class="menu-button">VOLVER</button>
+    </div>
+    
+    <!-- Pantalla de Créditos -->
+    <div id="credits-screen" class="hidden">
+        <h2 class="menu-title">Créditos</h2>
+        <div class="credits-content">
+            <p><strong>Desarrollo y Diseño:</strong> Juan</p>
+            <p><strong>Motor de IA (A.L.E.):</strong> Juan</p>
+            <p><strong>Agradecimientos:</strong> A todos los que apoyaron este proyecto.</p>
+            <p><em>The Oracle Game - 2025</em></p>
+        </div>
+        <button id="back-from-credits-button" class="menu-button">VOLVER</button>
+    </div>
+    
+    <!-- Notificaciones y Alertas -->
+    <div id="notification" class="hidden"></div>
+    
+    <!--
+    ==================================================================
+                    SECCIÓN DE SCRIPTS
+    ==================================================================
+    -->
 
-    <!-- 1. Carga la librería Socket.IO desde la URL correcta y compatible -->
+    <!-- 
+      AQUÍ ESTÁ EL ÚNICO CAMBIO REALIZADO.
+      Esta línea carga la versión 4.4.1 del cliente Socket.IO,
+      que es compatible con las librerías que instalamos en el servidor.
+    -->
     <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
 
-    <!-- 2. Carga tu propio script de lógica del juego DESPUÉS. -->
+    <!-- 
+      Tu script principal se carga DESPUÉS, para que pueda usar
+      la librería Socket.IO que se cargó en la línea anterior.
+    -->
     <script src="script.js"></script>
+
 </body>
 </html>
