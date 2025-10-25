@@ -28,7 +28,6 @@
                 <div id="title-brain">🧠</div>
                 <h1 id="game-title" data-text="THE ORACLE GAME">THE ORACLE GAME</h1>
                 <div id="title-buttons">
-                    <!-- BOTÓN MODIFICADO SEGÚN TU PETICIÓN -->
                     <button id="start-button" class="button-green blink">JUGAR</button>
                     <button id="exit-button" class="button-red">SALIR</button>
                 </div>
@@ -84,6 +83,10 @@
                 </div>
                 <!-- Controles para Duelo 1vs1 (cuando eres el Oráculo) -->
                 <div id="duelo-oraculo-controls" class="hidden">
+                    <div class="input-area oracle-human-input">
+                        <input type="text" id="duelo-oraculo-input" placeholder="Responde como el Oráculo...">
+                        <button id="duelo-oraculo-send-btn"><svg viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" /></svg></button>
+                    </div>
                     <div class="classic-answer-buttons">
                         <button class="answer-btn" data-answer="Sí">Sí</button>
                         <button class="answer-btn" data-answer="No">No</button>
@@ -120,6 +123,7 @@
 
     <!-- POP-UPS -->
     <div id="popups-container">
+        <!-- Pop-up de Adivinanza -->
         <div id="guess-popup" class="popup-overlay hidden">
             <div class="popup-content-guess">
                 <div class="popup-header">
@@ -139,6 +143,7 @@
                 </div>
             </div>
         </div>
+        <!-- Pop-up de Sugerencias -->
         <div id="suggestion-popup" class="popup-overlay hidden">
             <div class="popup-content">
                 <h3>Sugerencias del Cerebro</h3>
@@ -148,21 +153,57 @@
                 </div>
             </div>
         </div>
+        
+        <!-- POP-UP PARA CONFIGURAR LA PARTIDA -->
+        <div id="custom-game-popup" class="popup-overlay hidden">
+            <div class="popup-content">
+                <h3>Configurar Duelo</h3>
+                <div class="game-options">
+                    <div class="option-group">
+                        <label for="questions-limit">Límite de Preguntas:</label>
+                        <select id="questions-limit">
+                            <option value="20" selected>20</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                            <option value="99">Infinitas</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label for="time-per-turn">Tiempo por Turno (seg):</label>
+                        <select id="time-per-turn">
+                            <option value="0" selected>Sin límite</option>
+                            <option value="30">30</option>
+                            <option value="45">45</option>
+                            <option value="60">60</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label for="allow-suggestions">Permitir Sugerencias (1P):</label>
+                        <input type="checkbox" id="allow-suggestions" checked>
+                    </div>
+                </div>
+                <div class="popup-buttons">
+                    <button id="create-custom-game-btn" class="button-purple">Crear Partida</button>
+                    <button data-close="custom-game-popup" class="button-red">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- POP-UP PARA LA SALA DE ESPERA -->
+        <div id="waiting-room-popup" class="popup-overlay hidden">
+            <div class="popup-content">
+                <h3>Sala de Espera</h3>
+                <p>¡Lobby creado! Comparte este link con tu oponente:</p>
+                <input type="text" id="game-link-input" readonly>
+                <p class="waiting-text">Esperando al otro jugador...</p>
+                <div class="popup-buttons">
+                    <button id="cancel-lobby-btn" class="button-red">Cancelar</button>
+                </div>
+            </div>
+        </div>
     </div>
     
-    <!-- SECCIÓN DE SONIDOS (Mantenida por si se reintroduce en el futuro) -->
-    <!-- 
-    <audio id="applause-sound" src="path/to/applause.mp3" preload="auto"></audio>
-    <audio id="thunder-sound" src="path/to/thunder.mp3" preload="auto"></audio>
-    <audio id="materialize-sound" src="path/to/materialize.mp3" preload="auto"></audio>
-    <audio id="curtain-sound" src="path/to/curtain.mp3" preload="auto"></audio>
-    <audio id="typewriter-sound" src="path/to/typewriter.mp3" preload="auto" loop></audio>
-    -->
-
-    <!-- Script para la comunicación en tiempo real -->
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-    
-    <!-- Nuestro script principal -->
     <script src="script.js"></script>
 </body>
 </html>
