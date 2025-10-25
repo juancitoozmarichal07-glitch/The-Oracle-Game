@@ -110,34 +110,44 @@ const elements = {
 // ===         LÓGICA MULTIJUGADOR (Partidas Personalizadas)       ===
 // ===================================================================
 
+// REEMPLAZA ESTA FUNCIÓN COMPLETA EN TU SCRIPT.JS
+
 function conectarAlServidorDeDuelo() {
-    if (state.socket) return;
+    // Si ya estamos conectados, no hacemos nada.
+    if (state.socket) return; 
+    
     try {
+        // Iniciamos la conexión con el servidor "Cartero Inteligente"
         state.socket = io(REPLIT_URL);
         console.log("Intentando conectar al servidor de duelo en Replit...");
 
+        // --- EVENTO 1: Conexión exitosa ---
         state.socket.on('connect', () => {
             console.log("✅ ¡Conectado al servidor de duelo! ID de Socket:", state.socket.id);
         });
 
+        // --- EVENTO 2: El servidor confirma que la partida ha sido creada ---
+        // ¡ESTA ES LA PARTE CORREGIDA Y MÁS IMPORTANTE!
         state.socket.on('partida_creada', (data) => {
             state.id_sala = data.id_sala;
             const linkDuelo = `${window.location.origin}${window.location.pathname}?duelo=${state.id_sala}`;
             
-            elements.popups.customGame.classList.add('hidden');
-            showStageScreen(false);
-            
-            typewriterEffect(elements.stage.dialog, `¡Duelo creado! Comparte este link con tu oponente: <br><br><input type="text" value="${linkDuelo}" style="width: 100%; text-align: center; font-size: 0.7em;" readonly onclick="this.select()"><br><br>Esperando al otro jugador...`);
-            elements.stage.menuButtons.innerHTML = `<button class="button-red" data-action="flee-to-title">Cancelar Duelo</button>`;
-            elements.stage.menuButtons.classList.remove('hidden');
+            // Cuando el servidor responde, actualizamos el diálogo para mostrar el link.
+            typewriterEffect(elements.stage.dialog, `¡Duelo creado! Comparte este link con tu oponente: <br><br><input type="text" value="${linkDuelo}" style="width: 100%; text-align: center; font-size: 0.7em;" readonly onclick="this.select()"><br><br>Esperando al otro jugador...`, () => {
+                // Y mostramos el botón para cancelar.
+                elements.stage.menuButtons.innerHTML = `<button class="button-red" data-action="flee-to-title">Cancelar Duelo</button>`;
+                elements.stage.menuButtons.classList.remove('hidden');
+            });
         });
 
+        // --- EVENTO 3: El servidor nos avisa que un amigo se unió y debemos elegir roles ---
         state.socket.on('invitado_unido_elegir_roles', () => {
             typewriterEffect(elements.stage.dialog, "¡Tu oponente se ha unido! El cosmos aguarda vuestra decisión. ¿Quién será el Oráculo? El primero en reclamar el poder lo obtendrá.");
             elements.stage.menuButtons.innerHTML = `<button class="menu-button button-purple" data-action="claim-role-oracle">¡Yo seré el Oráculo!</button>`;
             elements.stage.menuButtons.classList.remove('hidden');
         });
 
+        // --- EVENTO 4: La partida está lista para empezar (roles y config confirmados) ---
         state.socket.on('partida_lista', (data) => {
             state.rol_jugador = data.rol;
             state.gameConfig = data.config;
@@ -146,25 +156,31 @@ function conectarAlServidorDeDuelo() {
             startGame('duelo_1v1');
         });
         
+        // --- EVENTO 5: Recibimos una pregunta del oponente (si somos el Oráculo) ---
         state.socket.on('pregunta_recibida', (data) => {
             if (state.rol_jugador === 'oraculo') {
                 addMessageToChat(data.pregunta, 'player');
+                // Habilitamos los controles para que el Oráculo pueda responder
                 elements.game.dueloOraculoControls.querySelectorAll('button').forEach(b => b.disabled = false);
                 elements.game.dueloOraculoInput.disabled = false;
             }
         });
 
+        // --- EVENTO 6: Recibimos una respuesta del oponente (si somos el Adivino) ---
         state.socket.on('respuesta_recibida', (data) => {
             if (state.rol_jugador === 'adivino') {
                 addMessageToChat(data.respuesta, 'brain');
+                // Habilitamos los controles para que el Adivino pueda volver a preguntar
                 elements.game.input.disabled = false;
                 elements.game.askButton.disabled = false;
                 elements.game.input.focus();
             }
         });
         
+        // --- EVENTO 7: El servidor nos notifica un error (ej: la sala no existe) ---
         state.socket.on('error_sala', (data) => {
             alert(data.mensaje);
+            // Nos devuelve a la página de inicio para evitar quedarnos en un estado inconsistente
             window.location.href = window.location.origin + window.location.pathname;
         });
 
@@ -174,21 +190,30 @@ function conectarAlServidorDeDuelo() {
     }
 }
 
+
 function iniciarCreacionPartida() {
     elements.popups.customGame.classList.remove('hidden');
 }
 
+// REEMPLAZA ESTA FUNCIÓN EN TU SCRIPT.JS
 function confirmarCreacionPartida() {
     const configPartida = {
         limite_preguntas: elements.customGamePopup.limitPreguntas.value,
         tiempo_ronda: elements.customGamePopup.tiempoRonda.value
     };
     
-    state.socket.emit('crear_partida_personalizada', { config: configPartida });
-    
+    // 1. Cerramos el pop-up
     elements.popups.customGame.classList.add('hidden');
+
+    // 2. Preparamos el escenario para el mensaje de espera
+    showStageScreen(false); // Mostramos la escena del telón sin la animación de cortina
+    
+    // 3. Mostramos el mensaje de "Forjando..."
     typewriterEffect(elements.stage.dialog, "Forjando un nuevo universo para vuestro duelo...");
-    elements.stage.menuButtons.classList.add('hidden');
+    elements.stage.menuButtons.classList.add('hidden'); // Ocultamos botones viejos
+
+    // 4. Enviamos la petición al servidor
+    state.socket.emit('crear_partida_personalizada', { config: configPartida });
 }
 
 function unirseAPartida(id_duelo) {
