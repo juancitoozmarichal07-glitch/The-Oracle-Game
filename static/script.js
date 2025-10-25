@@ -1,27 +1,38 @@
 // ===================================================================
-// == THE ORACLE GAME - SCRIPT.JS - v23.1 (LISTO PARA VERCEL)      ==
+// == THE ORACLE GAME - SCRIPT.JS - v24.3 (Duelo de Oráculos)       ==
 // ===================================================================
-// - CONECTADO A AMBOS SERVIDORES DE REPLIT (IA Y DUELO).
-// - MODOS 1P Y MULTIJUGADOR COMPLETAMENTE FUNCIONALES ONLINE.
-// - ESTA ES LA VERSIÓN DE PRODUCCIÓN.
+// - MEJORADO: El jugador-Oráculo en 1vs1 ahora tiene una interfaz morada.
+// - AÑADIDO: El jugador-Oráculo puede escribir respuestas personalizadas.
+// - Mantiene todas las funcionalidades anteriores, incluyendo sugerencias.
 
 // --- CONFIGURACIÓN Y ESTADO ---
 const config = {
     questionsLimit: 20,
     typewriterSpeed: 45,
-    suggestionCooldown: 15000,
+    challengeGraceTime: 20000,
     suggestionLimit: 5,
-    suggestionStart: 5,
-    guessButtonCooldown: 15000
+    suggestionStart: 5
 };
 const phrases = {
-    challenge: "Tu humilde tarea será adivinar el ser, real o ficticio, que yo, el Gran Oráculo, he concebido. Tienes 20 preguntas.",
+    challengeOracle: "Tu humilde tarea será adivinar el ser, real o ficticio, que yo, el Gran Oráculo, he concebido en mi mente. Tienes 20 preguntas para desvelar mi enigma. Úsalas con sabiduría. ¿Aceptas este desafío a tu intelecto?",
+    challengeClassic: "Concentra tu mente mortal. Piensa en un ser, real o ficticio. Yo haré 20 preguntas para leer tus pensamientos, y tú solo podrás responderme 'Sí', 'No' y sus variantes. No intentes engañarme. ¿Estás listo?",
     guessPopup: {
-        initial: "La hora de la verdad se acerca... Escribe al ser que crees que estoy pensando, mortal.",
+        initial: "Susurra tu respuesta al vacío...",
         strike1: "No puedo adivinar el vacío. ¡Escribe un nombre!",
         strike2: "¿Intentas agotar mi paciencia? Escribe una respuesta o cancela.",
         strike3: "Has agotado mi paciencia. El privilegio de adivinar te ha sido revocado... por ahora."
     },
+    menuOracle: {
+        main: "Una elección audaz. El telón se alza. Veamos qué camino eliges.",
+        singlePlayer: "¿Un desafío solitario? Pretendes enfrentarte a la infinidad de mi mente sin ayuda... Interesante.",
+        multiplayer: "Ah, buscas la compañía de otros mortales. ¿Para colaborar, o para traicionaros mutuamente? El tiempo lo dirá.",
+        playOracle: "Así que quieres probar mi poder... Bien. Escucha con atención.",
+        playClassic: "Prefieres que yo adivine, ¿eh? Muy bien. Prepárate.",
+        backToMenu: "¿Dudas? La incertidumbre es el primer paso hacia la ignorancia. Elige de nuevo.",
+        fleeChallengeOracle: "Lo sabía. La verdadera sabiduría requiere coraje, no solo curiosidad. Vuelve cuando estés preparado.",
+        classicGraceTime: "Te concederé un breve instante... 20 segundos de mi tiempo cósmico para que ordenes tus pensamientos. El reloj ha comenzado a correr.",
+        classicStillNeedsTime: "Suficiente. La indecisión es una plaga. Vuelve cuando seas digno de mi atención."
+    }
 };
 
 let state = {
@@ -29,28 +40,28 @@ let state = {
     secretCharacter: null,
     isGameActive: false,
     isAwaitingBrainResponse: false,
-    suggestionUses: 0,
+    suggestionUses: config.suggestionLimit,
     lastSuggestionTimestamp: 0,
     guessPopupPatience: 3,
-    currentGameMode: null, // 'oracle_ia', 'classic_ia', 'duelo_1v1'
+    currentGameMode: null, 
     gameTimerInterval: null,
     gameTime: 0,
     socket: null,
     id_sala: null,
-    rol_jugador: null // 'oraculo' o 'adivino'
+    rol_jugador: null,
+    graceTimer: null
 };
 
-// --- CONEXIÓN CON SERVIDORES EN LA NUBE ---
-// ¡APUNTANDO A LOS SERVIDORES DE REPLIT!
-const ALE_URL = 'https://889fe04e-996f-4127-afa0-24c10385465d-00-1wd8ak7x1x36.janeway.replit.dev/api/execute'; // Servidor de IA
-const REPLIT_URL = 'https://ff849e56-b6b6-4619-8495-996867c9bc5c-00-1rg9nfq7thllg.picard.replit.dev/'; // Servidor de Duelo
+// --- CONEXIÓN CON SERVIDORES ---
+const ALE_URL = 'http://127.0.0.1:5000/api/execute';
+const REPLIT_URL = 'https://ff849e56-b6b6-4619-8495-996867c9bc5c-00-1rg9nfq7thllg.picard.replit.dev/';
 
 // --- SELECTORES DEL DOM ---
 const elements = {
     arcadeScreen: document.getElementById('arcade-screen'),
     screens: { title: document.getElementById('title-screen'), stage: document.getElementById('game-stage'), mainGame: document.getElementById('main-game-screen'), win: document.getElementById('win-screen'), lose: document.getElementById('lose-screen') },
     header: {
-        container: document.getElementById('game-header'),
+        container: document.querySelector('.game-header'),
         timer: document.getElementById('timer'),
         questionCounter: document.getElementById('question-counter'),
         backToMenu: document.getElementById('back-to-menu-button')
@@ -65,15 +76,25 @@ const elements = {
         guessButton: document.getElementById('guess-button'),
         oracleControls: document.getElementById('oracle-mode-controls'),
         classicControls: document.getElementById('classic-mode-controls'),
-        dueloOraculoControls: document.getElementById('duelo-oraculo-controls') 
+        dueloOraculoControls: document.getElementById('duelo-oraculo-controls'),
+        // NUEVOS SELECTORES PARA EL ORÁCULO HUMANO
+        dueloOraculoInput: document.getElementById('duelo-oraculo-input'),
+        dueloOraculoSendBtn: document.getElementById('duelo-oraculo-send-btn')
     },
     popups: { 
         guess: document.getElementById('guess-popup'), 
         suggestion: document.getElementById('suggestion-popup') 
     },
-    guessPopup: { content: document.querySelector('#guess-popup .popup-content-guess'), instruction: document.getElementById('guess-popup-instruction'), input: document.getElementById('guess-input'), confirmButton: document.getElementById('confirm-guess-button') },
-    suggestionPopup: { container: document.getElementById('suggestion-popup'), content: document.querySelector('#suggestion-popup .popup-content'), buttonsContainer: document.getElementById('suggestion-buttons-container') },
-    endScreens: { winMessage: document.getElementById('win-message'), loseMessage: document.getElementById('lose-message') }
+    guessPopup: {
+        brainText: document.getElementById('guess-popup-brain-text'),
+        input: document.getElementById('guess-input'), 
+        confirmButton: document.getElementById('confirm-guess-button')
+    },
+    suggestionPopup: { 
+        buttonsContainer: document.getElementById('suggestion-buttons-container') 
+    },
+    endScreens: { winMessage: document.getElementById('win-message'), loseMessage: document.getElementById('lose-message') },
+    sounds: {}
 };
 
 // ===================================================================
@@ -93,12 +114,13 @@ function conectarAlServidorDeDuelo() {
             state.id_sala = data.id_sala;
             const linkDuelo = `${window.location.origin}${window.location.pathname}?duelo=${state.id_sala}`;
             
-            elements.stage.dialog.innerHTML = `¡Duelo creado! Comparte este link con tu amigo: <br><br><input type="text" value="${linkDuelo}" style="width: 100%; text-align: center;" readonly onclick="this.select()"><br><br>Esperando oponente...`;
+            elements.stage.dialog.classList.remove('hidden');
+            typewriterEffect(elements.stage.dialog, `¡Duelo creado! Comparte este link con tu amigo: <br><br><input type="text" value="${linkDuelo}" style="width: 100%; text-align: center;" readonly onclick="this.select()"><br><br>Esperando oponente...`);
             elements.stage.menuButtons.classList.add('hidden');
         });
 
         state.socket.on('partida_lista', (data) => {
-            if (state.rol_jugador === null) { 
+            if (state.rol_jugador === null) {
                 state.rol_jugador = data.rol_invitado;
             }
             startGame('duelo_1v1');
@@ -107,7 +129,10 @@ function conectarAlServidorDeDuelo() {
         state.socket.on('pregunta_recibida', (data) => {
             if (state.rol_jugador === 'oraculo') {
                 addMessageToChat(data.pregunta, 'player');
+                // Habilitamos todos los controles del Oráculo
                 elements.game.dueloOraculoControls.querySelectorAll('button').forEach(b => b.disabled = false);
+                elements.game.dueloOraculoInput.disabled = false;
+                elements.game.dueloOraculoInput.focus();
             }
         });
 
@@ -126,15 +151,14 @@ function conectarAlServidorDeDuelo() {
         });
 
     } catch (e) {
-        console.error("Error al cargar la librería de Socket.IO. Asegúrate de que el script está en index.html.", e);
-        alert("Error de conexión multijugador. Refresca la página.");
+        console.error("Error al cargar la librería de Socket.IO.", e);
     }
 }
 
-function iniciarCreacionDuelo(rolElegido) {
-    state.rol_jugador = rolElegido;
-    state.socket.emit('crear_duelo', { rol: rolElegido });
-    elements.stage.dialog.innerHTML = "Creando duelo en el cosmos...";
+function iniciarCreacionDuelo() {
+    state.rol_jugador = 'oraculo';
+    state.socket.emit('crear_duelo', { rol: state.rol_jugador });
+    typewriterEffect(elements.stage.dialog, "Creando duelo en el cosmos...");
     elements.stage.menuButtons.classList.add('hidden');
 }
 
@@ -142,7 +166,8 @@ function unirseADuelo(id_duelo) {
     state.id_sala = id_duelo;
     Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
     elements.screens.stage.classList.remove('hidden');
-    elements.stage.dialog.innerHTML = "Conectando al duelo...";
+    elements.stage.dialog.classList.remove('hidden');
+    typewriterEffect(elements.stage.dialog, "Conectando al duelo...");
     elements.stage.menuButtons.classList.add('hidden');
     openCurtains(() => {
         state.socket.emit('unirse_a_duelo', { id_sala: id_duelo });
@@ -150,29 +175,8 @@ function unirseADuelo(id_duelo) {
 }
 
 // ===================================================================
-// ===           LÓGICA DEL JUEGO (PRINCIPAL)                    ===
+// ===           LÓGICA DEL JUEGO                                  ===
 // ===================================================================
-
-async function callALE(datos_peticion) {
-    try {
-        const response = await fetch(ALE_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datos_peticion)
-        });
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => null);
-            const errorMessage = errorData ? errorData.error : "Fallo de comunicación con la IA.";
-            addMessageToChat(`Error del Motor: ${errorMessage}`, "system");
-            return { error: true };
-        }
-        return await response.json();
-    } catch (error) {
-        console.error("Error de Conexión con A.L.E.:", error);
-        addMessageToChat("Error de Conexión: El motor de la IA parece estar desconectado.", "system");
-        return { error: true };
-    }
-}
 
 function resetGameState() {
     state.questionCount = 0;
@@ -185,6 +189,7 @@ function resetGameState() {
     state.gameTime = 0;
     
     clearInterval(state.gameTimerInterval);
+    clearTimeout(state.graceTimer);
     elements.header.timer.textContent = "00:00";
     elements.header.questionCounter.textContent = `0/${config.questionsLimit}`;
     elements.game.chatHistory.innerHTML = '';
@@ -192,6 +197,9 @@ function resetGameState() {
     elements.game.suggestionButton.textContent = `Sugerencia (${state.suggestionUses})`;
     elements.game.suggestionButton.disabled = true;
     elements.game.guessButton.disabled = true;
+
+    // Limpiamos el tema del oráculo al resetear
+    document.body.classList.remove('duelo-oraculo-theme');
 }
 
 async function startGame(mode) {
@@ -201,9 +209,13 @@ async function startGame(mode) {
         elements.screens.mainGame.classList.remove('hidden');
         resetGameState();
         
-        if (mode === 'oracle_ia') await prepararInterfazModoOraculoIA();
-        else if (mode === 'classic_ia') await prepararInterfazModoClasicoIA();
-        else if (mode === 'duelo_1v1') prepararInterfazDuelo();
+        if (mode === 'oracle_ia') {
+            await prepararInterfazModoOraculoIA();
+        } else if (mode === 'classic_ia') {
+            await prepararInterfazModoClasicoIA();
+        } else if (mode === 'duelo_1v1') {
+            prepararInterfazDuelo();
+        }
         
         startTimer();
     }, 1);
@@ -213,17 +225,354 @@ function prepararInterfazDuelo() {
     elements.game.oracleControls.classList.add('hidden');
     elements.game.classicControls.classList.add('hidden');
     elements.game.dueloOraculoControls.classList.add('hidden');
-    elements.header.questionCounter.classList.add('hidden');
+    elements.header.questionCounter.classList.remove('hidden'); // Lo mostramos para el duelo
 
     if (state.rol_jugador === 'adivino') {
         elements.game.oracleControls.classList.remove('hidden');
         elements.game.suggestionButton.classList.add('hidden');
-        elements.game.guessButton.classList.add('hidden');
+        elements.game.guessButton.classList.remove('hidden'); // El adivino puede adivinar
         addMessageToChat("Eres el Adivino. Tu oponente es el Oráculo. Haz tu primera pregunta.", 'system');
     } else if (state.rol_jugador === 'oraculo') {
+        document.body.classList.add('duelo-oraculo-theme'); // APLICAMOS EL TEMA MORADO
         elements.game.dueloOraculoControls.classList.remove('hidden');
         addMessageToChat("Eres el Oráculo. Tu oponente es el Adivino. Espera su pregunta.", 'system');
+        // Deshabilitamos todos los controles hasta que llegue una pregunta
         elements.game.dueloOraculoControls.querySelectorAll('button').forEach(b => b.disabled = true);
+        elements.game.dueloOraculoInput.disabled = true;
+    }
+}
+
+async function handlePlayerInput() {
+    if (state.currentGameMode === 'duelo_1v1') {
+        const questionText = elements.game.input.value.trim();
+        if (questionText === '') return;
+        
+        addMessageToChat(questionText, 'player');
+        state.socket.emit('enviar_pregunta', { id_sala: state.id_sala, pregunta: questionText });
+        
+        elements.game.input.value = '';
+        elements.game.input.disabled = true;
+        elements.game.askButton.disabled = true;
+    } else {
+        if (!state.isGameActive || state.isAwaitingBrainResponse) return;
+        const questionText = elements.game.input.value.trim();
+        if (questionText === '') return;
+        state.isAwaitingBrainResponse = true;
+        elements.game.input.disabled = true;
+        elements.game.askButton.disabled = true;
+        
+        addMessageToChat(questionText, 'player');
+        elements.game.input.value = '';
+        
+        const respuesta = await callALE({ skillset_target: "oracle", accion: "procesar_pregunta", pregunta: questionText });
+        
+        state.isAwaitingBrainResponse = false;
+        if (!respuesta || respuesta.error) {
+            if (state.isGameActive) {
+                elements.game.input.disabled = false;
+                elements.game.askButton.disabled = false;
+            }
+            return;
+        }
+
+        const fullResponse = `${respuesta.respuesta || ''} ${respuesta.aclaracion || ''}`.trim();
+        addMessageToChat(fullResponse, 'brain');
+
+        if (respuesta.castigo === 'ninguno') {
+             state.questionCount++;
+             elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+        }
+        
+        if (state.questionCount >= 1) {
+            elements.game.guessButton.disabled = false;
+        }
+        if (state.questionCount >= config.suggestionStart && state.suggestionUses > 0) {
+            elements.game.suggestionButton.disabled = false;
+        }
+
+        if (state.isGameActive) {
+            elements.game.input.disabled = false;
+            elements.game.askButton.disabled = false;
+            elements.game.input.focus();
+        }
+
+        if (state.isGameActive && state.questionCount >= config.questionsLimit) {
+            endGame(false, "questions");
+        }
+    }
+}
+
+// MODIFICADO: Ahora es una función genérica para enviar cualquier respuesta
+function handleDueloOraculoResponse(respuesta) {
+    addMessageToChat(respuesta, 'brain');
+    state.socket.emit('enviar_respuesta', { id_sala: state.id_sala, respuesta: respuesta });
+    // Deshabilitamos todos los controles de nuevo
+    elements.game.dueloOraculoControls.querySelectorAll('button').forEach(b => b.disabled = true);
+    elements.game.dueloOraculoInput.disabled = true;
+    elements.game.dueloOraculoInput.value = '';
+}
+
+// ===================================================================
+// ===                PUNTO DE ENTRADA Y NAVEGACIÓN                ===
+// ===================================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    adjustScreenHeight();
+    window.addEventListener('resize', adjustScreenHeight);
+
+    conectarAlServidorDeDuelo();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const id_duelo = urlParams.get('duelo');
+    if (id_duelo) {
+        unirseADuelo(id_duelo);
+    } else {
+        runTitleSequence();
+    }
+
+    elements.title.startButton.addEventListener('click', () => showGameStage(true));
+    elements.title.exitButton.addEventListener('click', () => { elements.arcadeScreen.classList.add('shutdown-effect'); });
+    elements.game.askButton.addEventListener('click', handlePlayerInput);
+    elements.game.input.addEventListener('keyup', (e) => { if (e.key === 'Enter') handlePlayerInput(); });
+    elements.header.backToMenu.addEventListener('click', () => {
+        window.location.href = window.location.origin + window.location.pathname;
+    });
+    
+    // --- EVENT LISTENER DEL MENÚ PRINCIPAL ---
+    elements.stage.menuButtons.addEventListener('click', (e) => {
+        const action = e.target.dataset.action;
+        clearTimeout(state.graceTimer); 
+        elements.stage.menuButtons.classList.add('hidden');
+
+        switch(action) {
+            case 'show-single-player':
+                typewriterEffect(elements.stage.dialog, phrases.menuOracle.singlePlayer, () => {
+                    elements.stage.menuButtons.innerHTML = `
+                        <button class="menu-button button-green" data-action="play-oracle">Modo Oráculo (vs IA)</button>
+                        <button class="menu-button button-green" data-action="play-classic">Modo Clásico (vs IA)</button>
+                        <div style="height: 15px;"></div>
+                        <button class="menu-button button-red" data-action="back-to-main-menu">‹ Volver</button>
+                    `;
+                    elements.stage.menuButtons.classList.remove('hidden');
+                });
+                break;
+            case 'show-multiplayer':
+                typewriterEffect(elements.stage.dialog, phrases.menuOracle.multiplayer, () => {
+                    elements.stage.menuButtons.innerHTML = `
+                        <button class="menu-button button-purple" data-action="create-duel-1v1">1 vs 1</button>
+                        <button class="menu-button button-purple" data-action="create-duel-varios" disabled>1 vs Varios (Próximamente)</button>
+                        <button class="menu-button button-purple" data-action="cpu-vs-varios" disabled>CPU vs Varios (Próximamente)</button>
+                        <div style="height: 15px;"></div>
+                        <button class="menu-button button-red" data-action="back-to-main-menu">‹ Volver</button>
+                    `;
+                    elements.stage.menuButtons.classList.remove('hidden');
+                });
+                break;
+            case 'back-to-main-menu':
+                 typewriterEffect(elements.stage.dialog, phrases.menuOracle.backToMenu, () => {
+                    showGameStage(false);
+                 });
+                break;
+            case 'play-oracle':
+                typewriterEffect(elements.stage.dialog, phrases.menuOracle.playOracle, () => {
+                    showChallengeScreen('oracle');
+                });
+                break;
+            case 'play-classic':
+                 typewriterEffect(elements.stage.dialog, phrases.menuOracle.playClassic, () => {
+                    showChallengeScreen('classic');
+                 });
+                break;
+            case 'accept-challenge-oracle':
+                startGame('oracle_ia');
+                break;
+            case 'accept-challenge-classic':
+                startGame('classic_ia');
+                break;
+            case 'flee-to-title':
+                runTitleSequence();
+                break;
+            case 'flee-challenge-oracle':
+                 typewriterEffect(elements.stage.dialog, phrases.menuOracle.fleeChallengeOracle, () => {
+                    setTimeout(() => showGameStage(false), 1200);
+                 });
+                break;
+            case 'flee-challenge-classic':
+                typewriterEffect(elements.stage.dialog, phrases.menuOracle.classicGraceTime, () => {
+                    elements.stage.menuButtons.innerHTML = `
+                        <button class="button-green" data-action="accept-challenge-classic">Estoy Listo</button>
+                        <button class="button-red" data-action="flee-challenge-classic-final">Necesito aún más tiempo</button>
+                    `;
+                    elements.stage.menuButtons.classList.remove('hidden');
+                    state.graceTimer = setTimeout(() => {
+                        document.querySelector('[data-action="flee-challenge-classic-final"]').click();
+                    }, config.challengeGraceTime);
+                });
+                break;
+            case 'flee-challenge-classic-final':
+                 typewriterEffect(elements.stage.dialog, phrases.menuOracle.classicStillNeedsTime, () => {
+                    setTimeout(() => showGameStage(false), 1200);
+                 });
+                break;
+            case 'create-duel-1v1':
+                iniciarCreacionDuelo();
+                break;
+        }
+    });
+
+    // --- EVENT LISTENERS DEL JUEGO ---
+    elements.game.suggestionButton.addEventListener('click', handleSuggestion);
+    
+    elements.game.guessButton.addEventListener('click', () => {
+        elements.popups.guess.classList.remove('hidden');
+        elements.guessPopup.input.focus();
+        elements.guessPopup.brainText.textContent = phrases.guessPopup.initial;
+        state.guessPopupPatience = 3;
+    });
+
+    elements.guessPopup.confirmButton.addEventListener('click', handleGuess);
+    elements.guessPopup.input.addEventListener('keyup', (e) => { if (e.key === 'Enter') handleGuess(); });
+    
+    elements.game.classicControls.addEventListener('click', (e) => {
+        if (e.target.classList.contains('answer-btn')) {
+            handleClassicAnswer(e.target.dataset.answer);
+        }
+    });
+
+    // MODIFICADO: Ahora el contenedor de controles del oráculo maneja tanto botones como el input personalizado
+    elements.game.dueloOraculoControls.addEventListener('click', (e) => {
+        // Si se hace clic en un botón de respuesta rápida
+        if (e.target.classList.contains('answer-btn')) {
+            handleDueloOraculoResponse(e.target.dataset.answer);
+        }
+        // Si se hace clic en el botón de enviar del input personalizado
+        if (e.target.id === 'duelo-oraculo-send-btn' || e.target.closest('#duelo-oraculo-send-btn')) {
+            const customResponse = elements.game.dueloOraculoInput.value.trim();
+            if (customResponse) {
+                handleDueloOraculoResponse(customResponse);
+            }
+        }
+    });
+    // Añadimos listener para la tecla Enter en el input personalizado
+    elements.game.dueloOraculoInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            const customResponse = elements.game.dueloOraculoInput.value.trim();
+            if (customResponse) {
+                handleDueloOraculoResponse(customResponse);
+            }
+        }
+    });
+
+
+    // --- OTROS EVENT LISTENERS ---
+    document.querySelectorAll('.end-buttons button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const action = e.target.dataset.action;
+            Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
+            if (action === 'play-again') showGameStage(true);
+            else if (action === 'main-menu') runTitleSequence();
+        });
+    });
+    document.body.addEventListener('click', (e) => { 
+        if (e.target.dataset.close) {
+            e.target.closest('.popup-overlay').classList.add('hidden');
+        }
+    });
+});
+
+// ===================================================================
+// ===                FUNCIONES DE JUEGO Y LÓGICA IA               ===
+// ===================================================================
+
+function handleGuess() {
+    const guessText = elements.guessPopup.input.value.trim();
+    if (guessText === '') {
+        state.guessPopupPatience--;
+        let patiencePhrase = phrases.guessPopup.strike1;
+        if (state.guessPopupPatience === 1) patiencePhrase = phrases.guessPopup.strike2;
+        elements.guessPopup.brainText.textContent = patiencePhrase;
+
+        if (state.guessPopupPatience <= 0) {
+            elements.guessPopup.brainText.textContent = phrases.guessPopup.strike3;
+            setTimeout(() => {
+                elements.popups.guess.classList.add('hidden');
+                endGame(false, 'guess_abuse');
+            }, 2000);
+        }
+        return;
+    }
+
+    elements.popups.guess.classList.add('hidden');
+    addMessageToChat(`Mi adivinanza es... ${guessText}`, 'player');
+
+    // En un duelo 1vs1, la lógica de victoria la decide el Oráculo humano.
+    // Aquí solo manejamos la victoria contra la IA.
+    if (state.currentGameMode === 'oracle_ia') {
+        const normalizedGuess = guessText.toLowerCase().trim();
+        const normalizedSecret = state.secretCharacter.nombre.toLowerCase().trim();
+
+        if (normalizedGuess === normalizedSecret) {
+            endGame(true);
+        } else {
+            addMessageToChat("No, ese no es el ser que he concebido. Sigue intentando.", 'brain');
+        }
+    }
+    // Si es un duelo, el Oráculo humano verá la adivinanza y decidirá cómo responder.
+    // Podríamos implementar un sistema de "confirmar victoria" en el futuro.
+
+    elements.guessPopup.input.value = '';
+}
+
+async function handleSuggestion() {
+    if (state.suggestionUses <= 0) return;
+
+    elements.game.suggestionButton.disabled = true;
+    addMessageToChat("El Oráculo sondea el cosmos en busca de una pista...", 'system');
+
+    const respuesta = await callALE({ skillset_target: "oracle", accion: "pedir_sugerencia" });
+
+    if (respuesta && !respuesta.error && respuesta.sugerencias) {
+        state.suggestionUses--;
+        elements.game.suggestionButton.textContent = `Sugerencia (${state.suggestionUses})`;
+        
+        const container = elements.suggestionPopup.buttonsContainer;
+        container.innerHTML = ''; // Limpiamos sugerencias anteriores
+        respuesta.sugerencias.forEach(sug => {
+            const btn = document.createElement('button');
+            btn.className = 'suggestion-option-button';
+            btn.textContent = sug;
+            btn.onclick = () => {
+                elements.game.input.value = sug;
+                elements.popups.suggestion.classList.add('hidden');
+                elements.game.input.focus();
+            };
+            container.appendChild(btn);
+        });
+        elements.popups.suggestion.classList.remove('hidden');
+    } else {
+        addMessageToChat("El cosmos permanece en silencio. No hay sugerencias por ahora.", 'brain');
+    }
+    
+    if (state.suggestionUses > 0) {
+        elements.game.suggestionButton.disabled = false;
+    }
+}
+
+async function callALE(payload) {
+    try {
+        const response = await fetch(ALE_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error al llamar a A.L.E.:", error);
+        addMessageToChat(`Error de conexión con el cerebro. ${error.message}`, 'system');
+        return { error: true };
     }
 }
 
@@ -231,15 +580,12 @@ async function prepararInterfazModoOraculoIA() {
     elements.game.oracleControls.classList.remove('hidden');
     elements.game.classicControls.classList.add('hidden');
     elements.game.dueloOraculoControls.classList.add('hidden');
-    elements.game.suggestionButton.classList.remove('hidden');
+    elements.game.suggestionButton.classList.remove('hidden'); 
     elements.game.guessButton.classList.remove('hidden');
     elements.header.questionCounter.classList.remove('hidden');
     addMessageToChat("Concibiendo un nuevo enigma...", "brain");
     const respuesta = await callALE({ skillset_target: "oracle", accion: "iniciar_juego" });
-    if (respuesta.error) {
-        addMessageToChat("No se pudo iniciar el juego. Vuelve al menú.", "system");
-        return;
-    }
+    if (respuesta.error) return;
     state.secretCharacter = respuesta.personaje_secreto;
     elements.game.chatHistory.innerHTML = '';
     state.isGameActive = true;
@@ -257,91 +603,24 @@ async function prepararInterfazModoClasicoIA() {
     elements.game.suggestionButton.classList.add('hidden');
     elements.game.guessButton.classList.add('hidden');
     elements.header.questionCounter.classList.remove('hidden');
-    addMessageToChat("Has elegido el Camino del Clásico. Piensa en un personaje. Yo haré las preguntas.", 'brain');
-    const respuesta = await callALE({ skillset_target: "akinator", accion: "iniciar_juego_clasico" });
-    if (respuesta && !respuesta.error && respuesta.texto) {
-        state.isGameActive = true;
-        addMessageToChat(respuesta.texto, 'brain');
-    } else {
-        addMessageToChat("Mi mente está confusa para este modo. Vuelve al menú.", 'brain');
-    }
-}
-
-async function handlePlayerInput() {
-    if (state.currentGameMode === 'duelo_1v1') {
-        const questionText = elements.game.input.value.trim();
-        if (questionText === '') return;
-        
-        addMessageToChat(questionText, 'player');
-        state.socket.emit('enviar_pregunta', { id_sala: state.id_sala, pregunta: questionText });
-        
-        elements.game.input.value = '';
-        elements.game.input.disabled = true;
-        elements.game.askButton.disabled = true;
-        return;
-    } 
-    
-    // Lógica para modos contra la IA
-    if (!state.isGameActive || state.isAwaitingBrainResponse) return;
-    const questionText = elements.game.input.value.trim();
-    if (questionText === '') return;
-    state.isAwaitingBrainResponse = true;
-    elements.game.input.disabled = true;
-    elements.game.askButton.disabled = true;
-    
-    addMessageToChat(questionText, 'player');
-    elements.game.input.value = '';
-    
-    const respuesta = await callALE({ skillset_target: "oracle", accion: "procesar_pregunta", pregunta: questionText });
-    
-    state.isAwaitingBrainResponse = false;
-    if (!respuesta || respuesta.error) {
-        if (state.isGameActive) {
-            elements.game.input.disabled = false;
-            elements.game.askButton.disabled = false;
+    addMessageToChat("Iniciando modo Clásico... Mi primera pregunta es:", 'system', async () => {
+        const respuesta = await callALE({ skillset_target: "akinator", accion: "iniciar_juego_clasico" });
+        if (respuesta && !respuesta.error && respuesta.siguiente_pregunta) {
+            state.isGameActive = true;
+            state.questionCount = 1;
+            elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+            addMessageToChat(respuesta.siguiente_pregunta, 'brain');
+        } else {
+            addMessageToChat("Mi mente está confusa para este modo. Vuelve al menú.", 'brain');
         }
-        return;
-    }
-
-    const fullResponse = `${respuesta.respuesta || ''} ${respuesta.aclaracion || ''}`.trim();
-    addMessageToChat(fullResponse, 'brain');
-
-    if (respuesta.castigo !== 'ninguno' && respuesta.castigo !== 'social') {
-        // No contamos las preguntas de castigo
-    } else if (respuesta.intencion === 'pregunta_juego') {
-        state.questionCount++;
-        elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
-    }
-    
-    if (state.questionCount >= config.suggestionStart) {
-        elements.game.suggestionButton.disabled = false;
-        elements.game.suggestionButton.textContent = `Sugerencia (${state.suggestionUses})`;
-    }
-    if (state.questionCount >= 1) {
-        elements.game.guessButton.disabled = false;
-    }
-
-    if (state.isGameActive) {
-        elements.game.input.disabled = false;
-        elements.game.askButton.disabled = false;
-        elements.game.input.focus();
-    }
-
-    if (state.isGameActive && state.questionCount >= config.questionsLimit) {
-        endGame(false, "questions");
-    }
-}
-
-function handleDueloOraculoResponse(respuesta) {
-    addMessageToChat(respuesta, 'brain');
-    state.socket.emit('enviar_respuesta', { id_sala: state.id_sala, respuesta: respuesta });
-    elements.game.dueloOraculoControls.querySelectorAll('button').forEach(b => b.disabled = true);
+    });
 }
 
 async function handleClassicAnswer(answer) {
     if (!state.isGameActive || state.isAwaitingBrainResponse) return;
     state.isAwaitingBrainResponse = true;
     addMessageToChat(answer, 'player');
+
     const respuesta = await callALE({
         skillset_target: "akinator",
         accion: "procesar_respuesta_jugador",
@@ -350,6 +629,8 @@ async function handleClassicAnswer(answer) {
     state.isAwaitingBrainResponse = false;
     if (respuesta && !respuesta.error) {
         if (respuesta.accion === "Preguntar") {
+            state.questionCount++;
+            elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
             addMessageToChat(respuesta.texto, 'brain');
         } else if (respuesta.accion === "Adivinar") {
             addMessageToChat(`Estoy listo para adivinar... ¿Estás pensando en... **${respuesta.texto}**?`, 'brain');
@@ -362,10 +643,6 @@ async function handleClassicAnswer(answer) {
         addMessageToChat("No he podido procesar tu respuesta.", 'brain');
     }
 }
-
-// ===================================================================
-// ===                FUNCIONES AUXILIARES                         ===
-// ===================================================================
 
 function startTimer() {
     clearInterval(state.gameTimerInterval);
@@ -402,6 +679,10 @@ function endGame(isWin, reason = "guess") {
     }
 }
 
+// ===================================================================
+// ===            FUNCIONES DE UI, EFECTOS Y ANIMACIONES           ===
+// ===================================================================
+
 function addMessageToChat(text, sender, callback) {
     const messageLine = document.createElement('div');
     messageLine.className = `message-line message-line-${sender}`;
@@ -429,11 +710,18 @@ function typewriterEffect(element, text, callback) {
     let i = 0;
     const processedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     element.innerHTML = '';
+    
+    element.classList.remove('hidden');
+
     const interval = setInterval(() => {
         if (i < processedText.length) {
             element.innerHTML += processedText.charAt(i);
             i++;
-            elements.game.chatHistory.scrollTop = elements.game.chatHistory.scrollHeight;
+            if (element.id === 'stage-dialog') {
+                 element.scrollTop = element.scrollHeight;
+            } else {
+                 elements.game.chatHistory.scrollTop = elements.game.chatHistory.scrollHeight;
+            }
         } else {
             clearInterval(interval);
             if (callback) callback();
@@ -486,119 +774,70 @@ function runTitleSequence() {
     }, 4000);
 }
 
-function showGameStage() {
-    Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
-    elements.screens.stage.classList.remove('hidden');
-    elements.stage.brain.classList.remove('hidden');
-    elements.stage.dialog.classList.add('hidden');
-    elements.stage.menuButtons.classList.add('hidden');
-    elements.stage.lights.classList.remove('hidden');
-    elements.stage.menuButtons.innerHTML = `
-        <button class="menu-button button-green" data-action="play-oracle">Modo Oráculo (1P)</button>
-        <button class="menu-button button-green" data-action="play-classic">Modo Clásico (1P)</button>
-        <div style="text-align: center; color: var(--main-purple); margin: 10px 0;">--- DUELO ---</div>
-        <button class="menu-button button-purple" data-action="create-duel-oraculo">Ser el Oráculo (1vs1)</button>
-        <button class="menu-button button-purple" data-action="create-duel-adivino">Ser el Adivino (1vs1)</button>
+function showGameStage(withCurtain = true) {
+    const menuPrincipalHTML = `
+        <button class="menu-button button-green" data-action="show-single-player">1 Jugador</button>
+        <button class="menu-button button-purple" data-action="show-multiplayer">Cooperativo</button>
         <div style="height: 15px;"></div>
         <button class="menu-button button-red" data-action="flee-to-title">Huir</button>
     `;
-    elements.stage.curtainLeft.style.transition = 'width 1s ease-in-out';
-    elements.stage.curtainRight.style.transition = 'width 1s ease-in-out';
-    elements.stage.curtainLeft.style.width = '50%';
-    elements.stage.curtainRight.style.width = '50%';
-    
-    setTimeout(() => {
-        openCurtains(() => {
-            setTimeout(() => { elements.stage.lights.classList.add('hidden'); }, 1000);
-            setTimeout(() => {
-                elements.stage.dialog.classList.remove('hidden');
-                typewriterEffect(elements.stage.dialog, "El conocimiento aguarda al audaz. Elige tu camino.", () => {
-                    elements.stage.menuButtons.classList.remove('hidden');
+    elements.stage.menuButtons.innerHTML = menuPrincipalHTML;
+
+    const showFinalContent = () => {
+        typewriterEffect(elements.stage.dialog, phrases.menuOracle.backToMenu, () => {
+            elements.stage.menuButtons.classList.remove('hidden');
+        });
+    };
+
+    if (withCurtain) {
+        Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
+        elements.screens.stage.classList.remove('hidden');
+        elements.stage.brain.classList.remove('hidden');
+        elements.stage.dialog.classList.add('hidden');
+        elements.stage.menuButtons.classList.add('hidden');
+        elements.stage.lights.classList.remove('hidden');
+        elements.stage.curtainLeft.style.transition = 'none';
+        elements.stage.curtainRight.style.transition = 'none';
+        elements.stage.curtainLeft.style.width = '50%';
+        elements.stage.curtainRight.style.width = '50%';
+        elements.stage.curtainLeft.offsetHeight; 
+
+        setTimeout(() => {
+            openCurtains(() => {
+                setTimeout(() => { elements.stage.lights.classList.add('hidden'); }, 1000);
+                typewriterEffect(elements.stage.dialog, phrases.menuOracle.main, () => {
+                     elements.stage.menuButtons.classList.remove('hidden');
                 });
-            }, 500);
-        }, 1);
-    }, 1000);
+            }, 1);
+        }, 500);
+    } else {
+        openCurtains(showFinalContent);
+    }
 }
 
-function showChallengeScreen() {
-    elements.stage.menuButtons.classList.add('hidden');
+function showChallengeScreen(mode) {
+    let challengeText, acceptAction, fleeAction;
+
+    if (mode === 'oracle') {
+        challengeText = phrases.challengeOracle;
+        acceptAction = 'accept-challenge-oracle';
+        fleeAction = 'flee-challenge-oracle';
+    } else { // classic
+        challengeText = phrases.challengeClassic;
+        acceptAction = 'accept-challenge-classic';
+        fleeAction = 'flee-challenge-classic';
+    }
+
     closeCurtains(() => {
         elements.stage.dialog.classList.add('hidden');
         openCurtains(() => {
-            elements.stage.dialog.classList.remove('hidden');
             elements.stage.menuButtons.innerHTML = `
-                <button class="button-green" data-action="accept-challenge">Aceptar Reto</button>
-                <button class="button-red" data-action="flee-challenge">Huir</button>
+                <button class="button-green" data-action="${acceptAction}">${mode === 'oracle' ? 'Aceptar Reto' : 'Estoy Listo'}</button>
+                <button class="button-red" data-action="${fleeAction}">${mode === 'oracle' ? 'Huir' : 'Necesito Tiempo'}</button>
             `;
-            elements.stage.menuButtons.classList.remove('hidden');
-            typewriterEffect(elements.stage.dialog, phrases.challenge);
-        }, 2.5);
+            typewriterEffect(elements.stage.dialog, challengeText, () => {
+                elements.stage.menuButtons.classList.remove('hidden');
+            });
+        }, 1.5);
     }, 1);
 }
-
-// ===================================================================
-// ===                PUNTO DE ENTRADA                             ===
-// ===================================================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    adjustScreenHeight();
-    window.addEventListener('resize', adjustScreenHeight);
-
-    conectarAlServidorDeDuelo();
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const id_duelo = urlParams.get('duelo');
-    if (id_duelo) {
-        unirseADuelo(id_duelo);
-    } else {
-        runTitleSequence();
-    }
-
-    elements.title.startButton.addEventListener('click', showGameStage);
-    elements.title.exitButton.addEventListener('click', () => { elements.arcadeScreen.classList.add('shutdown-effect'); });
-    elements.game.askButton.addEventListener('click', handlePlayerInput);
-    elements.game.input.addEventListener('keyup', (e) => { if (e.key === 'Enter') handlePlayerInput(); });
-    
-    elements.header.backToMenu.addEventListener('click', () => {
-        if (state.socket && state.id_sala) {
-            state.socket.disconnect();
-        }
-        window.location.href = window.location.origin + window.location.pathname;
-    });
-    
-    elements.stage.menuButtons.addEventListener('click', (e) => {
-        const action = e.target.dataset.action;
-        if (action === 'play-oracle') showChallengeScreen();
-        else if (action === 'play-classic') startGame('classic_ia');
-        else if (action === 'accept-challenge') startGame('oracle_ia');
-        else if (action === 'flee-to-title') runTitleSequence();
-        else if (action === 'flee-challenge') showGameStage();
-        else if (action === 'create-duel-oraculo') iniciarCreacionDuelo('oraculo');
-        else if (action === 'create-duel-adivino') iniciarCreacionDuelo('adivino');
-    });
-    
-    elements.game.dueloOraculoControls.addEventListener('click', (e) => {
-        if (e.target.tagName === 'BUTTON') {
-            handleDueloOraculoResponse(e.target.dataset.answer);
-        }
-    });
-
-    elements.game.classicControls.addEventListener('click', (e) => {
-        if (e.target.classList.contains('answer-btn')) {
-            handleClassicAnswer(e.target.dataset.answer);
-        }
-    });
-
-    document.querySelectorAll('.end-buttons button').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const action = e.target.dataset.action;
-            Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
-            if (action === 'play-again') showGameStage();
-            else if (action === 'main-menu') runTitleSequence();
-        });
-    });
-    
-    document.body.addEventListener('click', (e) => { 
-        if (e.target.dataset.close) e.target.closest('.popup-overlay').classList.add('hidden'); 
-    });
-});
