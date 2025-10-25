@@ -449,3 +449,27 @@ button:disabled {
     border-color: var(--main-purple);
     box-shadow: 0 0 10px var(--main-purple);
 }
+/* Estilos para el Pop-up de Partida Personalizada */
+.custom-game-options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 25px 0;
+    text-align: left;
+}
+.option-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.option-group label {
+    font-size: 0.9em;
+}
+.option-group select {
+    font-family: 'Press Start 2P', cursive;
+    background-color: #222;
+    color: var(--main-green);
+    border: 2px solid var(--main-green);
+    padding: 8px;
+    border-radius: 5px;
+}
