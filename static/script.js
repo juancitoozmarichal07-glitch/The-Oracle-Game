@@ -48,8 +48,14 @@ let state = {
     rol_jugador: null
 };
 
-// --- CONEXIÓN CON SERVIDORES ---
-const ALE_URL = 'http://127.0.0.1:5000/api/execute';
+// --- CONEXIÓN CON SERVIDORES (VERSIÓN PARA PRODUCCIÓN EN VERCEL) ---
+
+// URL del Cerebro de la IA (A.L.E. en Replit)
+// Esta es la dirección PÚBLICA de tu servidor que ejecuta oracle.py y akinator.py.
+const ALE_URL = 'https://889fe04e-996f-4127-afa0-24c10385465d-00-1wd8ak7x1x36.janeway.replit.dev/api/execute';
+
+// URL del Cerebro Social (El Cartero en Replit)
+// Esta es la dirección PÚBLICA de tu servidor que ejecuta Socket.IO para el multijugador.
 const REPLIT_URL = 'https://ff849e56-b6b6-4619-8495-996867c9bc5c-00-1rg9nfq7thllg.picard.replit.dev/';
 
 // --- SELECTORES DEL DOM ---
