@@ -53,7 +53,7 @@ const ALE_URL = 'https://889fe04e-996f-4127-afa0-24c10385465d-00-1wd8ak7x1x36.ja
 
 // URL del Cerebro Social (El Cartero en Replit)
 // Esta es la dirección PÚBLICA de tu servidor que ejecuta Socket.IO para el multijugador.
-const REPLIT_URL = 'https://ff849e56-b6b6-4619-8495-996867c9bc5c-00-1rg9nfq7thllg.picard.replit.dev/';b6b6-4619-8495-996867c9bc5c-00-1rg9nfq7thllg.picard.replit.dev/';
+const REPLIT_URL = 'https://ff849e56-b6b6-4619-8495-996867c9bc5c-00-1rg9nfq7thllg.picard.replit.dev/';
 // --- SELECTORES DEL DOM ---
 const elements = {
     arcadeScreen: document.getElementById('arcade-screen'),
