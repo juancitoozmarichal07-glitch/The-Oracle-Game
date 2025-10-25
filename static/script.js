@@ -1,9 +1,8 @@
 // ===================================================================
-// == THE ORACLE GAME - SCRIPT.JS - v23.4 (Pulido Final Estético)   ==
+// == THE ORACLE GAME - SCRIPT.JS - v23.5 (Botones Funcionales)     ==
 // ===================================================================
-// - CORREGIDO: El diálogo del Oráculo ahora es fluido, sin saltos abruptos.
-// - CORREGIDO: Eliminado el "flash" del cuadro de diálogo vacío.
-// - Mantiene la lógica del Oráculo omnisciente y la animación del telón.
+// - CORREGIDO: Los botones "Sugerencia" y "¡Adivinar!" son funcionales.
+// - MANTIENE: La estética y navegación fluida de la v23.4.
 
 // --- CONFIGURACIÓN Y ESTADO ---
 const config = {
@@ -37,7 +36,7 @@ let state = {
     secretCharacter: null,
     isGameActive: false,
     isAwaitingBrainResponse: false,
-    suggestionUses: 0,
+    suggestionUses: config.suggestionLimit, // Inicia con el límite
     lastSuggestionTimestamp: 0,
     guessPopupPatience: 3,
     currentGameMode: null, 
@@ -49,13 +48,7 @@ let state = {
 };
 
 // --- CONEXIÓN CON SERVIDORES (VERSIÓN PARA PRODUCCIÓN EN VERCEL) ---
-
-// URL del Cerebro de la IA (A.L.E. en Replit)
-// Esta es la dirección PÚBLICA de tu servidor que ejecuta oracle.py y akinator.py.
 const ALE_URL = 'https://889fe04e-996f-4127-afa0-24c10385465d-00-1wd8ak7x1x36.janeway.replit.dev/api/execute';
-
-// URL del Cerebro Social (El Cartero en Replit)
-// Esta es la dirección PÚBLICA de tu servidor que ejecuta Socket.IO para el multijugador.
 const REPLIT_URL = 'https://ff849e56-b6b6-4619-8495-996867c9bc5c-00-1rg9nfq7thllg.picard.replit.dev/';
 
 // --- SELECTORES DEL DOM ---
@@ -84,8 +77,18 @@ const elements = {
         guess: document.getElementById('guess-popup'), 
         suggestion: document.getElementById('suggestion-popup') 
     },
-    guessPopup: { content: document.querySelector('#guess-popup .popup-content-guess'), instruction: document.getElementById('guess-popup-instruction'), input: document.getElementById('guess-input'), confirmButton: document.getElementById('confirm-guess-button') },
-    suggestionPopup: { container: document.getElementById('suggestion-popup'), content: document.querySelector('#suggestion-popup .popup-content'), buttonsContainer: document.getElementById('suggestion-buttons-container') },
+    guessPopup: { 
+        content: document.querySelector('#guess-popup .popup-content-guess'), 
+        instruction: document.getElementById('guess-popup-instruction'), 
+        input: document.getElementById('guess-input'), 
+        confirmButton: document.getElementById('confirm-guess-button'),
+        brainText: document.getElementById('guess-popup-brain-text') // Selector añadido
+    },
+    suggestionPopup: { 
+        container: document.getElementById('suggestion-popup'), 
+        content: document.querySelector('#suggestion-popup .popup-content'), 
+        buttonsContainer: document.getElementById('suggestion-buttons-container') 
+    },
     endScreens: { winMessage: document.getElementById('win-message'), loseMessage: document.getElementById('lose-message') },
     sounds: {}
 };
@@ -308,6 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
         runTitleSequence();
     }
 
+    // --- EVENT LISTENERS PRINCIPALES ---
     elements.title.startButton.addEventListener('click', () => showGameStage(true));
     elements.title.exitButton.addEventListener('click', () => { elements.arcadeScreen.classList.add('shutdown-effect'); });
     elements.game.askButton.addEventListener('click', handlePlayerInput);
@@ -315,78 +319,94 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.header.backToMenu.addEventListener('click', () => {
         window.location.href = window.location.origin + window.location.pathname;
     });
+
+    // --- LISTENERS DE BOTONES FUNCIONALES (¡CORREGIDOS!) ---
+    elements.game.guessButton.addEventListener('click', showGuessPopup);
+    elements.game.suggestionButton.addEventListener('click', showSuggestionPopup);
+    elements.guessPopup.confirmButton.addEventListener('click', confirmGuess);
     
+    // Listener para los botones de respuesta en Modo Clásico
+    elements.game.classicControls.addEventListener('click', (e) => {
+        if (e.target.classList.contains('answer-btn')) {
+            handleClassicAnswer(e.target.dataset.answer);
+        }
+    });
+
+    // Listener para los menús dinámicos
     elements.stage.menuButtons.addEventListener('click', (e) => {
         const action = e.target.dataset.action;
-        elements.stage.menuButtons.classList.add('hidden');
+        elements.stage.menuButtons.classList.add('hidden'); // Oculta botones para la transición
 
-        switch(action) {
-            case 'show-single-player':
-                typewriterEffect(elements.stage.dialog, phrases.menuOracle.singlePlayer, () => {
-                    elements.stage.menuButtons.innerHTML = `
-                        <button class="menu-button button-green" data-action="play-oracle">Modo Oráculo (vs IA)</button>
-                        <button class="menu-button button-green" data-action="play-classic">Modo Clásico (vs IA)</button>
-                        <div style="height: 15px;"></div>
-                        <button class="menu-button button-red" data-action="back-to-main-menu">‹ Volver</button>
-                    `;
-                    elements.stage.menuButtons.classList.remove('hidden');
-                });
-                break;
-            case 'show-multiplayer':
-                typewriterEffect(elements.stage.dialog, phrases.menuOracle.multiplayer, () => {
-                    elements.stage.menuButtons.innerHTML = `
-                        <button class="menu-button button-purple" data-action="create-duel-1v1">1 vs 1</button>
-                        <button class="menu-button button-purple" data-action="create-duel-varios" disabled>1 vs Varios (Próximamente)</button>
-                        <button class="menu-button button-purple" data-action="cpu-vs-varios" disabled>CPU vs Varios (Próximamente)</button>
-                        <div style="height: 15px;"></div>
-                        <button class="menu-button button-red" data-action="back-to-main-menu">‹ Volver</button>
-                    `;
-                    elements.stage.menuButtons.classList.remove('hidden');
-                });
-                break;
-            case 'back-to-main-menu':
-                 typewriterEffect(elements.stage.dialog, phrases.menuOracle.backToMenu, () => {
-                    const menuPrincipalHTML = `
-                        <button class="menu-button button-green" data-action="show-single-player">1 Jugador</button>
-                        <button class="menu-button button-purple" data-action="show-multiplayer">Cooperativo</button>
-                        <div style="height: 15px;"></div>
-                        <button class="menu-button button-red" data-action="flee-to-title">Huir</button>
-                    `;
-                    elements.stage.menuButtons.innerHTML = menuPrincipalHTML;
-                    elements.stage.menuButtons.classList.remove('hidden');
-                 });
-                break;
-            case 'play-oracle':
-                typewriterEffect(elements.stage.dialog, phrases.menuOracle.playOracle, () => {
-                    showChallengeScreen();
-                });
-                break;
-            case 'play-classic':
-                 typewriterEffect(elements.stage.dialog, phrases.menuOracle.playClassic, () => {
-                    startGame('classic_ia');
-                 });
-                break;
-            case 'accept-challenge':
-                startGame('oracle_ia');
-                break;
-            case 'flee-to-title':
-                runTitleSequence();
-                break;
-            case 'flee-challenge':
-                 showGameStage(false);
-                break;
-            case 'create-duel-1v1':
-                iniciarCreacionDuelo();
-                break;
+        const menuActions = {
+            'show-single-player': {
+                phrase: phrases.menuOracle.singlePlayer,
+                buttons: `
+                    <button class="menu-button button-green" data-action="play-oracle">Modo Oráculo (vs IA)</button>
+                    <button class="menu-button button-green" data-action="play-classic">Modo Clásico (vs IA)</button>
+                    <div style="height: 15px;"></div>
+                    <button class="menu-button button-red" data-action="back-to-main-menu">‹ Volver</button>
+                `
+            },
+            'show-multiplayer': {
+                phrase: phrases.menuOracle.multiplayer,
+                buttons: `
+                    <button class="menu-button button-purple" data-action="create-duel-1v1">1 vs 1</button>
+                    <button class="menu-button button-purple" data-action="create-duel-varios" disabled>1 vs Varios (Próximamente)</button>
+                    <button class="menu-button button-purple" data-action="cpu-vs-varios" disabled>CPU vs Varios (Próximamente)</button>
+                    <div style="height: 15px;"></div>
+                    <button class="menu-button button-red" data-action="back-to-main-menu">‹ Volver</button>
+                `
+            },
+            'back-to-main-menu': {
+                phrase: phrases.menuOracle.backToMenu,
+                buttons: `
+                    <button class="menu-button button-green" data-action="show-single-player">1 Jugador</button>
+                    <button class="menu-button button-purple" data-action="show-multiplayer">Cooperativo</button>
+                    <div style="height: 15px;"></div>
+                    <button class="menu-button button-red" data-action="flee-to-title">Huir</button>
+                `
+            }
+        };
+
+        if (menuActions[action]) {
+            const { phrase, buttons } = menuActions[action];
+            typewriterEffect(elements.stage.dialog, phrase, () => {
+                elements.stage.menuButtons.innerHTML = buttons;
+                elements.stage.menuButtons.classList.remove('hidden');
+            });
+        } else {
+            // Acciones que no solo cambian el menú
+            switch(action) {
+                case 'play-oracle':
+                    typewriterEffect(elements.stage.dialog, phrases.menuOracle.playOracle, showChallengeScreen);
+                    break;
+                case 'play-classic':
+                    typewriterEffect(elements.stage.dialog, phrases.menuOracle.playClassic, () => startGame('classic_ia'));
+                    break;
+                case 'accept-challenge':
+                    startGame('oracle_ia');
+                    break;
+                case 'flee-to-title':
+                    runTitleSequence();
+                    break;
+                case 'flee-challenge':
+                    showGameStage(false);
+                    break;
+                case 'create-duel-1v1':
+                    iniciarCreacionDuelo();
+                    break;
+            }
         }
     });
     
+    // Listener para los botones del Oráculo humano en duelo
     elements.game.dueloOraculoControls.addEventListener('click', (e) => {
         if (e.target.tagName === 'BUTTON') {
             handleDueloOraculoResponse(e.target.dataset.answer);
         }
     });
 
+    // Listeners para las pantallas de fin de juego y pop-ups
     document.querySelectorAll('.end-buttons button').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const action = e.target.dataset.action;
@@ -429,9 +449,10 @@ async function prepararInterfazModoOraculoIA() {
     elements.header.questionCounter.classList.remove('hidden');
     addMessageToChat("Concibiendo un nuevo enigma...", "brain");
     const respuesta = await callALE({ skillset_target: "oracle", accion: "iniciar_juego" });
-    if (respuesta.error) return;
-    state.secretCharacter = respuesta.personaje_secreto;
-    elements.game.chatHistory.innerHTML = '';
+    if (respuesta.error) {
+        state.isGameActive = false;
+        return;
+    }
     state.isGameActive = true;
     addMessageToChat(`He concebido mi enigma. Comienza.`, 'brain', () => {
         elements.game.input.disabled = false;
@@ -497,21 +518,15 @@ function stopTimer() {
     clearInterval(state.gameTimerInterval);
 }
 
-function endGame(isWin, reason = "guess") {
+function endGame(isWin, secretCharacterName) {
     stopTimer();
     state.isGameActive = false;
     elements.screens.mainGame.classList.add('hidden');
     if (isWin) {
-        elements.endScreens.winMessage.textContent = `¡Correcto! El personaje era ${state.secretCharacter.nombre}. Tu mente es... aceptable.`;
+        elements.endScreens.winMessage.textContent = `¡Correcto! El personaje era ${secretCharacterName}. Tu mente es... aceptable.`;
         elements.screens.win.classList.remove('hidden');
     } else {
-        let loseMessage = "";
-        switch (reason) {
-            case "patience": loseMessage = `El Oráculo ha agotado su paciencia cósmica. El personaje era ${state.secretCharacter.nombre}.`; break;
-            case "guess_abuse": loseMessage = `Has agotado la paciencia del Oráculo. El personaje era ${state.secretCharacter.nombre}.`; break;
-            case "questions": loseMessage = `Has agotado tus preguntas. El personaje era ${state.secretCharacter.nombre}.`; break;
-            default: loseMessage = `Has fallado. El personaje era ${state.secretCharacter.nombre}.`; break;
-        }
+        let loseMessage = `Has agotado tus preguntas. El personaje era ${secretCharacterName}.`;
         elements.endScreens.loseMessage.textContent = loseMessage;
         elements.screens.lose.classList.remove('hidden');
     }
@@ -647,8 +662,7 @@ function showGameStage(withCurtain = true) {
             }, 1);
         }, 500);
     } else {
-        showFinalMenu();
-        typewriterEffect(elements.stage.dialog, phrases.menuOracle.backToMenu);
+        typewriterEffect(elements.stage.dialog, phrases.menuOracle.backToMenu, showFinalMenu);
     }
 }
 
@@ -665,4 +679,76 @@ function showChallengeScreen() {
             });
         }, 2.5);
     }, 1);
+}
+
+// --- FUNCIONES DE POP-UPS (¡RECONECTADAS!) ---
+
+function showGuessPopup() {
+    elements.popups.guess.classList.remove('hidden');
+    elements.guessPopup.brainText.textContent = phrases.guessPopup.initial;
+    elements.guessPopup.input.focus();
+}
+
+async function confirmGuess() {
+    const guess = elements.guessPopup.input.value.trim();
+    if (!guess) {
+        elements.guessPopup.brainText.textContent = phrases.guessPopup.strike1;
+        return;
+    }
+    
+    elements.popups.guess.classList.add('hidden');
+    elements.guessPopup.input.value = '';
+
+    addMessageToChat(`¿Es... ${guess}?`, 'player');
+
+    const respuesta = await callALE({
+        skillset_target: "oracle",
+        accion: "verificar_adivinanza",
+        adivinanza: guess
+    });
+
+    if (respuesta && !respuesta.error) {
+        if (respuesta.resultado === "victoria") {
+            endGame(true, respuesta.personaje_secreto);
+        } else {
+            addMessageToChat("No, ese no es mi enigma. Sigue intentándolo.", 'brain');
+            state.questionCount++;
+            elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+        }
+    } else {
+        addMessageToChat("Mi visión se nubla ante tu audacia... No puedo confirmar ni negar tu respuesta ahora.", 'brain');
+    }
+}
+
+async function showSuggestionPopup() {
+    const btn = elements.game.suggestionButton;
+    if (state.suggestionUses <= 0) return;
+
+    btn.disabled = true;
+    addMessageToChat("Consultando los hilos del destino en busca de una pista...", 'system');
+
+    const respuesta = await callALE({ skillset_target: "oracle", accion: "pedir_sugerencia" });
+
+    if (respuesta && !respuesta.error && respuesta.sugerencias) {
+        state.suggestionUses--;
+        btn.textContent = `Sugerencia (${state.suggestionUses})`;
+        const container = elements.suggestionPopup.buttonsContainer;
+        container.innerHTML = '';
+        respuesta.sugerencias.forEach(sug => {
+            const sugBtn = document.createElement('button');
+            sugBtn.className = 'suggestion-option-button';
+            sugBtn.textContent = sug;
+            sugBtn.onclick = () => {
+                elements.game.input.value = sug;
+                elements.popups.suggestion.classList.add('hidden');
+                setTimeout(() => handlePlayerInput(), 100); 
+            };
+            container.appendChild(sugBtn);
+        });
+        elements.popups.suggestion.classList.remove('hidden');
+    } else {
+        addMessageToChat("El cosmos no me ofrece ninguna visión clara en este momento.", 'system');
+    }
+    
+    setTimeout(() => { if (state.isGameActive && state.suggestionUses > 0) btn.disabled = false; }, 5000);
 }
