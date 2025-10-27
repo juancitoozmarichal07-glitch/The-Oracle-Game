@@ -496,117 +496,86 @@ button:disabled {
 .card-close-button:hover {
     color: var(--text-light);
 }
-/* =================================================================== */
-/* ===      NUEVOS ESTILOS PARA LOBBIES Y ORÁCULO HUMANO         === */
-/* =================================================================== */
+/* PÉGALO AL FINAL DE STYLE.CSS */
 
-/* --- Pop-up de Configuración de Partida --- */
-
-.game-options {
-    display: flex;
-    flex-direction: column;
-    gap: 20px; /* Aumenta el espacio entre opciones */
-    margin: 20px 0;
-    text-align: left;
+/* Estilos para el Pop-up de Configuración de Duelo */
+#duelo-config-title {
+    color: var(--main-purple);
+    margin-bottom: 25px;
 }
 
-.option-group {
-    display: flex;
-    justify-content: space-between;
+.config-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
     align-items: center;
+    gap: 15px 10px;
+    margin-bottom: 25px;
+    text-align: left;
     font-size: 0.9em;
 }
 
-.option-group label {
+.input-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.input-stepper input[type="number"] {
+    width: 50px;
+    text-align: center;
+    background-color: #222;
+    border: 2px solid var(--main-purple);
+    color: var(--text-light);
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1em;
+    padding: 5px;
+    -moz-appearance: textfield;
+    /* Para Firefox */
+}
+
+.input-stepper input[type="number"]::-webkit-inner-spin-button,
+.input-stepper input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.stepper-btn {
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    font-size: 1.2em;
+    line-height: 35px;
+    background-color: #333;
+    border: 2px solid var(--main-purple);
     color: var(--main-purple);
 }
 
-.option-group select,
-.option-group input[type="checkbox"] {
-    background-color: #222;
-    color: var(--text-light);
-    border: 2px solid var(--main-green);
-    font-family: 'Press Start 2P', cursive;
-    padding: 5px;
-    border-radius: 3px;
-}
-
-.option-group input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-}
-
-/* --- Pop-up de Sala de Espera --- */
-
-#game-link-input {
-    width: 100%;
-    background-color: #111;
-    border: 2px solid var(--main-purple);
-    color: var(--main-green);
-    padding: 10px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 0.8em;
-    text-align: center;
-    margin: 15px 0;
-    box-sizing: border-box;
-    border-radius: 5px;
-}
-
-.waiting-text {
-    color: #ccc;
+.config-subtitle {
     font-size: 0.9em;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.7; }
-    50% { opacity: 1; }
-    100% { opacity: 0.7; }
-}
-
-
-/* --- Estilos para la Interfaz del Oráculo Humano --- */
-
-.input-area.oracle-human-input {
+    color: #ccc;
+    margin-top: 20px;
     margin-bottom: 10px;
 }
 
-#duelo-oraculo-input {
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.button-group>button {
     flex-grow: 1;
-    background-color: #222;
-    border: 2px solid var(--main-purple); /* Color morado */
-    color: var(--text-light);
-    padding: 10px;
-    font-family: 'Press Start 2P', cursive;
     font-size: 0.8em;
-    min-width: 0;
-    border-radius: 5px;
-    box-shadow: 0 0 10px var(--main-purple); /* Sombra morada */
-}
-
-#duelo-oraculo-send-btn {
-    width: 50px;
-    height: 50px;
-    margin: 0 0 0 10px;
-    padding: 10px;
-    flex-shrink: 0;
+    padding: 12px 5px;
     background-color: #222;
-    fill: var(--main-purple); /* Icono morado */
-    border: 3px solid var(--main-purple); /* Borde morado */
-    border-radius: 5px;
+    border: 2px solid #888;
+    color: #888;
     transition: all 0.2s;
-    box-shadow: 0 0 10px var(--main-purple); /* Sombra morada */
-    cursor: pointer;
 }
 
-#duelo-oraculo-send-btn:hover:not(:disabled) {
+.button-group>button.selected {
     background-color: var(--main-purple);
-    fill: var(--background-dark);
+    color: var(--background-dark);
+    border-color: var(--main-purple);
+    box-shadow: 0 0 10px var(--main-purple);
 }
-
-#duelo-oraculo-send-btn svg {
-    width: 100%;
-    height: 100%;
-    }
-                
