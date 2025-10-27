@@ -2,159 +2,195 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>The Oracle Game</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#333">
-    <!-- Favicon and App Icons -->
-    <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    <meta name="theme-color" content="#000000">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => console.log('[PWA] ServiceWorker registrado con éxito:', registration.scope))
+                    .catch(error => console.log('[PWA] Fallo en el registro de ServiceWorker:', error));
+            });
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Pantalla de Carga Inicial -->
-    <div id="initial-loading-screen">
-        <div class="loader"></div>
-        <p>Cargando recursos del cosmos...</p>
-    </div>
+    <div id="arcade-screen">
+        <!-- PANTALLA DE TÍTULO -->
+        <div id="title-screen" class="screen">
+            <div id="lightning-overlay"></div>
+            <div id="intro-brain">🧠</div>
+            <div id="title-layout" class="hidden">
+                <div id="title-brain">🧠</div>
+                <h1 id="game-title" data-text="THE ORACLE GAME">THE ORACLE GAME</h1>
+                <div id="title-buttons">
+                    <button id="start-button" class="button-green blink">JUGAR</button>
+                    <button id="exit-button" class="button-red">SALIR</button>
+                </div>
+            </div>
+        </div>
 
-    <!-- Menú Principal -->
-    <div id="main-menu" class="hidden">
-        <h1 class="game-title">THE ORACLE GAME</h1>
-        <div class="version">v7.0 IA / v4.0 COOP</div>
-        <button id="play-button" class="menu-button">JUGAR</button>
-        <button id="instructions-button" class="menu-button">INSTRUCCIONES</button>
-        <button id="credits-button" class="menu-button">CRÉDITOS</button>
-    </div>
-    
-    <!-- Menú de Selección de Modo de Juego -->
-    <div id="game-mode-menu" class="hidden">
-        <h2 class="menu-title">ELIGE TU DESTINO</h2>
-        <button id="single-player-button" class="menu-button">SOLITARIO</button>
-        <button id="cooperative-button" class="menu-button">COOPERATIVO</button>
-        <button id="back-to-main-menu-button" class="menu-button">VOLVER</button>
-    </div>
-    
-    <!-- Opciones del Modo Solitario -->
-    <div id="single-player-options" class="hidden">
-        <h2 class="menu-title">MODO SOLITARIO</h2>
-        <button id="classic-mode-button" class="menu-button">ORÁCULO CLÁSICO</button>
-        <button id="akinator-mode-button" class="menu-button">AKINATOR</button>
-        <button id="back-to-game-mode-button1" class="menu-button">VOLVER</button>
-    </div>
+        <!-- ESCENA DEL TELÓN Y MENÚ -->
+        <div id="game-stage" class="screen hidden">
+           <div id="stage-lights">
+                <div class="spotlight"></div>
+                <div class="spotlight"></div>
+            </div>
+            <div id="stage-content-container">
+                <div class="spotlight-container">
+                    <div id="stage-brain">🧠</div>
+                </div>
+                <div id="stage-dialog"></div>
+                <div id="menu-buttons"></div>
+            </div>
+            <div id="curtain-left" class="curtain"></div>
+            <div id="curtain-right" class="curtain"></div>
+        </div>
 
-    <!-- Opciones del Modo Cooperativo -->
-    <div id="cooperative-options" class="hidden">
-        <h2 class="menu-title">MODO COOPERATIVO</h2>
-        <button id="one-vs-one-button" class="menu-button">1 vs 1</button>
-        <button class="menu-button" disabled>1 vs VARIOS (Próximamente)</button>
-        <button class="menu-button" disabled>CPU vs VARIOS (Próximamente)</button>
-        <button id="back-to-game-mode-button2" class="menu-button">VOLVER</button>
-    </div>
+        <!-- PANTALLA DE JUEGO PRINCIPAL -->
+        <div id="main-game-screen" class="screen hidden">
+            <div class="game-header" id="game-header">
+                <button id="back-to-menu-button" class="header-button">‹ MENÚ</button>
+                <div id="timer" class="header-info">00:00</div>
+                <div id="question-counter" class="header-info">0/20</div>
+            </div>
+            <div id="chat-history"></div>
+            <div class="player-controls">
+                <!-- Controles Modo Oráculo vs IA -->
+                <div id="oracle-mode-controls">
+                    <div class="input-area">
+                        <input type="text" id="user-question-input" placeholder="Escribe tu pregunta...">
+                        <button id="ask-button"><svg viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" /></svg></button>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="suggestion-button" class="button-green">Sugerencia (5)</button>
+                        <button id="guess-button" class="button-green">¡Adivinar!</button>
+                    </div>
+                </div>
+                <!-- Controles Modo Clásico vs IA -->
+                <div id="classic-mode-controls" class="hidden">
+                    <div class="classic-answer-buttons">
+                        <button class="answer-btn" data-answer="Sí">Sí</button>
+                        <button class="answer-btn" data-answer="No">No</button>
+                        <button class="answer-btn" data-answer="No lo sé">No lo sé</button>
+                        <button class="answer-btn" data-answer="Probablemente Sí">Prob. Sí</button>
+                        <button class="answer-btn" data-answer="Probablemente No">Prob. No</button>
+                    </div>
+                </div>
+                <!-- Controles para Duelo 1vs1 (cuando eres el Oráculo) -->
+                <div id="duelo-oraculo-controls" class="hidden">
+                    <div class="classic-answer-buttons">
+                        <button class="answer-btn" data-answer="Sí">Sí</button>
+                        <button class="answer-btn" data-answer="No">No</button>
+                        <button class="answer-btn" data-answer="No lo sé">No lo sé</button>
+                        <button class="answer-btn" data-answer="Probablemente Sí">Prob. Sí</button>
+                        <button class="answer-btn" data-answer="Probablemente No">Prob. No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <!-- Pantalla de Carga para Creación de Partida -->
-    <div id="loading-screen" class="hidden">
-        <div class="loader"></div>
-        <p id="loading-text">Contactando a A.L.E. en el núcleo de la galaxia...</p>
-        <div id="game-link-container" class="hidden">
-            <p>¡Duelo creado! Comparte este enlace con tu oponente:</p>
-            <input type="text" id="game-link" readonly>
-            <button id="copy-link-btn">Copiar Enlace</button>
+        <!-- PANTALLAS FINALES -->
+        <div id="win-screen" class="end-screen screen hidden">
+            <div class="end-screen-content">
+                <h1>¡VICTORIA!</h1>
+                <p id="win-message"></p>
+                <div class="end-buttons">
+                    <button class="end-screen-btn" data-action="play-again">Jugar de Nuevo</button>
+                    <button class="end-screen-btn" data-action="main-menu">Menú Principal</button>
+                </div>
+            </div>
+        </div>
+        <div id="lose-screen" class="end-screen screen hidden">
+            <div class="end-screen-content">
+                <h1>DERROTA</h1>
+                <p id="lose-message"></p>
+                <div class="end-buttons">
+                    <button class="end-screen-btn" data-action="play-again">Jugar de Nuevo</button>
+                    <button class="end-screen-btn" data-action="main-menu">Menú Principal</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Contenedor Principal del Juego -->
-    <div id="game-container" class="hidden">
-        <!-- Información del Juego -->
-        <div id="game-info">
-            <p>Turno de: <span id="current-turn"></span></p>
-            <p>Tu ID: <span id="player-id"></span></p>
-            <p>Oponente: <span id="opponent-id"></span></p>
+    <!-- POP-UPS -->
+    <div id="popups-container">
+        <!-- Pop-up para Adivinar -->
+        <div id="guess-popup" class="popup-overlay hidden">
+            <div class="popup-content-guess">
+                <div class="popup-header">
+                    <div id="guess-popup-brain-icon">🧠</div>
+                    <div id="guess-popup-dialog">
+                        <p id="guess-popup-brain-text">Susurra tu respuesta al vacío...</p>
+                    </div>
+                </div>
+                <div class="popup-body">
+                    <h3 id="guess-popup-title">Tu Adivinanza Final</h3>
+                    <p id="guess-popup-instruction">Escribe el nombre del ser que tú crees que estoy pensando.</p>
+                    <input type="text" id="guess-input" placeholder="Escribe tu respuesta...">
+                    <div class="popup-buttons">
+                        <button id="confirm-guess-button" class="button-green">Confirmar</button>
+                        <button data-close="guess-popup" class="button-red">Cancelar</button>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <!-- Contenedor de la Pregunta -->
-        <div id="question-container">
-            <p id="question-text"></p>
+        <!-- Pop-up para Sugerencias -->
+        <div id="suggestion-popup" class="popup-overlay hidden">
+            <div class="popup-content">
+                <h3>Sugerencias del Cerebro</h3>
+                <div id="suggestion-buttons-container"></div>
+                <div class="popup-buttons">
+                    <button data-close="suggestion-popup" class="button-green">Cerrar</button>
+                </div>
+            </div>
         </div>
-
-        <!-- Botones de Respuesta -->
-        <div id="answer-buttons">
-            <button class="answer-btn" data-answer="si">SÍ</button>
-            <button class="answer-btn" data-answer="no">NO</button>
-            <button class="answer-btn" data-answer="no se">NO SÉ</button>
-            <button class="answer-btn" data-answer="probablemente si">PROBABLEMENTE SÍ</button>
-            <button class="answer-btn" data-answer="probablemente no">PROBABLEMENTE NO</button>
-        </div>
-
-        <!-- Proceso de Pensamiento de la IA -->
-        <div id="thinking-process" class="hidden">
-            <p>A.L.E. está analizando las respuestas...</p>
-        </div>
-
-        <!-- Contenedor de Adivinanza -->
-        <div id="guess-container" class="hidden">
-            <p id="guess-text"></p>
-            <button id="correct-guess-btn">¡SÍ, ACERTÓ!</button>
-            <button id="incorrect-guess-btn">NO, FALLÓ</button>
-        </div>
-
-        <!-- Contenedor de Fin de Partida -->
-        <div id="game-over-container" class="hidden">
-            <p id="game-over-text"></p>
-            <button id="play-again-btn">JUGAR DE NUEVO</button>
-        </div>
+        <!-- Pop-up para Configurar Duelo 1 vs 1 (NUEVO) -->
+        <div id="duelo-config-popup" class="popup-overlay hidden">
+            <div class="popup-content">
+                <h3 id="duelo-config-title">Configurar Duelo 1 vs 1</h3>
+                
+                <div class="config-grid">
+                    <!-- Límite de Preguntas -->
+                    <label for="limite-preguntas-input">Límite de Preguntas:</label>
+                    <div class="input-stepper">
+                        <button class="stepper-btn" data-op="minus" data-target="limite-preguntas-input">-</button>
+                        <input type="number" id="limite-preguntas-input" value="20" min="5" max="50" step="5">
+                        <button class="stepper-btn" data-op="plus" data-target="limite-preguntas-input">+</button>
+                    </div>
         
-        <!-- Pantalla de Espera para el Oponente -->
-        <div id="waiting-for-opponent" class="hidden">
-            <p>Esperando a que el oponente se una...</p>
-            <div class="loader"></div>
+                    <!-- Intentos para Adivinar -->
+                    <label for="intentos-adivinar-input">Intentos para Adivinar:</label>
+                    <div class="input-stepper">
+                        <button class="stepper-btn" data-op="minus" data-target="intentos-adivinar-input">-</button>
+                        <input type="number" id="intentos-adivinar-input" value="3" min="1" max="10">
+                        <button class="stepper-btn" data-op="plus" data-target="intentos-adivinar-input">+</button>
+                    </div>
+                </div>
+        
+                <h4 class="config-subtitle">Elige tu Rol:</h4>
+                <div id="rol-selector" class="button-group">
+                    <button class="rol-btn selected" data-rol="aleatorio">Aleatorio 🎲</button>
+                    <button class="rol-btn" data-rol="oraculo">Oráculo 🧠</button>
+                    <button class="rol-btn" data-rol="adivino">Adivino 👤</button>
+                </div>
+        
+                <div class="popup-buttons">
+                    <button id="confirm-duelo-button" class="button-green">Crear Duelo y Link</button>
+                    <button data-close="duelo-config-popup" class="button-red">Cancelar</button>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Pantalla de Instrucciones -->
-    <div id="instructions-screen" class="hidden">
-        <h2 class="menu-title">Instrucciones</h2>
-        <div class="instructions-content">
-            <p><strong>Modo Oráculo Clásico:</strong> Piensa en un personaje, real o ficticio. A.L.E., nuestra Inteligencia Artificial, te hará preguntas para adivinarlo. Responde con sinceridad.</p>
-            <p><strong>Modo Akinator:</strong> Similar al clásico, pero con un algoritmo más avanzado para adivinar personajes populares.</p>
-            <p><strong>Modo Cooperativo (1 vs 1):</strong> Un jugador piensa en el personaje y responde las preguntas de A.L.E. El otro jugador observa e intenta adivinar el personaje antes que la IA. ¡Compite contra tu amigo y contra la máquina!</p>
-        </div>
-        <button id="back-from-instructions-button" class="menu-button">VOLVER</button>
-    </div>
     
-    <!-- Pantalla de Créditos -->
-    <div id="credits-screen" class="hidden">
-        <h2 class="menu-title">Créditos</h2>
-        <div class="credits-content">
-            <p><strong>Desarrollo y Diseño:</strong> Juan</p>
-            <p><strong>Motor de IA (A.L.E.):</strong> Juan</p>
-            <p><strong>Agradecimientos:</strong> A todos los que apoyaron este proyecto.</p>
-            <p><em>The Oracle Game - 2025</em></p>
-        </div>
-        <button id="back-from-credits-button" class="menu-button">VOLVER</button>
-    </div>
+    <!-- Script para la comunicación en tiempo real -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     
-    <!-- Notificaciones y Alertas -->
-    <div id="notification" class="hidden"></div>
-    
-    <!--
-    ==================================================================
-                    SECCIÓN DE SCRIPTS
-    ==================================================================
-    -->
-
-    <!-- 
-      AQUÍ ESTÁ EL ÚNICO CAMBIO REALIZADO.
-      Esta línea carga la versión 4.4.1 del cliente Socket.IO,
-      que es compatible con las librerías que instalamos en el servidor.
-    -->
-    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
-
-    <!-- 
-      Tu script principal se carga DESPUÉS, para que pueda usar
-      la librería Socket.IO que se cargó en la línea anterior.
-    -->
+    <!-- Nuestro script principal del juego -->
     <script src="script.js"></script>
-
 </body>
 </html>
