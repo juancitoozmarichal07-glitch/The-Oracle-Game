@@ -20,7 +20,9 @@
 </head>
 <body>
     <div id="arcade-screen">
-        <!-- PANTALLA DE TÍTULO -->
+        <!-- ======================== -->
+        <!-- == PANTALLA DE TÍTULO == -->
+        <!-- ======================== -->
         <div id="title-screen" class="screen">
             <div id="lightning-overlay"></div>
             <div id="intro-brain">🧠</div>
@@ -34,7 +36,9 @@
             </div>
         </div>
 
-        <!-- ESCENA DEL TELÓN Y MENÚ -->
+        <!-- ================================= -->
+        <!-- == ESCENA DEL TELÓN Y MENÚS    == -->
+        <!-- ================================= -->
         <div id="game-stage" class="screen hidden">
            <div id="stage-lights">
                 <div class="spotlight"></div>
@@ -51,7 +55,9 @@
             <div id="curtain-right" class="curtain"></div>
         </div>
 
-        <!-- PANTALLA DE JUEGO PRINCIPAL -->
+        <!-- ============================= -->
+        <!-- == PANTALLA DE JUEGO PRINCIPAL == -->
+        <!-- ============================= -->
         <div id="main-game-screen" class="screen hidden">
             <div class="game-header" id="game-header">
                 <button id="back-to-menu-button" class="header-button">‹ MENÚ</button>
@@ -89,12 +95,16 @@
                         <button class="answer-btn" data-answer="No lo sé">No lo sé</button>
                         <button class="answer-btn" data-answer="Probablemente Sí">Prob. Sí</button>
                         <button class="answer-btn" data-answer="Probablemente No">Prob. No</button>
+                        <!-- BOTÓN PARA RESPUESTA PERSONALIZADA -->
+                        <button id="custom-answer-button" class="answer-btn button-purple">Respuesta Mística ✨</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- PANTALLAS FINALES -->
+        <!-- ====================== -->
+        <!-- == PANTALLAS FINALES == -->
+        <!-- ====================== -->
         <div id="win-screen" class="end-screen screen hidden">
             <div class="end-screen-content">
                 <h1>¡VICTORIA!</h1>
@@ -117,7 +127,9 @@
         </div>
     </div>
 
-    <!-- POP-UPS -->
+    <!-- ================================== -->
+    <!-- == CONTENEDOR DE TODOS LOS POP-UPS == -->
+    <!-- ================================== -->
     <div id="popups-container">
         <!-- Pop-up para Adivinar -->
         <div id="guess-popup" class="popup-overlay hidden">
@@ -139,6 +151,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Pop-up para Sugerencias -->
         <div id="suggestion-popup" class="popup-overlay hidden">
             <div class="popup-content">
@@ -149,11 +162,11 @@
                 </div>
             </div>
         </div>
-        <!-- Pop-up para Configurar Duelo 1 vs 1 (NUEVO) -->
+
+        <!-- Pop-up para Configurar Duelo 1 vs 1 -->
         <div id="duelo-config-popup" class="popup-overlay hidden">
             <div class="popup-content">
                 <h3 id="duelo-config-title">Configurar Duelo 1 vs 1</h3>
-                
                 <div class="config-grid">
                     <!-- Límite de Preguntas -->
                     <label for="limite-preguntas-input">Límite de Preguntas:</label>
@@ -162,7 +175,6 @@
                         <input type="number" id="limite-preguntas-input" value="20" min="5" max="50" step="5">
                         <button class="stepper-btn" data-op="plus" data-target="limite-preguntas-input">+</button>
                     </div>
-        
                     <!-- Intentos para Adivinar -->
                     <label for="intentos-adivinar-input">Intentos para Adivinar:</label>
                     <div class="input-stepper">
@@ -171,17 +183,28 @@
                         <button class="stepper-btn" data-op="plus" data-target="intentos-adivinar-input">+</button>
                     </div>
                 </div>
-        
                 <h4 class="config-subtitle">Elige tu Rol:</h4>
                 <div id="rol-selector" class="button-group">
                     <button class="rol-btn selected" data-rol="aleatorio">Aleatorio 🎲</button>
                     <button class="rol-btn" data-rol="oraculo">Oráculo 🧠</button>
                     <button class="rol-btn" data-rol="adivino">Adivino 👤</button>
                 </div>
-        
                 <div class="popup-buttons">
                     <button id="confirm-duelo-button" class="button-green">Crear Duelo y Link</button>
                     <button data-close="duelo-config-popup" class="button-red">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pop-up para Respuesta Personalizada del Oráculo (NUEVO) -->
+        <div id="custom-answer-popup" class="popup-overlay hidden">
+            <div class="popup-content">
+                <h3>Respuesta del Oráculo</h3>
+                <p>Forja tu respuesta en el éter. Sé críptico, sé directo... el poder es tuyo.</p>
+                <input type="text" id="custom-answer-input" placeholder="Escribe tu respuesta personalizada...">
+                <div class="popup-buttons">
+                    <button id="confirm-custom-answer-button" class="button-green">Enviar Respuesta</button>
+                    <button data-close="custom-answer-popup" class="button-red">Cancelar</button>
                 </div>
             </div>
         </div>
