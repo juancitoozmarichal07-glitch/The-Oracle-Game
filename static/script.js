@@ -293,7 +293,12 @@ async function startGame(mode) {
     }, 1);
 }
 
+// En script.js, reemplaza tu función prepararInterfazDuelo con esta:
+
 function prepararInterfazDuelo() {
+    // Limpia clases de rol anteriores
+    document.body.classList.remove('rol-adivino', 'rol-oraculo');
+
     elements.game.oracleControls.classList.add('hidden');
     elements.game.classicControls.classList.add('hidden');
     elements.game.dueloOraculoControls.classList.add('hidden');
@@ -301,12 +306,15 @@ function prepararInterfazDuelo() {
     elements.header.questionCounter.textContent = `0/${config.questionsLimit}`;
 
     if (state.rol_jugador === 'adivino') {
+        document.body.classList.add('rol-adivino'); // Añade clase para CSS
         elements.game.oracleControls.classList.remove('hidden');
-        elements.game.suggestionButton.classList.add('hidden');
+        elements.game.suggestionButton.classList.add('hidden'); // Sin sugerencias en duelo
         elements.game.guessButton.classList.remove('hidden');
         elements.game.guessButton.disabled = false;
         addMessageToChat("Eres el Adivino. Tu oponente es el Oráculo. Haz tu primera pregunta.", 'system');
+    
     } else if (state.rol_jugador === 'oraculo') {
+        document.body.classList.add('rol-oraculo'); // Añade clase para CSS
         state.oponente_personaje = prompt("Eres el Oráculo. Piensa en un ser, real o ficticio, y escribe su nombre aquí. Tu oponente no lo verá.");
         if (!state.oponente_personaje || state.oponente_personaje.trim() === "") {
             alert("Debes elegir un personaje. La página se recargará.");
@@ -318,7 +326,6 @@ function prepararInterfazDuelo() {
         elements.game.dueloOraculoControls.querySelectorAll('button').forEach(b => b.disabled = true);
     }
 }
-
 async function handlePlayerInput() {
     const questionText = elements.game.input.value.trim();
     if (questionText === '' || !state.isGameActive || state.isAwaitingBrainResponse) return;
@@ -671,17 +678,38 @@ function endGame(isWin, reason = "guess", character) {
     }
 }
 
+// En script.js, reemplaza tu función addMessageToChat con esta:
+
 function addMessageToChat(text, sender, callback) {
     const messageLine = document.createElement('div');
     messageLine.className = `message-line message-line-${sender}`;
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
-    avatar.textContent = sender === 'brain' ? '🧠' : (sender === 'player' ? '👤' : '⚙️');
+    
+    let prefix = '';
+    let avatarIcon = '⚙️'; // Icono por defecto para sistema
+
+    // Lógica de avatares y prefijos
+    if (sender === 'player') { // Mensaje enviado por el cliente actual
+        prefix = 'Tú: ';
+        avatarIcon = '👤';
+    } else if (sender === 'brain') { // Mensaje recibido del oponente/IA
+        if (state.currentGameMode === 'duelo_1v1') {
+            // En duelo, el 'cerebro' es el otro jugador
+            prefix = (state.rol_jugador === 'oraculo') ? 'Adivino: ' : 'Oráculo: ';
+            avatarIcon = (state.rol_jugador === 'oraculo') ? '👤' : '🧠';
+        } else {
+            // En modo IA, el 'cerebro' es siempre el Oráculo
+            prefix = 'Oráculo: ';
+            avatarIcon = '🧠';
+        }
+    }
+    
+    avatar.textContent = avatarIcon;
+    const fullText = (sender === 'system') ? text : prefix + text;
+    
     const textContainer = document.createElement('div');
     textContainer.className = 'message-text-container';
-    let prefix = '';
-    if (sender === 'brain') prefix = 'Oráculo: '; else if (sender === 'player') prefix = 'Adivino: ';
-    const fullText = (sender === 'system') ? text : prefix + text;
     
     messageLine.appendChild(avatar);
     messageLine.appendChild(textContainer);
@@ -690,31 +718,52 @@ function addMessageToChat(text, sender, callback) {
     typewriterEffect(textContainer, fullText, callback);
 }
 
+// En script.js, reemplaza tu función typewriterEffect con esta:
+
 function typewriterEffect(element, text, callback) {
-    let i = 0;
-    const processedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    element.innerHTML = '';
+    element.innerHTML = ''; // Limpiamos el contenido
     element.classList.remove('hidden');
-    const interval = setInterval(() => {
-        if (i < processedText.length) {
-            element.innerHTML += processedText.charAt(i);
+    
+    let i = 0;
+    // Función recursiva para "escribir"
+    function writeChar() {
+        if (i < text.length) {
+            // Comprobamos si estamos al inicio de una etiqueta HTML
+            if (text[i] === '<') {
+                // Buscamos el final de la etiqueta
+                const closingTagIndex = text.indexOf('>', i);
+                if (closingTagIndex !== -1) {
+                    // Añadimos la etiqueta completa de una vez
+                    element.innerHTML += text.substring(i, closingTagIndex + 1);
+                    i = closingTagIndex; // Movemos el índice al final de la etiqueta
+                }
+            } else {
+                // Si no es una etiqueta, añadimos el carácter
+                element.innerHTML += text[i];
+            }
+            
             i++;
+            // Hacemos scroll
             if (element.id === 'stage-dialog') {
                 element.scrollTop = element.scrollHeight;
             } else {
                 elements.game.chatHistory.scrollTop = elements.game.chatHistory.scrollHeight;
             }
+            // Llamamos a la siguiente iteración
+            setTimeout(writeChar, config.typewriterSpeed);
         } else {
-            clearInterval(interval);
+            // Terminó el texto, ejecutamos el callback si existe
             if (callback) callback();
         }
-    }, config.typewriterSpeed);
+    }
+    
+    writeChar(); // Iniciamos el proceso
 }
 
 function adjustScreenHeight() { if (elements.arcadeScreen) elements.arcadeScreen.style.height = `${window.innerHeight}px`; }
 
 function closeCurtains(callback, speed = 1) {
-    elements.stage.curtainLeft.style.transition = `width ${speed}s ease-in-out`;
+    elements.stage.curtainLeft.style.transition = `:width ${speed}s ease-in-out`;
     elements.stage.curtainRight.style.transition = `width ${speed}s ease-in-out`;
     elements.stage.curtainLeft.style.width = '50%';
     elements.stage.curtainRight.style.width = '50%';
