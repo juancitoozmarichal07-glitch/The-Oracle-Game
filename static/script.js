@@ -1,13 +1,13 @@
 // ===================================================================
-// == THE ORACLE GAME - SCRIPT.JS - v24.1 (Lobby de Duelo)         ==
+// == THE ORACLE GAME - SCRIPT.JS - v25.3 (VERSIÓN CORREGIDA)       ==
 // ===================================================================
-// - AÑADIDO: Pop-up de configuración para partidas 1 vs 1.
-// - AÑADIDO: Lógica para enviar reglas personalizadas al servidor.
-// - CORREGIDO: Manejadores de eventos para todos los botones.
+// - CORREGIDO: Se restaura toda la lógica y funciones del script original.
+// - AÑADIDO: Botón y pop-up para "Respuesta Mística" del Oráculo.
+// - AÑADIDO: Selector automático de entorno (Local vs Producción).
 
 // --- CONFIGURACIÓN Y ESTADO ---
 const config = {
-    questionsLimit: 20, // Límite por defecto, se puede sobreescribir por las reglas del duelo
+    questionsLimit: 20,
     typewriterSpeed: 45,
     suggestionCooldown: 15000,
     suggestionLimit: 5,
@@ -46,13 +46,41 @@ let state = {
     gameTime: 0,
     socket: null,
     id_sala: null,
-    rol_jugador: null
+    rol_jugador: null,
+    oponente_personaje: null,
 };
 
-// --- CONEXIÓN CON SERVIDORES ---
-const ALE_URL = 'http://127.0.0.1:5000/api/execute';
-// IMPORTANTE: Cuando despliegues tu Replit, cambia esta URL
-const REPLIT_URL = 'https://tu-proyecto-cooperativo.replit.dev/'; // <-- URL DE EJEMPLO
+// ===================================================================
+// ==        CONEXIÓN CON SERVIDORES (SELECTOR AUTOMÁTICO)        ==
+// ===================================================================
+
+const urls = {
+    local: {
+        ale: 'http://127.0.0.1:5000/api/execute',
+        coop: 'http://127.0.0.1:8080'
+    },
+    production: {
+        ale: 'http://127.0.0.1:5000/api/execute',
+        coop: 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'
+    }
+};
+
+let ALE_URL;
+let REPLIT_URL;
+
+if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+    console.log("🚀 Entorno Local Detectado. Usando URLs de desarrollo.");
+    ALE_URL = urls.local.ale;
+    REPLIT_URL = urls.local.coop;
+} else {
+    console.log("🌍 Entorno de Producción Detectado. Usando URLs de producción.");
+    ALE_URL = urls.production.ale;
+    REPLIT_URL = urls.production.coop;
+}
+
+console.log(`[CONFIG] URL del motor IA (ALE): ${ALE_URL}`);
+console.log(`[CONFIG] URL del servidor Cooperativo: ${REPLIT_URL}`);
+
 
 // --- SELECTORES DEL DOM ---
 const elements = {
@@ -79,22 +107,31 @@ const elements = {
     popups: { 
         guess: document.getElementById('guess-popup'), 
         suggestion: document.getElementById('suggestion-popup'),
-        dueloConfig: document.getElementById('duelo-config-popup')
+        dueloConfig: document.getElementById('duelo-config-popup'),
+        customAnswer: document.getElementById('custom-answer-popup')
     },
     guessPopup: { content: document.querySelector('#guess-popup .popup-content-guess'), instruction: document.getElementById('guess-popup-instruction'), input: document.getElementById('guess-input'), confirmButton: document.getElementById('confirm-guess-button') },
     suggestionPopup: { container: document.getElementById('suggestion-popup'), content: document.querySelector('#suggestion-popup .popup-content'), buttonsContainer: document.getElementById('suggestion-buttons-container') },
+    customAnswer: {
+        input: document.getElementById('custom-answer-input'),
+        confirmButton: document.getElementById('confirm-custom-answer-button')
+    },
     endScreens: { winMessage: document.getElementById('win-message'), loseMessage: document.getElementById('lose-message') },
     sounds: {}
 };
 
 // ===================================================================
-// ===                LÓGICA MULTIJUGADOR                          ===
+// ===                LÓGICA MULTIJUGADOR (COMPLETA)               ===
 // ===================================================================
 
 function conectarAlServidorDeDuelo() {
     try {
-        state.socket = io(REPLIT_URL);
-        console.log("Intentando conectar al servidor de duelo...");
+        state.socket = io(REPLIT_URL, {
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+        });
+        console.log("Intentando conectar al servidor de duelo en:", REPLIT_URL);
 
         state.socket.on('connect', () => {
             console.log("✅ ¡Conectado al servidor de duelo! ID de Socket:", state.socket.id);
@@ -109,52 +146,80 @@ function conectarAlServidorDeDuelo() {
             elements.stage.menuButtons.classList.add('hidden');
         });
 
-        state.socket.on('partida_lista', (data) => {
-            if (state.rol_jugador === null) {
-                state.rol_jugador = data.rol_invitado;
-            }
-            // Aquí recibiremos las reglas del juego y configuraremos el estado
-            console.log("Partida lista, reglas recibidas:", data.reglas);
+        state.socket.on('partida_iniciada', (data) => {
+            console.log("Partida iniciada, datos recibidos:", data);
+            state.rol_jugador = data.rol;
             config.questionsLimit = data.reglas.limitePreguntas || 20;
-            // Guardar más reglas si es necesario...
-            
             startGame('duelo_1v1');
         });
         
         state.socket.on('pregunta_recibida', (data) => {
+            addMessageToChat(data.pregunta, 'player');
+            state.questionCount++;
+            elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+            
             if (state.rol_jugador === 'oraculo') {
-                addMessageToChat(data.pregunta, 'player');
                 elements.game.dueloOraculoControls.querySelectorAll('button').forEach(b => b.disabled = false);
             }
         });
 
         state.socket.on('respuesta_recibida', (data) => {
+            addMessageToChat(data.respuesta, 'brain');
+            
             if (state.rol_jugador === 'adivino') {
-                addMessageToChat(data.respuesta, 'brain');
-                elements.game.input.disabled = false;
-                elements.game.askButton.disabled = false;
-                elements.game.input.focus();
+                if (state.questionCount < config.questionsLimit) {
+                    elements.game.input.disabled = false;
+                    elements.game.askButton.disabled = false;
+                    elements.game.input.focus();
+                } else {
+                    addMessageToChat("Has agotado tus preguntas. ¡Debes adivinar!", "system");
+                    elements.game.guessButton.disabled = false;
+                }
             }
+        });
+
+        state.socket.on('adivinanza_recibida', (data) => {
+            if (state.rol_jugador === 'oraculo') {
+                const esCorrecto = confirm(`Tu oponente cree que el personaje es: "${data.adivinanza}". ¿Es correcto?`);
+                state.socket.emit('resultado_adivinanza', { 
+                    id_sala: state.id_sala, 
+                    resultado: esCorrecto ? 'victoria' : 'derrota', 
+                    personaje: esCorrecto ? data.adivinanza : state.oponente_personaje 
+                });
+            }
+        });
+
+        state.socket.on('fin_del_juego', (data) => {
+            const ganoElAdivino = data.resultado === 'victoria';
+            const esVictoriaParaMi = (state.rol_jugador === 'adivino') ? ganoElAdivino : !ganoElAdivino;
+            endGame(esVictoriaParaMi, "guess_multiplayer", data.personaje);
         });
         
         state.socket.on('error_sala', (data) => {
             alert(data.mensaje);
             window.location.href = window.location.origin + window.location.pathname;
         });
+        
+        state.socket.on('oponente_desconectado', (data) => {
+            if(state.isGameActive) {
+                alert(data.mensaje);
+                endGame(false, "disconnect");
+            }
+        });
 
     } catch (e) {
-        console.error("Error al cargar la librería de Socket.IO. Asegúrate de que la URL del servidor es correcta y está online.", e);
+        console.error("Error al cargar o conectar con Socket.IO. Revisa la URL y que el servidor esté online.", e);
         alert("No se pudo conectar con el servidor multijugador.");
     }
 }
 
 function iniciarCreacionDuelo(opciones) {
-    // Guardamos el rol que el anfitrión quiere, si no es aleatorio
-    if (opciones.rolSeleccionado !== 'aleatorio') {
-        state.rol_jugador = opciones.rolSeleccionado;
+    if (!state.socket || !state.socket.connected) {
+        alert("No se pudo conectar al servidor multijugador. Revisa la URL y si está online.");
+        showGameStage(false);
+        return;
     }
     
-    // Enviamos las reglas y el rol al servidor
     state.socket.emit('crear_duelo', { 
         reglas: opciones.reglas,
         rolAnfitrion: opciones.rolSeleccionado 
@@ -166,6 +231,11 @@ function iniciarCreacionDuelo(opciones) {
 
 
 function unirseADuelo(id_duelo) {
+    if (!state.socket || !state.socket.connected) {
+        setTimeout(() => unirseADuelo(id_duelo), 1500);
+        return;
+    }
+
     state.id_sala = id_duelo;
     Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
     elements.screens.stage.classList.remove('hidden');
@@ -177,25 +247,7 @@ function unirseADuelo(id_duelo) {
     });
 }
 // ===================================================================
-// ===           LÓGICA DEL JUEGO Y NAVEGACIÓN (Continuación)      ===
-// ===================================================================
-
-// (Esta es la continuación de la PARTE 1)
-
-function unirseADuelo(id_duelo) {
-    state.id_sala = id_duelo;
-    Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
-    elements.screens.stage.classList.remove('hidden');
-    elements.stage.dialog.classList.remove('hidden');
-    typewriterEffect(elements.stage.dialog, "Conectando al duelo...");
-    elements.stage.menuButtons.classList.add('hidden');
-    openCurtains(() => {
-        state.socket.emit('unirse_a_duelo', { id_sala: id_duelo });
-    });
-}
-
-// ===================================================================
-// ===           LÓGICA DEL JUEGO Y NAVEGACIÓN                     ===
+// == SCRIPT.JS - PARTE 2/2 (VERSIÓN CORREGIDA)                     ==
 // ===================================================================
 
 function resetGameState() {
@@ -207,6 +259,9 @@ function resetGameState() {
     state.lastSuggestionTimestamp = 0;
     state.guessPopupPatience = 3;
     state.gameTime = 0;
+    state.rol_jugador = null;
+    state.id_sala = null;
+    state.oponente_personaje = null;
     
     clearInterval(state.gameTimerInterval);
     elements.header.timer.textContent = "00:00";
@@ -224,6 +279,7 @@ async function startGame(mode) {
         Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
         elements.screens.mainGame.classList.remove('hidden');
         resetGameState();
+        state.isGameActive = true;
         
         if (mode === 'oracle_ia') {
             await prepararInterfazModoOraculoIA();
@@ -241,32 +297,43 @@ function prepararInterfazDuelo() {
     elements.game.oracleControls.classList.add('hidden');
     elements.game.classicControls.classList.add('hidden');
     elements.game.dueloOraculoControls.classList.add('hidden');
-    elements.header.questionCounter.classList.remove('hidden'); // Asegurarse de que sea visible
+    elements.header.questionCounter.classList.remove('hidden');
+    elements.header.questionCounter.textContent = `0/${config.questionsLimit}`;
 
     if (state.rol_jugador === 'adivino') {
         elements.game.oracleControls.classList.remove('hidden');
-        elements.game.suggestionButton.classList.add('hidden'); // Sin sugerencias en duelo
-        elements.game.guessButton.classList.remove('hidden'); // Botón de adivinar sí
+        elements.game.suggestionButton.classList.add('hidden');
+        elements.game.guessButton.classList.remove('hidden');
+        elements.game.guessButton.disabled = false;
         addMessageToChat("Eres el Adivino. Tu oponente es el Oráculo. Haz tu primera pregunta.", 'system');
     } else if (state.rol_jugador === 'oraculo') {
+        state.oponente_personaje = prompt("Eres el Oráculo. Piensa en un ser, real o ficticio, y escribe su nombre aquí. Tu oponente no lo verá.");
+        if (!state.oponente_personaje || state.oponente_personaje.trim() === "") {
+            alert("Debes elegir un personaje. La página se recargará.");
+            window.location.reload();
+            return;
+        }
         elements.game.dueloOraculoControls.classList.remove('hidden');
-        addMessageToChat("Eres el Oráculo. Tu oponente es el Adivino. Espera su pregunta.", 'system');
+        addMessageToChat(`Eres el Oráculo. Has elegido a "${state.oponente_personaje}". Espera la pregunta de tu oponente.`, 'system');
         elements.game.dueloOraculoControls.querySelectorAll('button').forEach(b => b.disabled = true);
     }
 }
 
 async function handlePlayerInput() {
     const questionText = elements.game.input.value.trim();
-    if (questionText === '') return;
+    if (questionText === '' || !state.isGameActive || state.isAwaitingBrainResponse) return;
 
-    if (state.currentGameMode === 'duelo_1v1') {
-        addMessageToChat(questionText, 'player');
+    // Lógica para Duelo 1vs1
+    if (state.currentGameMode === 'duelo_1v1' && state.rol_jugador === 'adivino') {
         state.socket.emit('enviar_pregunta', { id_sala: state.id_sala, pregunta: questionText });
         elements.game.input.value = '';
         elements.game.input.disabled = true;
         elements.game.askButton.disabled = true;
-    } else { // Modo Oráculo vs IA
-        if (!state.isGameActive || state.isAwaitingBrainResponse) return;
+        return; // Termina la función aquí para el modo duelo
+    } 
+    
+    // Lógica para Modo Oráculo vs IA
+    if (state.currentGameMode === 'oracle_ia') {
         state.isAwaitingBrainResponse = true;
         elements.game.input.disabled = true;
         elements.game.askButton.disabled = true;
@@ -306,7 +373,6 @@ async function handlePlayerInput() {
 }
 
 function handleDueloOraculoResponse(respuesta) {
-    addMessageToChat(respuesta, 'brain');
     state.socket.emit('enviar_respuesta', { id_sala: state.id_sala, respuesta: respuesta });
     elements.game.dueloOraculoControls.querySelectorAll('button').forEach(b => b.disabled = true);
 }
@@ -315,16 +381,12 @@ document.addEventListener('DOMContentLoaded', () => {
     adjustScreenHeight();
     window.addEventListener('resize', adjustScreenHeight);
 
-    // Descomentar cuando la URL del servidor de Replit esté lista
-    // conectarAlServidorDeDuelo(); 
+    conectarAlServidorDeDuelo(); 
 
     const urlParams = new URLSearchParams(window.location.search);
     const id_duelo = urlParams.get('duelo');
     if (id_duelo) {
-        // Descomentar cuando la URL del servidor de Replit esté lista
-        // unirseADuelo(id_duelo);
-        console.log("Funcionalidad de unirse a duelo desactivada hasta configurar servidor.");
-        runTitleSequence(); // Por ahora, solo inicia el juego normal
+        setTimeout(() => unirseADuelo(id_duelo), 500);
     } else {
         runTitleSequence();
     }
@@ -342,53 +404,33 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!action) return;
         elements.stage.menuButtons.classList.add('hidden');
 
-        switch(action) {
-            case 'show-single-player':
-                typewriterEffect(elements.stage.dialog, phrases.menuOracle.singlePlayer, () => {
-                    elements.stage.menuButtons.innerHTML = `<button class="menu-button button-green" data-action="play-oracle">Modo Oráculo (vs IA)</button><button class="menu-button button-green" data-action="play-classic">Modo Clásico (vs IA)</button><div style="height: 15px;"></div><button class="menu-button button-red" data-action="back-to-main-menu">‹ Volver</button>`;
-                    elements.stage.menuButtons.classList.remove('hidden');
-                });
-                break;
-            case 'show-multiplayer':
-                typewriterEffect(elements.stage.dialog, phrases.menuOracle.multiplayer, () => {
-                    elements.stage.menuButtons.innerHTML = `<button class="menu-button button-purple" data-action="create-duel-1v1">1 vs 1</button><button class="menu-button button-purple" data-action="create-duel-varios" disabled>1 vs Varios (Próx)</button><div style="height: 15px;"></div><button class="menu-button button-red" data-action="back-to-main-menu">‹ Volver</button>`;
-                    elements.stage.menuButtons.classList.remove('hidden');
-                });
-                break;
-            case 'back-to-main-menu':
-                 typewriterEffect(elements.stage.dialog, phrases.menuOracle.backToMenu, () => {
-                    showFinalMenu();
-                 });
-                break;
-            case 'play-oracle':
-                typewriterEffect(elements.stage.dialog, phrases.menuOracle.playOracle, showChallengeScreen);
-                break;
-            case 'play-classic':
-                 typewriterEffect(elements.stage.dialog, phrases.menuOracle.playClassic, () => startGame('classic_ia'));
-                break;
-            case 'accept-challenge':
-                startGame('oracle_ia');
-                break;
-            case 'flee-to-title':
-                runTitleSequence();
-                break;
-            case 'flee-challenge':
-                 showGameStage(false);
-                break;
-            case 'create-duel-1v1':
-                // Descomentar cuando el servidor esté listo
-                // if (!state.socket || !state.socket.connected) {
-                //     alert("No se pudo conectar al servidor multijugador. Revisa la URL y si está online.");
-                //     showGameStage(false);
-                //     return;
-                // }
-                elements.popups.dueloConfig.classList.remove('hidden');
-                break;
+        const menuActions = {
+            'show-single-player': () => typewriterEffect(elements.stage.dialog, phrases.menuOracle.singlePlayer, () => {
+                elements.stage.menuButtons.innerHTML = `<button class="menu-button button-green" data-action="play-oracle">Modo Oráculo (vs IA)</button><button class="menu-button button-green" data-action="play-classic">Modo Clásico (vs IA)</button><div style="height: 15px;"></div><button class="menu-button button-red" data-action="back-to-main-menu">‹ Volver</button>`;
+                elements.stage.menuButtons.classList.remove('hidden');
+            }),
+            'show-multiplayer': () => typewriterEffect(elements.stage.dialog, phrases.menuOracle.multiplayer, () => {
+                elements.stage.menuButtons.innerHTML = `<button class="menu-button button-purple" data-action="create-duel-1v1">1 vs 1</button><button class="menu-button button-purple" data-action="create-duel-varios" disabled>1 vs Varios (Próx)</button><div style="height: 15px;"></div><button class="menu-button button-red" data-action="back-to-main-menu">‹ Volver</button>`;
+                elements.stage.menuButtons.classList.remove('hidden');
+            }),
+            'back-to-main-menu': () => typewriterEffect(elements.stage.dialog, phrases.menuOracle.backToMenu, showFinalMenu),
+            'play-oracle': () => typewriterEffect(elements.stage.dialog, phrases.menuOracle.playOracle, showChallengeScreen),
+            'play-classic': () => typewriterEffect(elements.stage.dialog, phrases.menuOracle.playClassic, () => startGame('classic_ia')),
+            'accept-challenge': () => startGame('oracle_ia'),
+            'flee-to-title': runTitleSequence,
+            'flee-challenge': () => showGameStage(false),
+            'create-duel-1v1': () => elements.popups.dueloConfig.classList.remove('hidden')
+        };
+
+        if (menuActions[action]) {
+            menuActions[action]();
         }
     });
     
     elements.game.dueloOraculoControls.addEventListener('click', (e) => {
-        if (e.target.tagName === 'BUTTON') handleDueloOraculoResponse(e.target.dataset.answer);
+        if (e.target.tagName === 'BUTTON' && e.target.dataset.answer) {
+            handleDueloOraculoResponse(e.target.dataset.answer);
+        }
     });
 
     document.querySelectorAll('.end-buttons button').forEach(btn => {
@@ -428,14 +470,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const rolSeleccionado = document.querySelector('#rol-selector .rol-btn.selected').dataset.rol;
         dueloConfigPopup.classList.add('hidden');
-        // Descomentar cuando el servidor esté listo
-        // iniciarCreacionDuelo({ reglas, rolSeleccionado });
-        console.log("Creación de duelo desactivada. Opciones elegidas:", { reglas, rolSeleccionado });
-        alert("La creación de duelos está desactivada hasta que el servidor esté configurado.");
-        showGameStage(false);
+        iniciarCreacionDuelo({ reglas, rolSeleccionado });
     });
 
-    // --- MANEJADORES PARA LOS BOTONES DE ACCIÓN DEL MODO ORÁCULO ---
+    // --- MANEJADORES PARA BOTONES DE ACCIÓN Y POP-UPS ---
     elements.game.guessButton.addEventListener('click', () => {
         elements.popups.guess.classList.remove('hidden');
         elements.guessPopup.input.focus();
@@ -444,13 +482,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const guessText = elements.guessPopup.input.value.trim();
         if (guessText === '') return;
         elements.popups.guess.classList.add('hidden');
-        const respuesta = await callALE({
-            skillset_target: "oracle",
-            accion: "verificar_adivinanza",
-            adivinanza: guessText
-        });
-        endGame(respuesta.resultado === "victoria", "guess", respuesta.personaje_secreto);
+        
+        if (state.currentGameMode === 'duelo_1v1') {
+            state.socket.emit('enviar_adivinanza', { id_sala: state.id_sala, adivinanza: guessText });
+            addMessageToChat(`Has intentado adivinar: ${guessText}. Esperando veredicto del Oráculo.`, 'system');
+        } else {
+            const respuesta = await callALE({
+                skillset_target: "oracle",
+                accion: "verificar_adivinanza",
+                adivinanza: guessText
+            });
+            endGame(respuesta.resultado === "victoria", "guess", respuesta.personaje_secreto);
+        }
     });
+    
     elements.game.suggestionButton.addEventListener('click', async () => {
         elements.game.suggestionButton.disabled = true;
         elements.game.suggestionButton.textContent = "Pensando...";
@@ -477,6 +522,19 @@ document.addEventListener('DOMContentLoaded', () => {
             addMessageToChat("El Oráculo no puede ofrecer sugerencias en este momento.", "system");
         }
         if (state.suggestionUses <= 0) elements.game.suggestionButton.disabled = true;
+    });
+    
+    // --- MANEJADORES PARA RESPUESTA MÍSTICA ---
+    document.getElementById('custom-answer-button').addEventListener('click', () => {
+        elements.popups.customAnswer.classList.remove('hidden');
+        elements.customAnswer.input.focus();
+    });
+    elements.customAnswer.confirmButton.addEventListener('click', () => {
+        const customAnswerText = elements.customAnswer.input.value.trim();
+        if (customAnswerText === '') return;
+        handleDueloOraculoResponse(customAnswerText);
+        elements.customAnswer.input.value = '';
+        elements.popups.customAnswer.classList.add('hidden');
     });
 
     // --- MANEJADOR DE RESPUESTAS PARA EL MODO CLÁSICO (AKINATOR) ---
@@ -515,7 +573,6 @@ async function prepararInterfazModoOraculoIA() {
     if (respuesta.error) return;
     state.secretCharacter = respuesta.personaje_secreto;
     elements.game.chatHistory.innerHTML = '';
-    state.isGameActive = true;
     addMessageToChat(`He concebido mi enigma. Comienza.`, 'brain', () => {
         elements.game.input.disabled = false;
         elements.game.askButton.disabled = false;
@@ -535,7 +592,6 @@ async function prepararInterfazModoClasicoIA() {
     addMessageToChat("Has elegido el Camino del Clásico. Piensa en un personaje. Yo haré las preguntas.", 'brain');
     const respuesta = await callALE({ skillset_target: "akinator", accion: "iniciar_juego_clasico" });
     if (respuesta && !respuesta.error && respuesta.siguiente_pregunta) {
-        state.isGameActive = true;
         addMessageToChat(respuesta.siguiente_pregunta, 'brain');
     } else {
         addMessageToChat("Mi mente está confusa. Vuelve al menú.", 'brain');
@@ -585,15 +641,32 @@ function stopTimer() { clearInterval(state.gameTimerInterval); }
 function endGame(isWin, reason = "guess", character) {
     stopTimer();
     state.isGameActive = false;
-    const characterName = character ? character.nombre : (state.secretCharacter ? state.secretCharacter.nombre : "un misterio");
+    const characterName = (typeof character === 'object' && character !== null) ? character.nombre : (character || (state.secretCharacter ? state.secretCharacter.nombre : "un misterio"));
     Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
+    
+    let message;
     if (isWin) {
-        elements.endScreens.winMessage.textContent = `¡Correcto! El personaje era ${characterName}. Tu mente es... aceptable.`;
+        if (reason === "guess_multiplayer") {
+            message = state.rol_jugador === 'adivino' 
+                ? `¡Correcto! Adivinaste el personaje: ${characterName}.`
+                : `¡Has ganado! Tu oponente no pudo adivinar tu personaje: ${state.oponente_personaje}.`;
+        } else {
+            message = `¡Correcto! El personaje era ${characterName}. Tu mente es... aceptable.`;
+        }
+        elements.endScreens.winMessage.textContent = message;
         elements.screens.win.classList.remove('hidden');
     } else {
-        let loseMessage = `Has fallado. El personaje era ${characterName}.`;
-        if (reason === "questions") loseMessage = `Has agotado tus preguntas. El personaje era ${characterName}.`;
-        elements.endScreens.loseMessage.textContent = loseMessage;
+        if (reason === "disconnect") {
+            message = "Tu oponente se ha desconectado. La partida ha terminado.";
+        } else if (reason === "guess_multiplayer") {
+             message = state.rol_jugador === 'adivino' 
+                ? `¡Incorrecto! El personaje era ${characterName}.`
+                : `¡Has perdido! Tu oponente adivinó tu personaje: ${characterName}.`;
+        } else {
+            let loseReason = reason === "questions" ? "Has agotado tus preguntas." : "Has fallado.";
+            message = `${loseReason} El personaje era ${characterName}.`;
+        }
+        elements.endScreens.loseMessage.textContent = message;
         elements.screens.lose.classList.remove('hidden');
     }
 }
@@ -607,8 +680,9 @@ function addMessageToChat(text, sender, callback) {
     const textContainer = document.createElement('div');
     textContainer.className = 'message-text-container';
     let prefix = '';
-    if (sender === 'brain') prefix = 'Oráculo: '; else if (sender === 'player') prefix = 'Tú: ';
-    const fullText = prefix + text;
+    if (sender === 'brain') prefix = 'Oráculo: '; else if (sender === 'player') prefix = 'Adivino: ';
+    const fullText = (sender === 'system') ? text : prefix + text;
+    
     messageLine.appendChild(avatar);
     messageLine.appendChild(textContainer);
     elements.game.chatHistory.appendChild(messageLine);
@@ -625,11 +699,14 @@ function typewriterEffect(element, text, callback) {
         if (i < processedText.length) {
             element.innerHTML += processedText.charAt(i);
             i++;
-            if (element.id === 'stage-dialog') element.scrollTop = element.scrollHeight;
-            else elements.game.chatHistory.scrollTop = elements.game.chatHistory.scrollHeight;
+            if (element.id === 'stage-dialog') {
+                element.scrollTop = element.scrollHeight;
+            } else {
+                elements.game.chatHistory.scrollTop = elements.game.chatHistory.scrollHeight;
+            }
         } else {
             clearInterval(interval);
-if (callback) callback();
+            if (callback) callback();
         }
     }, config.typewriterSpeed);
 }
@@ -687,7 +764,7 @@ function showGameStage(withCurtain = true) {
     const showFinalMenu = () => {
         const menuPrincipalHTML = `
             <button class="menu-button button-green" data-action="show-single-player">1 Jugador</button>
-            <button class="menu-button button-purple" data-action="show-multiplayer">Cooperativo</button>
+            <button class="menu-button button-purple" data-action="show-multiplayer">Multijugador</button>
             <div style="height: 15px;"></div>
             <button class="menu-button button-red" data-action="flee-to-title">Huir</button>
         `;
@@ -712,8 +789,7 @@ function showGameStage(withCurtain = true) {
             }, 1);
         }, 500);
     } else {
-        showFinalMenu();
-        typewriterEffect(elements.stage.dialog, phrases.menuOracle.backToMenu);
+        typewriterEffect(elements.stage.dialog, phrases.menuOracle.backToMenu, showFinalMenu);
     }
 }
 
