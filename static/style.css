@@ -579,3 +579,26 @@ button:disabled {
     border-color: var(--main-purple);
     box-shadow: 0 0 10px var(--main-purple);
 }
+/* ============================================= */
+/* == ESTILOS PARA EL ROL ORÁCULO (PÚRPURA) == */
+/* ============================================= */
+
+/* Cuando el jugador es el Oráculo, cambiamos las variables de color */
+body.rol-oraculo {
+    --main-green: var(--main-purple); /* El verde principal se convierte en púrpura */
+}
+
+/* El texto del jugador (que ahora es el Oráculo) se vuelve púrpura */
+body.rol-oraculo .message-line-player .message-text-container {
+    color: var(--main-purple);
+}
+
+/* El texto del oponente (el Adivino) se vuelve verde */
+body.rol-oraculo .message-line-brain .message-text-container {
+    color: #0f0; /* Forzamos el verde original */
+}
+
+/* Cambiamos el avatar del oponente (el Adivino) */
+body.rol-oraculo .message-line-brain .message-avatar {
+    content: '👤'; /* No funciona con content, pero lo dejamos por si acaso. El script ya lo maneja. */
+}
