@@ -51,48 +51,19 @@ let state = {
 };
 
 // ===================================================================
-// ==        CONEXIÓN CON SERVIDORES (SELECTOR AUTOMÁTICO)        ==
+// ==        CONEXIÓN CON SERVIDORES (VERSIÓN DE PRODUCCIÓN)        ==
 // ===================================================================
-// Este bloque determina si el juego se está ejecutando en un servidor
-// en línea (como Vercel) o en un entorno de prueba local.
-// Luego, asigna las URLs correctas para que el juego pueda comunicarse
-// con los servidores de IA y de Duelos.
+// Estas son las direcciones fijas de los servidores en Replit
+// que el juego usará cuando esté en línea en Vercel.
 
-const urls = {
-    // URLs para cuando el juego se ejecuta en un servidor en línea (Producción)
-    production: {
-        // URL del servidor de IA (A.L.E.). Apunta a tu Replit 'janeway'.
-        ale: 'https://janeway.replit.dev/api/execute',
-        
-        // URL del servidor de Duelos (Socket.IO). Apunta a tu Replit del juego.
-        coop: 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'
-    },
-    // URLs para cuando el juego se ejecuta en una computadora local (Desarrollo)
-    local: {
-        ale: 'http://127.0.0.1:5000/api/execute',
-        coop: 'http://127.0.0.1:8080'
-    }
-};
+// URL del Cerebro de la IA (A.L.E. en Replit 'janeway')
+const ALE_URL = 'https://889fe04e-996f-4127-afa0-24c10385465d-00-1wd8ak7x1x36.janeway.replit.dev/api/execute';
 
-// Variables que guardarán la URL final a usar.
-let ALE_URL;
-let REPLIT_URL;
+// URL del Cerebro Social (Servidor de Duelos en Replit 'picard')
+const REPLIT_URL = 'https://ff849e56-b6b6-4619-8495-996867c9bc5c-00-1rg9nfq7thllg.picard.replit.dev/';
 
-// Lógica para detectar el entorno:
-// Si el nombre del host en el navegador NO es '127.0.0.1' o 'localhost',
-// significa que estamos en producción (en Vercel).
-if (window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'localhost') {
-    console.log("🌍 Entorno de Producción Detectado. Usando URLs de Replit.");
-    ALE_URL = urls.production.ale;
-    REPLIT_URL = urls.production.coop;
-} else {
-    // Si es '127.0.0.1' o 'localhost', estamos en un entorno de prueba local.
-    console.log("🚀 Entorno Local Detectado. Usando URLs de desarrollo.");
-    ALE_URL = urls.local.ale;
-    REPLIT_URL = urls.local.coop;
-}
-
-// Imprimimos en la consola del navegador las URLs que se están usando, para facilitar la depuración.
+// Imprimimos en la consola del navegador para confirmar que las URLs se cargaron.
+console.log("🌍 Modo Producción. Conectando a servidores de Replit.");
 console.log(`[CONFIG] URL del motor IA (ALE): ${ALE_URL}`);
 console.log(`[CONFIG] URL del servidor Cooperativo: ${REPLIT_URL}`);
 
