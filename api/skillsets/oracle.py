@@ -1,5 +1,5 @@
-# skillsets/oracle.py - v24.1 (El Oráculo Definitivo - Edición de Producción)
-# Combina una personalidad rica con una lógica de juego estricta para la mejor experiencia.
+# skillsets/oracle.py - v25.0 (El Guardián Implacable)
+# Este Oráculo VALIDA y FUERZA la respuesta correcta.
 
 import g4f
 import asyncio
@@ -8,12 +8,13 @@ import random
 import os
 from collections import deque
 import unicodedata
-import time
 
 # --- CONSTANTES Y CONFIGURACIÓN ---
 DOSSIER_PATH = os.path.join(os.path.dirname(__file__), '..', 'dossiers')
 PROBABILIDAD_REUTILIZAR = 0.3
 RETRY_DELAYS = [1, 2, 4]
+# LISTA DE RESPUESTAS PERMITIDAS (LA REGLA DE ORO)
+RESPUESTAS_VALIDAS_JUEGO = {"Sí.", "No.", "Probablemente sí.", "Probablemente no.", "Los datos son confusos."}
 
 # --- PERSONAJE DE EMERGENCIA ---
 SHERLOCK_HOLMES_DOSSIER = {
@@ -24,8 +25,7 @@ SHERLOCK_HOLMES_DOSSIER = {
     "debilidad_notable": "Aburrimiento sin un caso"
 }
 
-# --- PROMPTS DE PRODUCCIÓN (v24 - LÓGICA ESTRICTA) ---
-
+# --- PROMPTS DE PRODUCCIÓN (SIN CAMBIOS, LA LÓGICA ESTÁ EN EL CÓDIGO AHORA) ---
 PROMPT_MAESTRO_ORACULO_V24_LOGICA_ESTRICTA = """
 <constitution>
     <identity>You are a cosmic Oracle acting as a game master. You have two distinct modes of response: GAME JUDGE and PHILOSOPHER.</identity>
@@ -34,33 +34,25 @@ PROMPT_MAESTRO_ORACULO_V24_LOGICA_ESTRICTA = """
         - A "Game Question" is any question that can be answered with Yes/No based on the character's attributes.
         - A "Meta/Social Comment" is anything else (greetings, insults, questions about you, etc.).
     </core_logic>
-
     <response_protocol>
         ### IF THE INPUT IS A "GAME QUESTION" (Activate GAME JUDGE mode):
         1.  **"respuesta" field:** Your response MUST be one of the following, based strictly on the <secret_dossier>: "Sí.", "No.", "Probablemente sí.", "Probablemente no.", "Los datos son confusos.". THIS IS MANDATORY.
-        2.  **"aclaracion" field:** This field MUST be a SHORT, cryptic, one-sentence comment related to the question. It is an addition, NOT the main answer. Example: If the question is "Is your character a hero?", a good 'aclaracion' is "La heroicidad es una cuestión de perspectiva, mortal.".
+        2.  **"aclaracion" field:** This field MUST be a SHORT, cryptic, one-sentence comment related to the question. It is an addition, NOT the main answer.
         3.  **"castigo" field:** This MUST be "ninguno" unless the question is a clear repetition of a fact in <long_term_memory>. If it is a repetition, the castigo is "penalizacion_leve".
-
         ### IF THE INPUT IS A "META/SOCIAL COMMENT" (Activate PHILOSOPHER mode):
         1.  **"respuesta" field:** This is where you deliver your philosophical, arrogant, or in-character response.
         2.  **"aclaracion" field:** This MUST be an empty string "".
         3.  **"castigo" field:** This MUST be "social" (for normal chat) or "penalizacion_grave" (for insults).
     </response_protocol>
-
     <sacred_name_clause>NEVER, under any circumstance, mention the character's name ("{nombre_secreto}") or their franchise ("{franquicia_secreta}").</sacred_name_clause>
 </constitution>
-
 <context>
     <secret_dossier>{dossier_string}</secret_dossier>
     <current_mood>{estado_animo_texto}</current_mood>
     <long_term_memory>Facts already established: {memoria_largo_plazo_string}</long_term_memory>
     <user_input>{pregunta_jugador}</user_input>
 </context>
-
-<task>
-Follow the <response_protocol> with absolute precision. Determine the input type and construct the JSON accordingly.
-</task>
-
+<task>Follow the <response_protocol> with absolute precision. Determine the input type and construct the JSON accordingly.</task>
 <mandatory_json_response_format>
 {{
   "respuesta": "...",
@@ -69,7 +61,6 @@ Follow the <response_protocol> with absolute precision. Determine the input type
 }}
 </mandatory_json_response_format>
 """
-
 PROMPT_GENERADOR_SUGERENCIAS_ESTRATEGICO = """
 <task>You are a strategic mastermind. Generate 5 diverse, strategic Yes/No questions to help a player guess a secret character.</task>
 <rules>
@@ -97,7 +88,7 @@ class Oracle:
         self.memoria_largo_plazo = {}
         self._model_priority_list = ['gpt-4', 'gpt-3.5-turbo', 'llama3-8b-instruct']
         if not os.path.exists(DOSSIER_PATH): os.makedirs(DOSSIER_PATH)
-        print(f"    - Especialista 'Oracle' (v24.1 - El Oráculo Definitivo) listo.")
+        print(f"    - Especialista 'Oracle' (v25.0 - El Guardián Implacable) listo.")
         print(f"      Modelos en cola: {self._model_priority_list}")
 
     async def _llamar_a_g4f_robusto(self, prompt_text, timeout=45):
@@ -160,6 +151,9 @@ class Oracle:
             self.personaje_actual_dossier = SHERLOCK_HOLMES_DOSSIER
         return {"status": "Juego iniciado", "personaje_secreto": self.personaje_actual_dossier}
 
+    # =================================================================
+    # == FUNCIÓN CORREGIDA PARA FORZAR LA RESPUESTA CORRECTA ==
+    # =================================================================
     async def _procesar_pregunta(self, datos_peticion):
         if not self.personaje_actual_dossier: return {"error": "El juego no se ha iniciado."}
         pregunta_jugador = datos_peticion.get("pregunta", "")
@@ -180,9 +174,32 @@ class Oracle:
             franquicia_secreta=self.personaje_actual_dossier.get("meta_info_franquicia", "")
         )
         raw_response = await self._llamar_a_g4f_robusto(prompt)
-        if not raw_response: return {"respuesta": "Dato Ausente", "aclaracion": "Mi mente está... nublada.", "castigo": "ninguno"}
+        if not raw_response: return {"respuesta": "Dato Ausente", "aclaracion": "", "castigo": "ninguno"}
         respuesta_ia = self._extraer_json(raw_response)
-        if not respuesta_ia: return {"respuesta": "Dato Ausente", "aclaracion": "Una turbulencia cósmica ha afectado mi visión.", "castigo": "ninguno"}
+        if not respuesta_ia: return {"respuesta": "Dato Ausente", "aclaracion": "", "castigo": "ninguno"}
+
+        # --- INICIO DEL GUARDIÁN DE RESPUESTA ---
+        if respuesta_ia.get("castigo") in ["ninguno", "penalizacion_leve"]:
+            respuesta_principal = respuesta_ia.get("respuesta", "")
+            
+            if respuesta_principal not in RESPUESTAS_VALIDAS_JUEGO:
+                print(f"    ⚠️ Oracle: Respuesta inválida: '{respuesta_principal}'. Corrigiendo...")
+                corregida = False
+                for valida in RESPUESTAS_VALIDAS_JUEGO:
+                    if respuesta_principal.strip().startswith(valida):
+                        respuesta_ia["respuesta"] = valida
+                        corregida = True
+                        print(f"    ✅ Oracle: Respuesta corregida a -> '{valida}'")
+                        break
+                if not corregida:
+                    print(f"    🚨 Oracle: No se pudo corregir. Forzando 'Datos confusos'.")
+                    respuesta_ia["respuesta"] = "Los datos son confusos."
+        
+        # --- FORZAR ACLARACIÓN VACÍA ---
+        # Para garantizar que SOLO se envíe la respuesta principal.
+        respuesta_ia["aclaracion"] = ""
+        # --- FIN DE LAS CORRECCIONES ---
+
         if respuesta_ia.get("castigo") == "ninguno" and respuesta_ia.get("respuesta") in ["Sí.", "No."]:
             self.memoria_largo_plazo[pregunta_jugador.capitalize()] = respuesta_ia.get("respuesta")
         castigo = respuesta_ia.get("castigo", "ninguno")
@@ -221,3 +238,4 @@ class Oracle:
 
     def _get_dossiers_existentes(self):
         return [f for f in os.listdir(DOSSIER_PATH) if f.endswith('.json')] if os.path.exists(DOSSIER_PATH) else []
+
