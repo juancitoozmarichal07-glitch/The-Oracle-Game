@@ -55,12 +55,27 @@ let state = {
 // ===================================================================
 
 const urls = {
+    // --- URLs para cuando desarrollas en tu máquina local ---
     local: {
+        // El servidor de IA que corre en tu Pydroid/PC.
         ale: 'http://127.0.0.1:5000/api/execute',
+        
+        // El servidor cooperativo que corre en tu Pydroid/PC.
         coop: 'http://127.0.0.1:8080'
     },
+
+    // --- URLs para cuando el juego está online en Vercel ---
     production: {
-        ale: 'http://127.0.0.1:5000/api/execute',
+        // --------------------------------------------------------------------
+        // ¡IMPORTANTE! Esta es la URL que necesitas crear.
+        // Debes desplegar tu servidor de IA (el de Flask/ALE) en una
+        // plataforma como Render.com y pegar aquí la URL que te den.
+        // Mientras tanto, la dejamos apuntando a tu máquina para que no falle,
+        // aunque el modo 1P no funcionará online hasta que la cambies.
+        // --------------------------------------------------------------------
+        ale: 'https://TU-SERVIDOR-DE-IA.onrender.com/api/execute', // <-- ¡DEBES REEMPLAZAR ESTO!
+
+        // El servidor cooperativo que ya está online en Replit. ¡Esta URL es correcta!
         coop: 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'
     }
 };
@@ -68,18 +83,26 @@ const urls = {
 let ALE_URL;
 let REPLIT_URL;
 
+// Este código elige automáticamente las URLs correctas.
 if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+    // Si estás en tu máquina, usa las URLs locales.
     console.log("🚀 Entorno Local Detectado. Usando URLs de desarrollo.");
     ALE_URL = urls.local.ale;
     REPLIT_URL = urls.local.coop;
 } else {
-    console.log("🌍 Entorno de Producción Detectado. Usando URLs de producción.");
+    // Si estás en Vercel (o cualquier otro sitio online), usa las URLs de producción.
+    console.log("🌍 Entorno de Producción Detectado. Usando URLs públicas.");
     ALE_URL = urls.production.ale;
     REPLIT_URL = urls.production.coop;
+    
+    // AVISO EN CONSOLA PARA FUTURO:
+    if (ALE_URL.includes('TU-SERVIDOR-DE-IA')) {
+        console.warn("AVISO: La URL del servidor de IA (ALE) es un placeholder. El modo 1 Jugador no funcionará online hasta que la actualices.");
+    }
 }
 
-console.log(`[CONFIG] URL del motor IA (ALE): ${ALE_URL}`);
-console.log(`[CONFIG] URL del servidor Cooperativo: ${REPLIT_URL}`);
+console.log(`[CONFIG] Conectando a Motor IA (ALE) en: ${ALE_URL}`);
+console.log(`[CONFIG] Conectando a Servidor Cooperativo en: ${REPLIT_URL}`);
 
 
 // --- SELECTORES DEL DOM ---
