@@ -55,74 +55,22 @@ let state = {
 // ==        CONEXIÓN CON SERVIDORES (SELECTOR AUTOMÁTICO)        ==
 // ===================================================================
 
-const urls = {
-    local: {
-        ale: 'http://127.0.0.1:5000/api/execute',
-        coop: 'http://127.0.0.1:8080'
-    },
-    production: {
-        // 👇 ¡LA LÍNEA CLAVE ACTUALIZADA! 👇
-        ale: 'https://the-oracle-game-backend.tu-usuario.replit.dev/api/execute', 
-            
-        coop: 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'
-    }
-};
+// Ya no necesitas un objeto complejo con 'local' y 'production' para el cerebro.
+// La ruta a la API es la misma en ambos entornos.
+const ALE_URL = '/api/main'; // O '/api/index' si tu archivo se llama index.py
 
-
-let ALE_URL;
+// Mantenemos la lógica para el servidor cooperativo, que sí es externo.
 let REPLIT_URL;
-
 if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-    console.log("🚀 Entorno Local Detectado. Usando URLs de desarrollo.");
-    ALE_URL = urls.local.ale;
-    REPLIT_URL = urls.local.coop;
+    console.log("🚀 Entorno Local Detectado.");
+    REPLIT_URL = 'http://127.0.0.1:8080'; // URL local para coop
 } else {
-    console.log("🌍 Entorno de Producción Detectado. Usando URLs de producción.");
-    ALE_URL = urls.production.ale;
-    REPLIT_URL = urls.production.coop;
+    console.log("🌍 Entorno de Producción Detectado.");
+    REPLIT_URL = 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/';
 }
 
 console.log(`[CONFIG] URL del motor IA (ALE): ${ALE_URL}`);
 console.log(`[CONFIG] URL del servidor Cooperativo: ${REPLIT_URL}`);
-
-
-// --- SELECTORES DEL DOM ---
-const elements = {
-    arcadeScreen: document.getElementById('arcade-screen'),
-    screens: { title: document.getElementById('title-screen'), stage: document.getElementById('game-stage'), mainGame: document.getElementById('main-game-screen'), win: document.getElementById('win-screen'), lose: document.getElementById('lose-screen') },
-    header: {
-        container: document.querySelector('.game-header'),
-        timer: document.getElementById('timer'),
-        questionCounter: document.getElementById('question-counter'),
-        backToMenu: document.getElementById('back-to-menu-button')
-    },
-    title: { layout: document.getElementById('title-layout'), introBrain: document.getElementById('intro-brain'), startButton: document.getElementById('start-button'), exitButton: document.getElementById('exit-button'), lightning: document.getElementById('lightning-overlay') },
-    stage: { lights: document.getElementById('stage-lights'), content: document.getElementById('stage-content-container'), curtainLeft: document.getElementById('curtain-left'), curtainRight: document.getElementById('curtain-right'), brain: document.getElementById('stage-brain'), dialog: document.getElementById('stage-dialog'), menuButtons: document.getElementById('menu-buttons') },
-    game: {
-        chatHistory: document.getElementById('chat-history'),
-        input: document.getElementById('user-question-input'),
-        askButton: document.getElementById('ask-button'),
-        suggestionButton: document.getElementById('suggestion-button'),
-        guessButton: document.getElementById('guess-button'),
-        oracleControls: document.getElementById('oracle-mode-controls'),
-        classicControls: document.getElementById('classic-mode-controls'),
-        dueloOraculoControls: document.getElementById('duelo-oraculo-controls')
-    },
-    popups: {
-        guess: document.getElementById('guess-popup'),
-        suggestion: document.getElementById('suggestion-popup'),
-        dueloConfig: document.getElementById('duelo-config-popup'),
-        customAnswer: document.getElementById('custom-answer-popup')
-    },
-    guessPopup: { content: document.querySelector('#guess-popup .popup-content-guess'), instruction: document.getElementById('guess-popup-instruction'), input: document.getElementById('guess-input'), confirmButton: document.getElementById('confirm-guess-button') },
-    suggestionPopup: { container: document.getElementById('suggestion-popup'), content: document.querySelector('#suggestion-popup .popup-content'), buttonsContainer: document.getElementById('suggestion-buttons-container') },
-    customAnswer: {
-        input: document.getElementById('custom-answer-input'),
-        confirmButton: document.getElementById('confirm-custom-answer-button')
-    },
-    endScreens: { winMessage: document.getElementById('win-message'), loseMessage: document.getElementById('lose-message') },
-    sounds: {}
-};
 
 // ===================================================================
 // ===                LÓGICA MULTIJUGADOR (SIN CAMBIOS)            ===
