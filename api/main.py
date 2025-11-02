@@ -26,6 +26,7 @@ try:
     from skillsets.oracle import Oracle
     from skillsets.akinator import Akinator
     from skillsets.analyzer import Analyzer
+    from skillsets.reflex import Reflex
     print("✅ Todos los componentes y skillsets importados correctamente.")
 except ModuleNotFoundError as e:
     print(f"🚨 ERROR DE IMPORTACIÓN: No se pudo encontrar un componente: {e}")
@@ -45,6 +46,7 @@ print("Cargando todos los skillsets en el motor...")
 ale.cargar_skillset("oracle", Oracle())
 ale.cargar_skillset("akinator", Akinator())
 ale.cargar_skillset("analyzer", Analyzer())
+ale.cargar_skillset("reflex", Reflex())
 # Se carga nuestro nuevo Guardian 2.0 con el nombre clave "guardian"
 ale.cargar_skillset("guardian", GuardianSkillset())
 print("✅ Servidor listo. El Sistema está online con todos los skillsets cargados.")
@@ -53,7 +55,7 @@ print("✅ Servidor listo. El Sistema está online con todos los skillsets carga
 @app.route('/')
 def index():
     """Sirve la interfaz de chat principal."""
-    print("-> Petición recibida para la interfaz de chat. Sirviendo index.html...")
+    print("-> Petición recibida para la interfaz de chat. Sirviend index.html...")
     return render_template('index.html')
 
 @app.route('/api/execute', methods=['POST'])
@@ -61,7 +63,7 @@ def handle_execution():
     """Maneja las peticiones de ejecución desde el frontend."""
     datos_peticion = request.json
     print(f"-> Petición API recibida para el skillset: '{datos_peticion.get('skillset_target')}'")
-    
+    ()
     try:
         respuesta = asyncio.run(ale.procesar_peticion(datos_peticion))
         return jsonify(respuesta)
