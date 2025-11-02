@@ -55,20 +55,34 @@ let state = {
 // ==        CONEXIÓN CON SERVIDORES (SELECTOR AUTOMÁTICO)        ==
 // ===================================================================
 
-// Ya no necesitas un objeto complejo con 'local' y 'production' para el cerebro.
-// La ruta a la API es la misma en ambos entornos.
-const ALE_URL = '/api/main'; // O '/api/index' si tu archivo se llama index.py
+// --- CONFIGURACIÓN DE RUTAS Y URLS ---
 
-// Mantenemos la lógica para el servidor cooperativo, que sí es externo.
+// Para el motor de IA (A.L.E.), usamos una ruta relativa.
+// Vercel se encargará de dirigir '/api/main' a tu función de Python en la carpeta /api.
+// Esto funciona tanto en el entorno de desarrollo local de Vercel como en producción.
+// ¡Asegúrate de que tu archivo principal en la carpeta /api se llame 'main.py'!
+// Si se llama 'index.py', cambia la ruta a '/api/index'.
+const ALE_URL = '/api/main';
+
+// Para el servidor cooperativo (multijugador), que está en un servicio externo (Replit),
+// sí necesitamos diferenciar entre la URL local y la de producción.
+const urls_coop = {
+    local: 'http://127.0.0.1:8080',
+    production: 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'
+};
+
 let REPLIT_URL;
+
+// El selector de entorno ahora solo se usa para el servidor cooperativo.
 if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
     console.log("🚀 Entorno Local Detectado.");
-    REPLIT_URL = 'http://127.0.0.1:8080'; // URL local para coop
+    REPLIT_URL = urls_coop.local;
 } else {
-    console.log("🌍 Entorno de Producción Detectado.");
-    REPLIT_URL = 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/';
+    console.log("🌍 Entorno de Producción Detectado (Vercel).");
+    REPLIT_URL = urls_coop.production;
 }
 
+// Imprimimos la configuración final para verificar que todo es correcto al cargar la página.
 console.log(`[CONFIG] URL del motor IA (ALE): ${ALE_URL}`);
 console.log(`[CONFIG] URL del servidor Cooperativo: ${REPLIT_URL}`);
 
