@@ -61,10 +61,13 @@ const urls = {
         coop: 'http://127.0.0.1:8080'
     },
     production: {
-        ale: 'http://127.0.0.1:5000/api/execute', // Asumo que esta URL también cambiará en producción real
+        // 👇 ¡LA LÍNEA CLAVE ACTUALIZADA! 👇
+        ale: 'https://the-oracle-game-backend.tu-usuario.replit.dev/api/execute', 
+            
         coop: 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'
     }
 };
+
 
 let ALE_URL;
 let REPLIT_URL;
