@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: mi-api-flask  # Puedes cambiar este nombre si quieres
-    env: python
-    plan: free # O el plan que estés usando
-    rootDir: ./api
-    buildCommand: "pip install -r ../requirements.txt"
-    startCommand: "gunicorn main:app"
-    healthCheckPath: / # Añadimos una verificación de salud
