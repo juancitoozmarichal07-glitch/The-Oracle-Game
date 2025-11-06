@@ -51,25 +51,22 @@ let state = {
     oponente_personaje: null,
 };
 
-
-
 // ===================================================================
-// ==        CONEXIÓN CON SERVIDORES (CONFIGURACIÓN RENDER)       ==
+// ==    CONEXIÓN CON SERVIDORES (Vercel + Render Architecture)   ==
 // ===================================================================
 
 // La URL de nuestra API de Python desplegada en Render.
-// ¡IMPORTANTE! Reemplaza 'the-oracle-game-api' si elegiste un nombre diferente en Render.
+// ¡IMPORTANTE! Pega aquí la URL exacta que te dio Render para tu Web Service.
 const ALE_URL = 'https://the-oracle-game-api.onrender.com/api/execute';
 
 // El servidor cooperativo de Replit no cambia.
 const REPLIT_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
-    ? 'http://127.0.0.1:8080' // URL para desarrollo local
-    : 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'; // URL para producción
+    ? 'http://127.0.0.1:8080'
+    : 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/';
 
-// Imprimimos en la consola para verificar que las URLs son correctas.
-console.log(`[CONFIG] Entorno detectado: ${window.location.hostname}`);
 console.log(`[CONFIG] URL del motor IA (ALE) establecida en: ${ALE_URL}`);
 console.log(`[CONFIG] URL del servidor Cooperativo establecida en: ${REPLIT_URL}`);
+
 
 // --- SELECTORES DEL DOM ---
 const elements = {
