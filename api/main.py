@@ -22,11 +22,8 @@ print(f"✅ Ruta del proyecto '{os.path.basename(ruta_del_proyecto)}' añadida a
 # Se importan el motor y todos los skillsets que forman tu sistema.
 try:
     from ale_core import ALE_Core
-    from skillsets.guardian_skillset import GuardianSkillset # <-- Nuestro Guardian 2.0
     from skillsets.oracle import Oracle
     from skillsets.akinator import Akinator
-    from skillsets.analyzer import Analyzer
-    from skillsets.reflex import Reflex
     print("✅ Todos los componentes y skillsets importados correctamente.")
 except ModuleNotFoundError as e:
     print(f"🚨 ERROR DE IMPORTACIÓN: No se pudo encontrar un componente: {e}")
@@ -45,10 +42,6 @@ print("Cargando todos los skillsets en el motor...")
 # Se cargan los skillsets originales
 ale.cargar_skillset("oracle", Oracle())
 ale.cargar_skillset("akinator", Akinator())
-ale.cargar_skillset("analyzer", Analyzer())
-ale.cargar_skillset("reflex", Reflex())
-# Se carga nuestro nuevo Guardian 2.0 con el nombre clave "guardian"
-ale.cargar_skillset("guardian", GuardianSkillset())
 print("✅ Servidor listo. El Sistema está online con todos los skillsets cargados.")
 
 # --- 5. RUTAS DE LA APLICACIÓN (URLs) ---
