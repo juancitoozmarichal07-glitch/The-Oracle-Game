@@ -2,4 +2,4 @@ gunicorn
 Flask
 Flask-Cors
 g4f==6.5.7
-
+typing_extensions
