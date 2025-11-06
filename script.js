@@ -54,17 +54,19 @@ let state = {
 
 
 // ===================================================================
-// ==        CONEXIÓN CON SERVIDORES (SELECTOR AUTOMÁTICO)        ==
+// ==        CONEXIÓN CON SERVIDORES (CONFIGURACIÓN RENDER)       ==
 // ===================================================================
 
-// La URL de la API de Vercel es simplemente una ruta relativa al dominio actual.
-const ALE_URL = '/api/execute'; 
+// La URL de nuestra API de Python desplegada en Render.
+// ¡IMPORTANTE! Reemplaza 'the-oracle-game-api' si elegiste un nombre diferente en Render.
+const ALE_URL = 'https://the-oracle-game-api.onrender.com/api/execute';
 
-// El servidor de Replit necesita una lógica de selección.
+// El servidor cooperativo de Replit no cambia.
 const REPLIT_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
     ? 'http://127.0.0.1:8080' // URL para desarrollo local
     : 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'; // URL para producción
 
+// Imprimimos en la consola para verificar que las URLs son correctas.
 console.log(`[CONFIG] Entorno detectado: ${window.location.hostname}`);
 console.log(`[CONFIG] URL del motor IA (ALE) establecida en: ${ALE_URL}`);
 console.log(`[CONFIG] URL del servidor Cooperativo establecida en: ${REPLIT_URL}`);
