@@ -49,7 +49,7 @@ skillsets_cargados = {
 print(f"✅ Motor listo con skillsets: {list(skillsets_cargados.keys())}")
 
 # --- 5. RUTA DE LA API (CON LA CORRECCIÓN DE ASYNCIO) ---
-@app.route('/api/execute', methods=['POST', 'OPTIONS'])
+@app.route('/', methods=['POST', 'OPTIONS'])
 async def api_execute():
     if request.method == 'OPTIONS':
         # Manejo correcto de la petición pre-vuelo de CORS
