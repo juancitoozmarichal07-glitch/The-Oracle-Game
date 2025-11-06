@@ -12,8 +12,12 @@
       "dest": "/api/main.py"
     },
     {
-      "src": "/(.*)",
+      "src": "/((?!api/)[^/]+)",
       "dest": "/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/index.html"
     }
   ]
 }
