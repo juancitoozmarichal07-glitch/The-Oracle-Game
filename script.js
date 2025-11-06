@@ -1350,10 +1350,17 @@ function runTitleSequence() {
         }, 2000);
     }, 4000);
 }
-
 function showGameStage(withCurtain = true) {
+    // Oculta todas las pantallas
     Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
+    
+    // ¡LÍNEA EXTRA DE SEGURIDAD!
+    // Nos aseguramos de que la pantalla de título esté 100% oculta.
+    elements.screens.title.classList.add('hidden'); 
+
+    // Mostramos la nueva pantalla (el escenario)
     elements.screens.stage.classList.remove('hidden');
+    
     elements.stage.brain.classList.remove('hidden');
     elements.stage.dialog.classList.add('hidden');
     elements.stage.menuButtons.classList.add('hidden');
@@ -1390,14 +1397,6 @@ function showGameStage(withCurtain = true) {
     }
 }
 
-// Pega esta nueva función en tu script.js
-
-// Reemplaza o crea esta función en script.js
-function showClassicChallengeScreen() {
-    closeCurtains(() => {
-        elements.stage.dialog.classList.add('hidden');
-        elements.stage.menuButtons.classList.add('hidden');
-        openCurtains(() => {
             const challengeText = "Has elegido desafiar mi intelecto. Tu tarea es simple: piensa en un personaje y manténlo en tu mente. Yo, a través de una serie de preguntas precisas, desvelaré su identidad.";
             typewriterEffect(elements.stage.dialog, challengeText, () => {
                 // ¡CAMBIO CLAVE! Usamos onclick para llamar a startGame directamente.
