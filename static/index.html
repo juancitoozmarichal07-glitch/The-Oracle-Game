@@ -209,7 +209,19 @@
             </div>
         </div>
     </div>
-    
+   <!-- Pop-up para Aclaración de Respuesta (Modo Clásico) -->
+<div id="clarification-popup" class="popup-overlay hidden">
+    <div class="popup-content">
+        <h3>Añadir Aclaración (Opcional)</h3>
+        <p>Tu respuesta base es: <strong id="clarification-base-answer"></strong></p>
+        <input type="text" id="clarification-input" placeholder="Escribe tu aclaración aquí...">
+        <div class="popup-buttons">
+            <button id="send-with-clarification" class="button-green">Enviar</button>
+            <button id="send-without-clarification" class="button-grey">Enviar sin Aclarar</button>
+        </div>
+    </div>
+</div>
+
     <!-- Script para la comunicación en tiempo real -->
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     
