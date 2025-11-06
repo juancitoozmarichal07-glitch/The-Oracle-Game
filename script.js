@@ -52,6 +52,7 @@ let state = {
 };
 
 // ===================================================================
+// ===================================================================
 // ==    CONEXIÓN CON SERVIDORES (Vercel + Render Architecture)   ==
 // ===================================================================
 
@@ -66,8 +67,6 @@ const REPLIT_URL = (window.location.hostname === '127.0.0.1' || window.location.
 
 console.log(`[CONFIG] URL del motor IA (ALE) establecida en: ${ALE_URL}`);
 console.log(`[CONFIG] URL del servidor Cooperativo establecida en: ${REPLIT_URL}`);
-
-
 // --- SELECTORES DEL DOM ---
 const elements = {
     arcadeScreen: document.getElementById('arcade-screen'),
@@ -1349,17 +1348,10 @@ function runTitleSequence() {
         }, 2000);
     }, 4000);
 }
-function showGameStage(withCurtain = true) {
-    // Oculta todas las pantallas
-    Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
-    
-    // ¡LÍNEA EXTRA DE SEGURIDAD!
-    // Nos aseguramos de que la pantalla de título esté 100% oculta.
-    elements.screens.title.classList.add('hidden'); 
 
-    // Mostramos la nueva pantalla (el escenario)
+function showGameStage(withCurtain = true) {
+    Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
     elements.screens.stage.classList.remove('hidden');
-    
     elements.stage.brain.classList.remove('hidden');
     elements.stage.dialog.classList.add('hidden');
     elements.stage.menuButtons.classList.add('hidden');
@@ -1396,6 +1388,14 @@ function showGameStage(withCurtain = true) {
     }
 }
 
+// Pega esta nueva función en tu script.js
+
+// Reemplaza o crea esta función en script.js
+function showClassicChallengeScreen() {
+    closeCurtains(() => {
+        elements.stage.dialog.classList.add('hidden');
+        elements.stage.menuButtons.classList.add('hidden');
+        openCurtains(() => {
             const challengeText = "Has elegido desafiar mi intelecto. Tu tarea es simple: piensa en un personaje y manténlo en tu mente. Yo, a través de una serie de preguntas precisas, desvelaré su identidad.";
             typewriterEffect(elements.stage.dialog, challengeText, () => {
                 // ¡CAMBIO CLAVE! Usamos onclick para llamar a startGame directamente.
@@ -1542,3 +1542,4 @@ function showChallengeScreen() {
         }, 1);
     }, 1);
 }
+
