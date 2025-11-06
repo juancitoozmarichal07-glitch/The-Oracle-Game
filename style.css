@@ -1,0 +1,617 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+    --main-green: #0f0;
+    --main-purple: #ff00ff;
+    --dark-red: #800000;
+    --bright-red: #ff0000;
+    --background-dark: #000;
+    --background-medium: #111;
+    --text-light: #fff;
+    --text-dark: #000;
+}
+
+body {
+    background-color: var(--background-dark);
+    color: var(--text-light);
+    font-family: 'Press Start 2P', cursive;
+    margin: 0;
+    overflow: hidden;
+}
+
+#arcade-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    border: 5px solid var(--main-green);
+    border-radius: 15px;
+    box-shadow: 0 0 20px var(--main-green), inset 0 0 20px var(--main-green);
+    background-color: var(--background-dark);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box; 
+    overflow: hidden;
+}
+
+.screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0; left: 0;
+    box-sizing: border-box;
+}
+
+.hidden { display: none !important; }
+
+button {
+    font-family: 'Press Start 2P', cursive;
+    padding: 15px 25px;
+    cursor: pointer;
+    text-transform: uppercase;
+    border-radius: 5px;
+    border: 3px solid;
+    transition: all 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none !important;
+    background-color: #222 !important;
+    color: #555 !important;
+    border-color: #555 !important;
+    animation: none !important;
+}
+.button-green { background-color: #222; color: var(--main-green); border-color: var(--main-green); box-shadow: 0 0 10px var(--main-green); }
+.button-green:hover:not(:disabled) { background-color: var(--main-green); color: var(--background-dark); }
+.button-red { background-color: #222; color: var(--bright-red); border-color: var(--bright-red); box-shadow: 0 0 10px var(--bright-red); }
+.button-red:hover:not(:disabled) { background-color: var(--bright-red); color: var(--background-dark); }
+.button-grey { background-color: #222; color: #888; border-color: #888; }
+
+#title-screen { justify-content: center; align-items: center; }
+#lightning-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--text-light); z-index: 5; opacity: 0; pointer-events: none; }
+
+.flash { animation: lightning-flash 0.5s forwards; }
+@keyframes lightning-flash { 0% { opacity: 0; } 10% { opacity: 0.8; } 15% { opacity: 0.2; } 20% { opacity: 0.6; } 100% { opacity: 0; } }
+
+.flash-long { animation: lightning-flash-long 2s forwards; }
+@keyframes lightning-flash-long { 0% { opacity: 0; } 5% { opacity: 0.9; } 10% { opacity: 0.3; } 15% { opacity: 0.7; } 90% { opacity: 1; } 100% { opacity: 0; } }
+
+#intro-brain { font-size: 150px; filter: drop-shadow(0 0 20px var(--main-purple)); }
+@keyframes materialize {
+    from { opacity: 0; transform: scale(0.8); filter: blur(10px) drop-shadow(0 0 20px var(--main-purple)); }
+    to { opacity: 1; transform: scale(1); filter: blur(0) drop-shadow(0 0 20px var(--main-purple)); }
+}
+
+#title-layout { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
+#title-brain { font-size: 120px; filter: drop-shadow(0 0 20px var(--main-purple)); margin-bottom: 20px; }
+
+#game-title {
+    position: relative;
+    font-size: 3.2em;
+    color: var(--main-green);
+    text-shadow: 0 0 5px var(--text-light), 0 0 10px var(--text-light), 0 0 20px var(--main-green), 0 0 30px var(--main-green);
+    margin: 0 0 40px 0;
+    text-align: center;
+    line-height: 1.2;
+}
+#game-title::before {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--main-green);
+    animation: flicker-glitch 3s infinite step-end;
+}
+@keyframes flicker-glitch {
+  0%, 2.2%, 3.2%, 30.2%, 60.2%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--main-green), 0 0 30px var(--main-green);
+    color: var(--main-green);
+  }
+  2% {
+    text-shadow: 0 0 5px var(--bright-red), 0 0 20px var(--bright-red);
+    color: var(--bright-red);
+  }
+  30% {
+    opacity: 0.6;
+    text-shadow: none;
+  }
+  60% {
+    opacity: 0.7;
+  }
+}
+
+#title-buttons { display: flex; flex-direction: column; gap: 15px; width: 80%; max-width: 300px; }
+.shutdown-effect { animation: shutdown 0.5s forwards; }
+@keyframes shutdown { 0% { transform: scaleY(1); opacity: 1; } 80% { transform: scaleY(0.01) scaleX(1.3); opacity: 1; } 100% { transform: scaleY(0); opacity: 0; } }
+
+#game-stage { z-index: 200; background-color: var(--background-dark); }
+#stage-content-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; z-index: 2; }
+#stage-brain { font-size: 100px; filter: drop-shadow(0 0 15px var(--main-purple)); margin-bottom: 20px; }
+#stage-dialog { background-color: rgba(0, 0, 0, 0.7); padding: 20px; border: 2px solid var(--main-purple); border-radius: 10px; text-align: center; color: var(--text-light); line-height: 1.6; margin-bottom: 30px; width: 90%; box-shadow: 0 0 15px var(--main-purple); }
+#menu-buttons { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 80%; max-width: 300px; }
+
+.curtain {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, #4c0000 0%, #8B0000 15%, #a52a2a 25%, #8B0000 35%, #610000 50%, #8B0000 65%, #a52a2a 75%, #8B0000 85%, #4c0000 100%);
+    z-index: 400;
+}
+#curtain-left { left: 0; box-shadow: inset 20px 0 30px -15px rgba(0,0,0,0.8); }
+#curtain-right { right: 0; box-shadow: inset -20px 0 30px -15px rgba(0,0,0,0.8); }
+.curtain::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 15px;
+    background: linear-gradient(-45deg, #FFD700, #B8860B, #FFD700, #B8860B);
+    background-size: 10px 10px;
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
+}
+
+#stage-lights {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 15;
+    overflow: hidden;
+    pointer-events: none;
+}
+.spotlight {
+    position: absolute;
+    top: -50%;
+    width: 200px;
+    height: 400%;
+    background: linear-gradient(to bottom, rgba(255, 255, 200, 0.4), transparent);
+    border-radius: 50%;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    transform-origin: center top;
+}
+.spotlight:first-child { left: -50px; animation-name: sweep-left; }
+.spotlight:last-child { right: -50px; animation-name: sweep-right; }
+@keyframes sweep-left { 0% { transform: rotate(-60deg); } 50% { transform: rotate(-15deg); } 100% { transform: rotate(-60deg); } }
+@keyframes sweep-right { 0% { transform: rotate(60deg); } 50% { transform: rotate(15deg); } 100% { transform: rotate(60deg); } }
+
+#main-game-screen { padding: 10px; box-sizing: border-box; }
+.game-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; border-bottom: 2px solid var(--main-green); flex-shrink: 0; }
+#back-to-menu-button { background: none; border: none; box-shadow: none; color: var(--main-green); font-size: 0.8em; padding: 5px; text-transform: uppercase; width: auto; }
+#chat-history { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 20px; }
+
+.message-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 100%;
+    animation: fade-in 0.5s;
+    line-height: 1.8;
+}
+@keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.message-avatar { font-size: 24px; flex-shrink: 0; }
+.message-text-container { word-wrap: break-word; }
+.message-line-player .message-text-container { color: var(--main-green); }
+.message-line-brain .message-text-container { color: var(--main-purple); }
+
+.player-controls { padding-top: 10px; border-top: 2px solid var(--main-green); flex-shrink: 0; }
+.input-area { display: flex; width: 100%; margin-bottom: 10px; }
+#user-question-input { flex-grow: 1; background-color: #222; border: 2px solid var(--main-green); color: var(--text-light); padding: 10px; font-family: 'Press Start 2P', cursive; font-size: 0.8em; min-width: 0; border-radius: 5px; box-shadow: 0 0 10px var(--main-green); }
+#ask-button {
+    width: 50px;
+    height: 50px;
+    margin: 0 0 0 10px;
+    padding: 10px;
+    flex-shrink: 0;
+    background-color: #222;
+    fill: var(--main-green);
+    border: 3px solid var(--main-green);
+    border-radius: 5px;
+    transition: all 0.2s;
+    box-shadow: 0 0 10px var(--main-green);
+}
+
+#ask-button:hover { fill: var(--background-dark); }
+#ask-button svg { width: 100%; height: 100%; }
+.action-buttons { display: flex; gap: 10px; margin-bottom: 10px; }
+.action-buttons > button { flex-grow: 1; font-size: 0.8em; padding: 12px 5px; }
+
+.popup-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 500;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.popup-content {
+    background-color: var(--background-medium);
+    border: 3px solid var(--main-purple);
+    box-shadow: 0 0 20px var(--main-purple);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    width: 95%;
+    max-width: 400px;
+    animation: fade-in 0.3s;
+}
+
+#guess-popup-title { color: var(--main-purple); margin-top: 0; margin-bottom: 15px; word-wrap: break-word; }
+#guess-popup-instruction {
+    font-size: 0.9em;
+    color: #ccc;
+    line-height: 1.5;
+    margin: 0 auto 20px auto;
+    margin-bottom: 25px;
+    min-height: 40px;
+}
+
+#guess-input {
+    width: 100%;
+    background-color: #222;
+    border: 2px solid #FFD700;
+    color: var(--text-light);
+    padding: 12px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1em;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.popup-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 20px; width: 100%; }
+
+.shake { animation: shake-hard 0.4s; }
+@keyframes shake-hard {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+#suggestion-popup .popup-content h3 { color: var(--main-purple); }
+/* --- REEMPLAZA O AÑADE ESTO EN STYLE.CSS --- */
+
+#suggestion-buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+    
+    /* ¡AQUÍ ESTÁ LA MAGIA! */
+    max-height: 50vh; /* Altura máxima: 50% de la altura de la pantalla */
+    overflow-y: auto; /* Si el contenido se pasa, muestra un scroll vertical */
+    padding-right: 10px; /* Espacio para que el scroll no tape el texto */
+}
+
+.suggestion-option-button {
+    background-color: #222;
+    border: 2px solid #888;
+    color: #ccc;
+    text-transform: none;
+    font-size: 0.9em;
+    padding: 15px;
+    width: 100%;
+    box-shadow: none;
+}
+.suggestion-option-button:hover {
+    border-color: var(--main-purple);
+    color: var(--main-purple);
+    box-shadow: 0 0 10px var(--main-purple);
+}
+
+.popup-overlay { align-items: flex-start; padding-top: 15vh; }
+#guess-popup .popup-content-guess {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding-top: 130px;
+    position: relative;
+    width: 99%;
+    max-width: 460px;
+    text-align: center;
+}
+
+.popup-header {
+    position: absolute;
+    top: -70px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70%;
+    z-index: 501;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#guess-popup-brain-icon {
+    font-size: 80px;
+    filter: drop-shadow(0 0 15px var(--main-purple));
+    margin-bottom: -15px;
+    z-index: 2;
+}
+
+#guess-popup-dialog {
+    background-color: var(--background-medium);
+    border: 3px solid var(--main-purple);
+    border-radius: 10px;
+    box-shadow: 0 0 15px var(--main-purple);
+    font-size: 0.8em;
+    line-height: 1.5;
+    padding: 10px 10px;
+}
+
+.popup-body {
+    background-color: var(--background-dark);
+    border: 3px solid var(--main-purple);
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 0 20px var(--main-purple);
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+#guess-popup-title {
+    color: var(--main-purple);
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    padding-top: 20px;
+}
+
+.button-cooldown {
+    background-color: #222 !important;
+    color: #ff8c00 !important;
+    border-color: #ff8c00 !important;
+    box-shadow: 0 0 10px #ff8c00 !important;
+    cursor: not-allowed !important;
+    animation: none !important;
+}
+
+.classic-answer-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 10px;
+}
+
+.answer-btn {
+    background-color: #222;
+    color: var(--main-green);
+    border: 2px solid var(--main-green);
+    box-shadow: 0 6px #1a6a5f, 0 8px 6px rgba(0,0,0,0.4);
+    font-size: 0.9em;
+    padding: 15px 5px;
+    text-transform: none;
+    transition: all 0.1s ease-out;
+}
+
+.answer-btn:hover:not(:disabled) {
+    background-color: var(--main-green);
+    color: var(--background-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px #1a6a5f, 0 10px 8px rgba(0,0,0,0.4);
+}
+
+.answer-btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 2px #1a6a5f;
+}
+
+.button-purple {
+    background-color: #222;
+    color: var(--main-purple);
+    border-color: var(--main-purple);
+    box-shadow: 0 0 10px var(--main-purple);
+}
+.button-purple:hover:not(:disabled) {
+    background-color: var(--main-purple);
+    color: var(--background-dark);
+}
+
+#clue-card {
+    width: 280px;
+    height: 400px;
+    perspective: 1000px;
+    background-color: transparent;
+    cursor: pointer;
+}
+#clue-card-popup.reveal #clue-card {
+    transform: rotateY(180deg);
+}
+#clue-card {
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+}
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+.card-front {
+    background: linear-gradient(45deg, #4a004a, #8a2be2);
+    border: 5px solid #c0c0c0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.card-symbol {
+    font-size: 150px;
+    color: #fff;
+    text-shadow: 0 0 10px #fff, 0 0 20px var(--main-purple);
+}
+.card-back {
+    background: linear-gradient(to bottom, #2c2c2c, #1a1a1a);
+    border: 5px solid var(--main-purple);
+    color: white;
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.card-header {
+    font-size: 1.1em;
+    color: var(--main-purple);
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--main-purple);
+}
+#clue-card-text {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2em;
+    text-align: center;
+    line-height: 1.6;
+    color: #f0f0f0;
+}
+.card-close-button {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    padding: 5px;
+    cursor: pointer;
+}
+.card-close-button:hover {
+    color: var(--text-light);
+}
+/* PÉGALO AL FINAL DE STYLE.CSS */
+
+/* Estilos para el Pop-up de Configuración de Duelo */
+#duelo-config-title {
+    color: var(--main-purple);
+    margin-bottom: 25px;
+}
+
+.config-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 15px 10px;
+    margin-bottom: 25px;
+    text-align: left;
+    font-size: 0.9em;
+}
+
+.input-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.input-stepper input[type="number"] {
+    width: 50px;
+    text-align: center;
+    background-color: #222;
+    border: 2px solid var(--main-purple);
+    color: var(--text-light);
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1em;
+    padding: 5px;
+    -moz-appearance: textfield;
+    /* Para Firefox */
+}
+
+.input-stepper input[type="number"]::-webkit-inner-spin-button,
+.input-stepper input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.stepper-btn {
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    font-size: 1.2em;
+    line-height: 35px;
+    background-color: #333;
+    border: 2px solid var(--main-purple);
+    color: var(--main-purple);
+}
+
+.config-subtitle {
+    font-size: 0.9em;
+    color: #ccc;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.button-group>button {
+    flex-grow: 1;
+    font-size: 0.8em;
+    padding: 12px 5px;
+    background-color: #222;
+    border: 2px solid #888;
+    color: #888;
+    transition: all 0.2s;
+}
+
+.button-group>button.selected {
+    background-color: var(--main-purple);
+    color: var(--background-dark);
+    border-color: var(--main-purple);
+    box-shadow: 0 0 10px var(--main-purple);
+}
+/* ============================================= */
+/* == ESTILOS PARA EL ROL ORÁCULO (PÚRPURA) == */
+/* ============================================= */
+
+/* Cuando el jugador es el Oráculo, cambiamos las variables de color */
+body.rol-oraculo {
+    --main-green: var(--main-purple); /* El verde principal se convierte en púrpura */
+}
+
+/* El texto del jugador (que ahora es el Oráculo) se vuelve púrpura */
+body.rol-oraculo .message-line-player .message-text-container {
+    color: var(--main-purple);
+}
+
+/* El texto del oponente (el Adivino) se vuelve verde */
+body.rol-oraculo .message-line-brain .message-text-container {
+    color: #0f0; /* Forzamos el verde original */
+}
+
+/* Cambiamos el avatar del oponente (el Adivino) */
+body.rol-oraculo .message-line-brain .message-avatar {
+    content: '👤'; /* No funciona con content, pero lo dejamos por si acaso. El script ya lo maneja. */
+}
