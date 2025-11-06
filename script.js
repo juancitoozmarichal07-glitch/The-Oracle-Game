@@ -58,7 +58,7 @@ let state = {
 
 // La URL de nuestra API de Python desplegada en Render.
 // ¡IMPORTANTE! Pega aquí la URL exacta que te dio Render para tu Web Service.
-const ALE_URL = 'https://the-oracle-game-api.onrender.com/api/execute';
+const ALE_URL = 'https://the-oracle-game-api.onrender.com/execute';
 
 // El servidor cooperativo de Replit no cambia.
 const REPLIT_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
