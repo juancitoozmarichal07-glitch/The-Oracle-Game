@@ -295,7 +295,20 @@ button:disabled {
 }
 
 #suggestion-popup .popup-content h3 { color: var(--main-purple); }
-#suggestion-buttons-container { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+/* --- REEMPLAZA O AÑADE ESTO EN STYLE.CSS --- */
+
+#suggestion-buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+    
+    /* ¡AQUÍ ESTÁ LA MAGIA! */
+    max-height: 50vh; /* Altura máxima: 50% de la altura de la pantalla */
+    overflow-y: auto; /* Si el contenido se pasa, muestra un scroll vertical */
+    padding-right: 10px; /* Espacio para que el scroll no tape el texto */
+}
+
 .suggestion-option-button {
     background-color: #222;
     border: 2px solid #888;
