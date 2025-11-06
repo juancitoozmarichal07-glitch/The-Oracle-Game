@@ -60,7 +60,7 @@ print(f"✅ Motor listo con los siguientes skillsets: {list(skillsets_cargados.k
 
 
 # --- 5. RUTA DE LA API ---
-@app.route('/api/execute', methods=['POST', 'OPTIONS'])
+@app.route('/execute', methods=['POST', 'OPTIONS'])
 async def api_execute():
     # Manejo de la petición pre-vuelo (necesaria para CORS)
     if request.method == 'OPTIONS':
