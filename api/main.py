@@ -27,7 +27,7 @@ try:
     print("✅ Todos los componentes y skillsets importados correctamente.")
 except ModuleNotFoundError as e:
     print(f"🚨 ERROR DE IMPORTACIÓN: No se pudo encontrar un componente: {e}")
-    print("   Asegúrate de que todos los archivos de skillsets (oracle.py, veridian.py, etc.) existen en la carpeta 'skillsets'.")
+    print("   Asegúrate de que todos los archivos de skillsets (oracle.py, akinator.py, etc.) existen en la carpeta 'api/skillsets'.")
     sys.exit()
 
 # --- 3. CONFIGURACIÓN DE LA APLICACIÓN FLASK ---
