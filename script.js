@@ -795,15 +795,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function callALE(payload) {
     try {
-        const response = await fetch(ALE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+        // --- ¡CAMBIO CLAVE PARA ROMPER LA CACHÉ! ---
+        const urlConVersion = `${ALE_URL}?v=${Date.now()}`;
+        console.log(`[DEBUG] Forzando petición a: ${urlConVersion}`); // Log para depurar
+
+        const response = await fetch(urlConVersion, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.status}`);
+        }
         return await response.json();
+
     } catch (error) {
         console.error("Error al llamar a A.L.E.:", error);
         addMessageToChat(`Error de conexión con el cerebro. ${error.message}`, 'system');
         return { error: true };
     }
 }
+
 
 // Reemplaza esta función en tu script.js
 
