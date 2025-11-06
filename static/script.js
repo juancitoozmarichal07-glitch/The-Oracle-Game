@@ -38,7 +38,7 @@ let state = {
     questionCount: 0,
     secretCharacter: null,
     isGameActive: false,
-    isAwaitingBrainResponse: false,
+    isAwaitingStartSignal: false,
     suggestionUses: config.suggestionLimit,
     lastSuggestionTimestamp: 0,
     guessPopupPatience: 3,
@@ -51,40 +51,77 @@ let state = {
     oponente_personaje: null,
 };
 
+
+
 // ===================================================================
 // ==        CONEXIÓN CON SERVIDORES (SELECTOR AUTOMÁTICO)        ==
 // ===================================================================
 
-// --- CONFIGURACIÓN DE RUTAS Y URLS ---
-
-// Para el motor de IA (A.L.E.), usamos una ruta relativa.
-// Vercel se encargará de dirigir '/api/main' a tu función de Python en la carpeta /api.
-// Esto funciona tanto en el entorno de desarrollo local de Vercel como en producción.
-// ¡Asegúrate de que tu archivo principal en la carpeta /api se llame 'main.py'!
-// Si se llama 'index.py', cambia la ruta a '/api/index'.
-const ALE_URL = '/api/main';
-
-// Para el servidor cooperativo (multijugador), que está en un servicio externo (Replit),
-// sí necesitamos diferenciar entre la URL local y la de producción.
-const urls_coop = {
-    local: 'http://127.0.0.1:8080',
-    production: 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'
+const urls = {
+    local: {
+        ale: 'http://127.0.0.1:5000/api/execute',
+        coop: 'http://127.0.0.1:8080'
+    },
+    production: {
+        ale: 'http://127.0.0.1:5000/api/execute', // Asumo que esta URL también cambiará en producción real
+        coop: 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'
+    }
 };
 
+let ALE_URL;
 let REPLIT_URL;
 
-// El selector de entorno ahora solo se usa para el servidor cooperativo.
 if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-    console.log("🚀 Entorno Local Detectado.");
-    REPLIT_URL = urls_coop.local;
+    console.log("🚀 Entorno Local Detectado. Usando URLs de desarrollo.");
+    ALE_URL = urls.local.ale;
+    REPLIT_URL = urls.local.coop;
 } else {
-    console.log("🌍 Entorno de Producción Detectado (Vercel).");
-    REPLIT_URL = urls_coop.production;
+    console.log("🌍 Entorno de Producción Detectado. Usando URLs de producción.");
+    ALE_URL = urls.production.ale;
+    REPLIT_URL = urls.production.coop;
 }
 
-// Imprimimos la configuración final para verificar que todo es correcto al cargar la página.
 console.log(`[CONFIG] URL del motor IA (ALE): ${ALE_URL}`);
 console.log(`[CONFIG] URL del servidor Cooperativo: ${REPLIT_URL}`);
+
+
+// --- SELECTORES DEL DOM ---
+const elements = {
+    arcadeScreen: document.getElementById('arcade-screen'),
+    screens: { title: document.getElementById('title-screen'), stage: document.getElementById('game-stage'), mainGame: document.getElementById('main-game-screen'), win: document.getElementById('win-screen'), lose: document.getElementById('lose-screen') },
+    header: {
+        container: document.querySelector('.game-header'),
+        timer: document.getElementById('timer'),
+        questionCounter: document.getElementById('question-counter'),
+        backToMenu: document.getElementById('back-to-menu-button')
+    },
+    title: { layout: document.getElementById('title-layout'), introBrain: document.getElementById('intro-brain'), startButton: document.getElementById('start-button'), exitButton: document.getElementById('exit-button'), lightning: document.getElementById('lightning-overlay') },
+    stage: { lights: document.getElementById('stage-lights'), content: document.getElementById('stage-content-container'), curtainLeft: document.getElementById('curtain-left'), curtainRight: document.getElementById('curtain-right'), brain: document.getElementById('stage-brain'), dialog: document.getElementById('stage-dialog'), menuButtons: document.getElementById('menu-buttons') },
+    game: {
+        chatHistory: document.getElementById('chat-history'),
+        input: document.getElementById('user-question-input'),
+        askButton: document.getElementById('ask-button'),
+        suggestionButton: document.getElementById('suggestion-button'),
+        guessButton: document.getElementById('guess-button'),
+        oracleControls: document.getElementById('oracle-mode-controls'),
+        classicControls: document.getElementById('classic-mode-controls'),
+        dueloOraculoControls: document.getElementById('duelo-oraculo-controls')
+    },
+    popups: {
+        guess: document.getElementById('guess-popup'),
+        suggestion: document.getElementById('suggestion-popup'),
+        dueloConfig: document.getElementById('duelo-config-popup'),
+        customAnswer: document.getElementById('custom-answer-popup')
+    },
+    guessPopup: { content: document.querySelector('#guess-popup .popup-content-guess'), instruction: document.getElementById('guess-popup-instruction'), input: document.getElementById('guess-input'), confirmButton: document.getElementById('confirm-guess-button') },
+    suggestionPopup: { container: document.getElementById('suggestion-popup'), content: document.querySelector('#suggestion-popup .popup-content'), buttonsContainer: document.getElementById('suggestion-buttons-container') },
+    customAnswer: {
+        input: document.getElementById('custom-answer-input'),
+        confirmButton: document.getElementById('confirm-custom-answer-button')
+    },
+    endScreens: { winMessage: document.getElementById('win-message'), loseMessage: document.getElementById('lose-message') },
+    sounds: {}
+};
 
 // ===================================================================
 // ===                LÓGICA MULTIJUGADOR (SIN CAMBIOS)            ===
@@ -216,7 +253,10 @@ function unirseADuelo(id_duelo) {
 // ==         LÓGICA PRINCIPAL DEL JUEGO (INICIO Y RESET)         ==
 // ===================================================================
 
+// --- REEMPLAZA ESTA FUNCIÓN EN SCRIPT.JS ---
+
 function resetGameState() {
+    // Restablece todas las variables de estado del juego a sus valores iniciales.
     state.questionCount = 0;
     state.secretCharacter = null;
     state.isGameActive = false;
@@ -228,7 +268,9 @@ function resetGameState() {
     state.rol_jugador = null;
     state.id_sala = null;
     state.oponente_personaje = null;
-
+    state.isSecondChance = false; // ¡Importante! Reseteamos el estado de segunda oportunidad.
+    
+    // Limpia el temporizador y las clases de la interfaz.
     clearInterval(state.gameTimerInterval);
     document.body.classList.remove('rol-adivino', 'rol-oraculo');
     elements.header.timer.textContent = "00:00";
@@ -239,9 +281,23 @@ function resetGameState() {
     elements.game.suggestionButton.disabled = true;
     elements.game.guessButton.disabled = true;
 
-    // ¡NUEVO! Asegurarse de que los botones del modo clásico estén habilitados al reiniciar.
-    elements.game.classicControls.querySelectorAll('button').forEach(btn => btn.disabled = false);
+    // --- ¡NUEVA LÓGICA DE LIMPIEZA PROFUNDA! ---
+    // Exorcizamos los eventos "onclick" fantasmas de los pop-ups.
+    const confirmGuessPopup = document.getElementById('confirm-guess-popup');
+    if (confirmGuessPopup) {
+        document.getElementById('confirm-guess-yes').onclick = null;
+        document.getElementById('confirm-guess-no').onclick = null;
+        confirmGuessPopup.classList.add('hidden');
+    }
+    const clarificationPopup = document.getElementById('clarification-popup');
+    if (clarificationPopup) {
+        document.getElementById('send-with-clarification').onclick = null;
+        document.getElementById('send-without-clarification').onclick = null;
+        clarificationPopup.classList.add('hidden');
+    }
+    // --- FIN DE LA NUEVA LÓGICA ---
 }
+
 
 async function startGame(mode) {
     state.currentGameMode = mode;
@@ -299,46 +355,94 @@ function prepararInterfazDuelo() {
 }
 
 async function handlePlayerInput() {
-    const questionText = elements.game.input.value.trim();
-    if (questionText === '' || !state.isGameActive || state.isAwaitingBrainResponse) return;
+    const inputText = elements.game.input.value.trim();
+    if (inputText === '' || !state.isGameActive || state.isAwaitingBrainResponse) return;
 
-    // Lógica para Duelo 1v1 (sin cambios)
+    // --- LÓGICA PARA EL INICIO DEL MODO CLÁSICO ---
+    if (state.currentGameMode === 'classic_ia' && state.isAwaitingStartSignal) {
+        const startWords = ['listo', 'ya', 'comienza', 'dale', 'ok', 'empieza'];
+        if (startWords.includes(inputText.toLowerCase())) {
+            state.isAwaitingStartSignal = false;
+            addMessageToChat(inputText, 'player');
+            elements.game.input.value = '';
+            elements.game.input.disabled = true;
+            elements.game.askButton.disabled = true;
+
+            addMessageToChat("Excelente. Mi mente se agudiza... Aquí voy.", 'brain', async () => {
+                const respuesta = await callALE({ skillset_target: "akinator", accion: "iniciar_juego_clasico" });
+                
+                elements.game.oracleControls.classList.add('hidden');
+                elements.game.classicControls.classList.remove('hidden');
+                elements.game.classicControls.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                elements.header.questionCounter.classList.remove('hidden');
+                elements.header.questionCounter.textContent = `1/${config.questionsLimit}`;
+                state.questionCount = 1;
+
+                if (respuesta && respuesta.accion === "Preguntar") {
+                    addMessageToChat(respuesta.texto, 'brain');
+                } else {
+                    addMessageToChat("Mi mente se ha atascado al empezar. Intenta reiniciar el juego.", 'brain');
+                }
+            });
+        } else {
+            addMessageToChat("No entiendo esa señal. Por favor, escribe 'Listo' cuando estés preparado.", 'system');
+            elements.game.input.value = '';
+        }
+        return; 
+    }
+
+    // Lógica para Duelo 1v1
     if (state.currentGameMode === 'duelo_1v1' && state.rol_jugador === 'adivino') {
-        addMessageToChat(questionText, 'player');
-        state.socket.emit('enviar_pregunta', { id_sala: state.id_sala, pregunta: questionText });
+        addMessageToChat(inputText, 'player');
+        state.socket.emit('enviar_pregunta', { id_sala: state.id_sala, pregunta: inputText });
         elements.game.input.value = '';
         elements.game.input.disabled = true;
         elements.game.askButton.disabled = true;
         return;
-    }
-
-    // Lógica para Oráculo vs IA (sin cambios)
+    } 
+    
+    // Lógica para Oráculo vs IA
     if (state.currentGameMode === 'oracle_ia') {
         state.isAwaitingBrainResponse = true;
         elements.game.input.disabled = true;
         elements.game.askButton.disabled = true;
-        addMessageToChat(questionText, 'player');
+        
+        addMessageToChat(inputText, 'player');
         elements.game.input.value = '';
 
-        const respuesta = await callALE({ skillset_target: "oracle", accion: "procesar_pregunta", pregunta: questionText });
+        // --- LÍNEAS DE PRUEBA PARA DEPURACIÓN ---
+        console.log("--- DEBUGGING PAYLOAD ---");
+        console.log("Enviando la pregunta:", inputText);
+        console.log("Enviando el dossier:", state.secretCharacter);
+        // ------------------------------------
+
+        const respuesta = await callALE({ 
+            skillset_target: "oracle", 
+            accion: "procesar_pregunta", 
+            pregunta: inputText,
+            dossier_personaje: state.secretCharacter,
+            memoria: state.memoria_largo_plazo || {} 
+        });
+        
         state.isAwaitingBrainResponse = false;
 
         if (!respuesta || respuesta.error) {
             addMessageToChat("El Oráculo parece distraído. Inténtalo de nuevo.", 'system');
-            if (state.isGameActive) {
-                elements.game.input.disabled = false;
-                elements.game.askButton.disabled = false;
-            }
-            return;
-        }
-
-        if (respuesta.castigo === 'meta_pregunta') {
-            addMessageToChat(respuesta.respuesta, 'brain');
         } else {
-            const fullResponse = `${respuesta.respuesta} ${respuesta.aclaracion || ''}`.trim();
-            addMessageToChat(fullResponse, 'brain');
-            state.questionCount++;
-            elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+            if (respuesta.castigo === 'meta_pregunta') {
+                addMessageToChat(respuesta.respuesta, 'brain');
+            } else {
+                const fullResponse = `${respuesta.respuesta} ${respuesta.aclaracion || ''}`.trim();
+                addMessageToChat(fullResponse, 'brain');
+                
+                if (respuesta.respuesta === "Sí." || respuesta.respuesta === "No.") {
+                    if (!state.memoria_largo_plazo) state.memoria_largo_plazo = {};
+                    state.memoria_largo_plazo[inputText] = respuesta.respuesta;
+                }
+
+                state.questionCount++;
+                elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+            }
         }
 
         if (state.isGameActive) {
@@ -352,8 +456,11 @@ async function handlePlayerInput() {
             elements.game.input.disabled = true;
             elements.game.askButton.disabled = true;
         }
+        return;
     }
 }
+
+
 
 function handleDueloOraculoResponse(respuesta) {
     state.socket.emit('enviar_respuesta', { id_sala: state.id_sala, respuesta: respuesta });
@@ -387,9 +494,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const action = e.target.dataset.action;
         if (!action) return;
         elements.stage.menuButtons.classList.add('hidden');
+
         const menuActions = {
             'show-single-player': () => typewriterEffect(elements.stage.dialog, phrases.menuOracle.singlePlayer, () => {
-                elements.stage.menuButtons.innerHTML = `<button class="menu-button button-green" data-action="play-oracle">Modo Oráculo (vs IA)</button><button class="menu-button button-green" data-action="play-classic">Modo Clásico (vs IA)</button><div style="height: 15px;"></div><button class="menu-button button-red" data-action="back-to-main-menu">‹ Volver</button>`;
+                // ¡SOLUCIÓN BLINDADA! Usamos onclick directamente en los botones.
+                elements.stage.menuButtons.innerHTML = `<button class="menu-button button-green" onclick="showChallengeScreen()">Modo Oráculo (vs IA)</button><button class="menu-button button-green" onclick="showClassicChallengeScreen()">Modo Clásico (vs IA)</button><div style="height: 15px;"></div><button class="menu-button button-red" data-action="back-to-main-menu">‹ Volver</button>`;
                 elements.stage.menuButtons.classList.remove('hidden');
             }),
             'show-multiplayer': () => typewriterEffect(elements.stage.dialog, phrases.menuOracle.multiplayer, () => {
@@ -397,16 +506,200 @@ document.addEventListener('DOMContentLoaded', () => {
                 elements.stage.menuButtons.classList.remove('hidden');
             }),
             'back-to-main-menu': () => typewriterEffect(elements.stage.dialog, phrases.menuOracle.backToMenu, showFinalMenu),
-            'play-oracle': () => typewriterEffect(elements.stage.dialog, phrases.menuOracle.playOracle, showChallengeScreen),
-            'play-classic': () => typewriterEffect(elements.stage.dialog, phrases.menuOracle.playClassic, () => startGame('classic_ia')),
+            
+            // Las acciones de los botones de desafío SÍ las mantenemos aquí.
             'accept-challenge': () => startGame('oracle_ia'),
+            'accept-classic-challenge': () => startGame('classic_ia'),
+
+            // --- OTRAS ACCIONES ---
             'flee-to-title': runTitleSequence,
             'flee-challenge': () => showGameStage(false),
             'create-duel-1v1': () => elements.popups.dueloConfig.classList.remove('hidden')
         };
-        if (menuActions[action]) menuActions[action]();
+
+        // El listener principal sigue funcionando para las acciones que no están en onclick.
+        if (menuActions[action]) {
+            menuActions[action]();
+        }
     });
 
+    // --- MANEJADORES DE CONTROLES DE JUEGO Y POP-UPS ---
+
+    // --- MANEJADORES DE CONTROLES DE JUEGO Y POP-UPS ---
+
+    elements.game.dueloOraculoControls.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON' && e.target.dataset.answer) {
+            handleDueloOraculoResponse(e.target.dataset.answer);
+        }
+    });
+    
+    document.querySelectorAll('.end-buttons button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const action = e.target.dataset.action;
+            Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
+            if (action === 'play-again') showGameStage(true);
+            else if (action === 'main-menu') runTitleSequence();
+        });
+    });
+    
+    document.body.addEventListener('click', (e) => { if (e.target.dataset.close) e.target.closest('.popup-overlay').classList.add('hidden'); });
+    
+    // Configuración de Duelo
+    const dueloConfigPopup = document.getElementById('duelo-config-popup');
+    dueloConfigPopup.querySelector('#rol-selector').addEventListener('click', (e) => {
+        if (e.target.classList.contains('rol-btn')) {
+            dueloConfigPopup.querySelectorAll('.rol-btn').forEach(btn => btn.classList.remove('selected'));
+            e.target.classList.add('selected');
+        }
+    });
+    dueloConfigPopup.addEventListener('click', (e) => {
+        if (e.target.classList.contains('stepper-btn')) {
+            const targetInput = document.getElementById(e.target.dataset.target);
+            const op = e.target.dataset.op;
+            const step = parseInt(targetInput.step) || 1;
+            let value = parseInt(targetInput.value);
+            if (op === 'plus') value += step;
+            else value -= step;
+            const min = parseInt(targetInput.min);
+            const max = parseInt(targetInput.max);
+            if (value >= min && value <= max) targetInput.value = value;
+        }
+    });
+    document.getElementById('confirm-duelo-button').addEventListener('click', () => {
+        const reglas = {
+            limitePreguntas: parseInt(document.getElementById('limite-preguntas-input').value),
+            intentosAdivinar: parseInt(document.getElementById('intentos-adivinar-input').value)
+        };
+        const rolSeleccionado = document.querySelector('#rol-selector .rol-btn.selected').dataset.rol;
+        dueloConfigPopup.classList.add('hidden');
+        iniciarCreacionDuelo({ reglas, rolSeleccionado });
+    });
+    
+    // Pop-up de Adivinar (Modo Oráculo)
+    elements.game.guessButton.addEventListener('click', () => {
+        elements.popups.guess.classList.remove('hidden');
+        elements.guessPopup.input.focus();
+    });
+    elements.guessPopup.confirmButton.addEventListener('click', async () => {
+        const guessText = elements.guessPopup.input.value.trim();
+        if (guessText === '') return;
+        elements.popups.guess.classList.add('hidden');
+        if (state.currentGameMode === 'duelo_1v1') {
+            state.socket.emit('enviar_adivinanza', { id_sala: state.id_sala, adivinanza: guessText });
+            addMessageToChat(`Has intentado adivinar: ${guessText}. Esperando veredicto del Oráculo.`, 'system');
+        } else {
+            const respuesta = await callALE({
+                skillset_target: "oracle",
+                accion: "verificar_adivinanza",
+                adivinanza: guessText,
+                dossier_personaje: state.secretCharacter // Enviamos el dossier para la verificación
+            });
+            endGame(respuesta.resultado === "victoria", "guess", respuesta.personaje_secreto);
+        }
+    });
+    
+    // Pop-up de Sugerencia (Modo Oráculo) - VERSIÓN BLINDADA
+    elements.game.suggestionButton.addEventListener('click', async () => {
+        // --- PASO 1: VERIFICACIÓN DE BLOQUEO ---
+        // Si ya se está esperando una respuesta del cerebro, no hacemos NADA.
+        if (state.isAwaitingBrainResponse) {
+            console.log("BLOQUEADO: Ya se está procesando una petición. Se ignora el clic duplicado.");
+            return; 
+        }
+
+        // --- PASO 2: ACTIVAR EL BLOQUEO ---
+        // Levantamos la bandera para bloquear clics futuros y actualizamos la UI.
+        state.isAwaitingBrainResponse = true; 
+        elements.game.suggestionButton.disabled = true;
+        elements.game.suggestionButton.textContent = "Pensando...";
+
+        try { // Usamos try...finally para asegurarnos de que el bloqueo SIEMPRE se libere.
+            const respuesta = await callALE({ 
+                skillset_target: "oracle", 
+                accion: "pedir_sugerencia",
+                dossier_personaje: state.secretCharacter,
+                memoria: state.memoria_largo_plazo || {}
+            });
+
+            if (respuesta && respuesta.sugerencias && respuesta.sugerencias.length > 0) {
+                state.suggestionUses--; // Solo descontamos si hay éxito
+                const container = elements.suggestionPopup.buttonsContainer;
+                container.innerHTML = '';
+                respuesta.sugerencias.forEach(sug => {
+                    const btn = document.createElement('button');
+                    btn.className = 'suggestion-option-button';
+                    btn.textContent = sug;
+                    btn.onclick = () => {
+                        elements.game.input.value = sug;
+                        elements.popups.suggestion.classList.add('hidden');
+                        elements.game.input.focus();
+                    };
+                    container.appendChild(btn);
+                });
+                elements.popups.suggestion.classList.remove('hidden');
+            } else {
+                addMessageToChat("El Oráculo no puede ofrecer sugerencias en este momento.", "system");
+            }
+
+        } catch (error) {
+            console.error("Error al pedir sugerencia:", error);
+            addMessageToChat("Hubo un error de conexión al pedir la sugerencia.", "system");
+        } finally {
+            // --- PASO 3: LIBERAR EL BLOQUEO ---
+            // Haya éxito o fracaso, bajamos la bandera y actualizamos la UI.
+            state.isAwaitingBrainResponse = false; 
+            elements.game.suggestionButton.textContent = `Sugerencia (${state.suggestionUses})`;
+            if (state.suggestionUses > 0 && state.isGameActive) {
+                elements.game.suggestionButton.disabled = false;
+            }
+        }
+    });
+
+    
+    // Pop-up de Respuesta Mística (Duelo)
+    document.getElementById('custom-answer-button').addEventListener('click', () => {
+        elements.popups.customAnswer.classList.remove('hidden');
+        elements.customAnswer.input.focus();
+    });
+    elements.customAnswer.confirmButton.addEventListener('click', () => {
+        const customAnswerText = elements.customAnswer.input.value.trim();
+        if (customAnswerText === '') return;
+        handleDueloOraculoResponse(customAnswerText);
+        elements.customAnswer.input.value = '';
+        elements.popups.customAnswer.classList.add('hidden');
+    });
+    
+    // Modo Clásico (vs IA) - CON LÓGICA DE ACLARACIÓN
+    elements.game.classicControls.addEventListener('click', (e) => {
+        if (e.target.classList.contains('answer-btn')) {
+            const answer = e.target.dataset.answer;
+            const ambiguousAnswers = ["Probablemente Sí", "Probablemente No", "No lo sé"];
+            
+            if (ambiguousAnswers.includes(answer)) {
+                const popup = document.getElementById('clarification-popup');
+                document.getElementById('clarification-base-answer').textContent = answer;
+                const input = document.getElementById('clarification-input');
+                input.value = '';
+                popup.classList.remove('hidden');
+                input.focus();
+                
+                document.getElementById('send-with-clarification').onclick = () => {
+                    const clarificationText = input.value.trim();
+                    const fullAnswer = clarificationText ? `${answer}. ${clarificationText}` : answer;
+                    handleClassicAnswer(fullAnswer);
+                    popup.classList.add('hidden');
+                };
+                
+                document.getElementById('send-without-clarification').onclick = () => {
+                    handleClassicAnswer(answer);
+                    popup.classList.add('hidden');
+                };
+                
+            } else {
+                handleClassicAnswer(answer);
+            }
+        }
+    });
     // --- MANEJADORES DE CONTROLES DE JUEGO Y POP-UPS ---
     elements.game.dueloOraculoControls.addEventListener('click', (e) => {
         if (e.target.tagName === 'BUTTON' && e.target.dataset.answer) {
@@ -425,14 +718,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.body.addEventListener('click', (e) => { if (e.target.dataset.close) e.target.closest('.popup-overlay').classList.add('hidden'); });
 
-    // Configuración de Duelo
-    const dueloConfigPopup = document.getElementById('duelo-config-popup');
-    dueloConfigPopup.querySelector('#rol-selector').addEventListener('click', (e) => {
-        if (e.target.classList.contains('rol-btn')) {
-            dueloConfigPopup.querySelectorAll('.rol-btn').forEach(btn => btn.classList.remove('selected'));
-            e.target.classList.add('selected');
-        }
-    });
     dueloConfigPopup.addEventListener('click', (e) => {
         if (e.target.classList.contains('stepper-btn')) {
             const targetInput = document.getElementById(e.target.dataset.target);
@@ -473,35 +758,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Pop-up de Sugerencia (Modo Oráculo)
-    elements.game.suggestionButton.addEventListener('click', async () => {
-        elements.game.suggestionButton.disabled = true;
-        elements.game.suggestionButton.textContent = "Pensando...";
-        const respuesta = await callALE({ skillset_target: "oracle", accion: "pedir_sugerencia" });
-        elements.game.suggestionButton.disabled = false;
-        state.suggestionUses--;
-        elements.game.suggestionButton.textContent = `Sugerencia (${state.suggestionUses})`;
-        if (respuesta && respuesta.sugerencias && respuesta.sugerencias.length > 0) {
-            const container = elements.suggestionPopup.buttonsContainer;
-            container.innerHTML = '';
-            respuesta.sugerencias.forEach(sug => {
-                const btn = document.createElement('button');
-                btn.className = 'suggestion-option-button';
-                btn.textContent = sug;
-                btn.onclick = () => {
-                    elements.game.input.value = sug;
-                    elements.popups.suggestion.classList.add('hidden');
-                    elements.game.input.focus();
-                };
-                container.appendChild(btn);
-            });
-            elements.popups.suggestion.classList.remove('hidden');
-        } else {
-            addMessageToChat("El Oráculo no puede ofrecer sugerencias en este momento.", "system");
-        }
-        if (state.suggestionUses <= 0) elements.game.suggestionButton.disabled = true;
-    });
-
     // Pop-up de Respuesta Mística (Duelo)
     document.getElementById('custom-answer-button').addEventListener('click', () => {
         elements.popups.customAnswer.classList.remove('hidden');
@@ -516,12 +772,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ¡MODIFICADO! Manejador para los botones del Modo Clásico
+// --- REEMPLAZA ESTA SECCIÓN EN SCRIPT.JS ---
+
+    // Modo Clásico (vs IA) - CON LÓGICA DE ACLARACIÓN
     elements.game.classicControls.addEventListener('click', (e) => {
         if (e.target.classList.contains('answer-btn')) {
-            handleClassicAnswer(e.target.dataset.answer);
+            const answer = e.target.dataset.answer;
+            const ambiguousAnswers = ["Probablemente Sí", "Probablemente No", "No lo sé"];
+
+            if (ambiguousAnswers.includes(answer)) {
+                // Es una respuesta ambigua, mostramos el pop-up
+                const popup = document.getElementById('clarification-popup');
+                document.getElementById('clarification-base-answer').textContent = answer;
+                const input = document.getElementById('clarification-input');
+                input.value = ''; // Limpiamos el input
+                popup.classList.remove('hidden');
+                input.focus();
+
+                // Manejador para enviar CON aclaración
+                document.getElementById('send-with-clarification').onclick = () => {
+                    const clarificationText = input.value.trim();
+                    const fullAnswer = clarificationText ? `${answer}. ${clarificationText}` : answer;
+                    handleClassicAnswer(fullAnswer);
+                    popup.classList.add('hidden');
+                };
+
+                // Manejador para enviar SIN aclaración
+                document.getElementById('send-without-clarification').onclick = () => {
+                    handleClassicAnswer(answer);
+                    popup.classList.add('hidden');
+                };
+
+            } else {
+                // Es una respuesta directa (Sí/No), la manejamos como siempre
+                handleClassicAnswer(answer);
+            }
         }
     });
-});
+
+}); // <-- ¡ESTA ES LA LLAVE CRUCIAL QUE PROBABLEMENTE FALTA!
 
 async function callALE(payload) {
     try {
@@ -535,6 +824,8 @@ async function callALE(payload) {
     }
 }
 
+// Reemplaza esta función en tu script.js
+
 async function prepararInterfazModoOraculoIA() {
     elements.game.oracleControls.classList.remove('hidden');
     elements.game.classicControls.classList.add('hidden');
@@ -543,9 +834,22 @@ async function prepararInterfazModoOraculoIA() {
     elements.game.guessButton.classList.remove('hidden');
     elements.header.questionCounter.classList.remove('hidden');
     addMessageToChat("Concibiendo un nuevo enigma...", "brain");
+
+    // La llamada a la API no cambia
     const respuesta = await callALE({ skillset_target: "oracle", accion: "iniciar_juego" });
-    if (respuesta.error) return;
+
+    // --- ¡AQUÍ ESTÁ LA CORRECCIÓN CLAVE! ---
+    // Verificamos si la respuesta es válida y si contiene el personaje secreto
+    if (!respuesta || respuesta.error || !respuesta.personaje_secreto) {
+        addMessageToChat("El Oráculo no responde. Las estrellas guardan silencio. Por favor, vuelve al menú.", "system");
+        state.isGameActive = false;
+        return;
+    }
+
+    // Guardamos el personaje secreto en el estado del frontend
     state.secretCharacter = respuesta.personaje_secreto;
+    
+    // Limpiamos el historial y mostramos el mensaje de inicio
     elements.game.chatHistory.innerHTML = '';
     addMessageToChat(`He concebido mi enigma. Comienza.`, 'brain', () => {
         elements.game.input.disabled = false;
@@ -557,7 +861,12 @@ async function prepararInterfazModoOraculoIA() {
 }
 
 // ¡COMPLETADO! Lógica para iniciar el Modo Clásico
+// --- REEMPLAZA ESTA FUNCIÓN EN SCRIPT.JS ---
+
+// --- REEMPLAZA ESTA FUNCIÓN EN SCRIPT.JS ---
+
 async function prepararInterfazModoClasicoIA() {
+    // Prepara la interfaz básica
     elements.game.oracleControls.classList.add('hidden');
     elements.game.classicControls.classList.remove('hidden');
     elements.game.dueloOraculoControls.classList.add('hidden');
@@ -565,13 +874,23 @@ async function prepararInterfazModoClasicoIA() {
     elements.game.guessButton.classList.add('hidden');
     elements.header.questionCounter.classList.remove('hidden');
     
+    // Muestra un mensaje de carga mientras espera la primera pregunta
     addMessageToChat("Has elegido el Camino del Clásico. Piensa en un personaje. Yo haré las preguntas.", 'brain');
     
+    // Llama al backend para obtener la primera pregunta
     const respuesta = await callALE({ skillset_target: "akinator", accion: "iniciar_juego_clasico" });
-    
-    // Usamos la nueva función para manejar la respuesta de la IA
-    handleAkinatorResponse(respuesta);
+
+    if (respuesta && respuesta.accion === "Preguntar") {
+        addMessageToChat(respuesta.texto, 'brain');
+        state.questionCount = 1;
+        elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+    } else {
+        addMessageToChat("Mi mente está confusa. Vuelve al menú e inténtalo de nuevo.", 'brain');
+        elements.game.classicControls.querySelectorAll('button').forEach(btn => btn.disabled = true);
+    }
 }
+
+
 
 // =================================================================================
 // == ¡NUEVO BLOQUE DE CÓDIGO PARA EL MODO CLÁSICO ORGÁNICO! ==
@@ -597,43 +916,110 @@ async function prepararInterfazModoClasicoIA() {
 /**
  * Maneja la respuesta del jugador en el Modo Clásico.
  * Construye y muestra la respuesta completa con aclaración en una sola línea.
- * @param {string} answer - La respuesta seleccionada por el jugador.
- */
+ * @param {string} answer - La respuesta seleccionada por el jugador.**/
+ 
 async function handleClassicAnswer(answer) {
     if (!state.isGameActive || state.isAwaitingBrainResponse) return;
-
+    state.isAwaitingBrainResponse = true;
     elements.game.classicControls.querySelectorAll('button').forEach(btn => btn.disabled = true);
+    addMessageToChat(answer, 'player');
 
-    let finalAnswerForAI = answer; // Lo que se enviará a la IA
-    let displayMessage = answer;   // Lo que se mostrará en el chat
+    const payload = {
+        skillset_target: "akinator",
+        accion: "procesar_respuesta_jugador",
+        respuesta: answer,
+        estado_juego: {
+            es_segunda_oportunidad: state.isSecondChance || false,
+            limite_preguntas: config.questionsLimit
+        }
+    };
 
-    if (answer === 'Probablemente Sí' || answer === 'Probablemente No') {
-        try {
-            const aclaracion = await openClarificationPopup();
-            if (aclaracion) {
-                // 1. Construye el mensaje para la IA (con el marcador "Aclaración:")
-                finalAnswerForAI = `${answer}. Aclaración: ${aclaracion}`;
-                
-                // 2. Construye el mensaje para el chat (como una sola frase natural)
-                displayMessage = `${answer}, ${aclaracion}`;
+    const respuesta = await callALE(payload);
+    state.isAwaitingBrainResponse = false;
+
+    if (!respuesta || respuesta.error || !respuesta.accion) {
+        addMessageToChat("Mi mente se ha nublado... No puedo continuar. Has ganado esta vez.", 'brain');
+        endGame(true, "classic_lose");
+        return;
+    }
+
+    let esAdivinanzaDisfrazada = false;
+    let nombrePersonajeAdivinado = "";
+
+    if (respuesta.accion === "Preguntar") {
+        const match = respuesta.texto.match(/¿(?:tu personaje es|es)\s+([A-ZÁÉÍÓÚ][\w\s.'-]*?)\?/i);
+        if (match && match[1]) {
+            const possibleName = match[1].trim();
+            const commonWords = ['un ', 'una ', 'el ', 'la ', 'de '];
+            if (!commonWords.some(word => possibleName.toLowerCase().startsWith(word)) && possibleName.length < 50) {
+                esAdivinanzaDisfrazada = true;
+                nombrePersonajeAdivinado = possibleName;
             }
-        } catch (error) {
-            console.log("Pop-up de aclaración cancelado. Continuando con la respuesta simple.");
         }
     }
 
-    // Llama a addMessageToChat UNA SOLA VEZ con el mensaje formateado para mostrar.
-    addMessageToChat(displayMessage, 'player');
+    if (respuesta.accion !== "Adivinar" && !esAdivinanzaDisfrazada) {
+        elements.game.classicControls.querySelectorAll('button').forEach(btn => btn.disabled = false);
+    }
 
-    // Envía la respuesta (que puede contener el marcador "Aclaración:") a la IA.
-    await sendAnswerToAkinator(finalAnswerForAI);
+    if (respuesta.accion === "Adivinar" || esAdivinanzaDisfrazada) {
+        const characterName = esAdivinanzaDisfrazada ? nombrePersonajeAdivinado : respuesta.texto;
+        if (esAdivinanzaDisfrazada) {
+            addMessageToChat(`He llegado a una conclusión... Creo que estás pensando en... **${characterName}**.`, 'brain');
+        }
+        document.getElementById('confirm-guess-character').textContent = characterName;
+        const popup = document.getElementById('confirm-guess-popup');
+        popup.classList.remove('hidden');
+        document.getElementById('confirm-guess-yes').onclick = () => {
+            popup.classList.add('hidden');
+            addMessageToChat(`¡He acertado! Sabía que era ${characterName}.`, 'brain');
+            endGame(false, "classic_win");
+        };
+        document.getElementById('confirm-guess-no').onclick = () => {
+            popup.classList.add('hidden');
+            if (state.isSecondChance) {
+                addMessageToChat(`¡Vaya! He fallado de nuevo. Me rindo. Tú ganas.`, 'brain');
+                endGame(true, "classic_lose");
+            } else {
+                state.isSecondChance = true;
+                const preguntasExtra = Math.floor(Math.random() * 6) + 5;
+                config.questionsLimit += preguntasExtra;
+                addMessageToChat(`¡Maldición! Estaba seguro. De acuerdo, me concentraré más. Ahora tengo ${config.questionsLimit} preguntas en total.`, 'brain');
+                elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+                elements.game.classicControls.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                handleClassicAnswer(`No, no es ${characterName}`);
+            }
+        };
+
+    } else if (respuesta.accion === "Preguntar") {
+        addMessageToChat(respuesta.texto, 'brain');
+        state.questionCount++;
+        elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+
+    // --- ¡NUEVA LÓGICA PARA MANEJAR EL COMENTARIO! ---
+    } else if (respuesta.accion === "Comentar_y_Preguntar") {
+        // Primero muestra el comentario...
+        addMessageToChat(respuesta.comentario, 'brain', () => {
+            // ...y una vez que termina de escribirse, muestra la pregunta.
+            // Usamos un pequeño delay para que no se sientan pegados.
+            setTimeout(() => {
+                addMessageToChat(respuesta.pregunta, 'brain');
+                state.questionCount++;
+                elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+            }, 300); // 300ms de pausa
+        });
+
+    } else if (respuesta.accion === "Rendirse") {
+        addMessageToChat(respuesta.texto, 'brain');
+        endGame(true, "classic_lose");
+    }
 }
 
-/**
- * Abre un pop-up para que el jugador elabore su respuesta.
+/* Abre un pop-up para que el jugador elabore su respuesta.
  * (Esta función no necesita cambios, es la misma de antes)
  * @returns {Promise<string|null>}
  */
+ 
 function openClarificationPopup() {
     return new Promise((resolve, reject) => {
         const popup = elements.popups.customAnswer;
@@ -691,8 +1077,6 @@ async function sendAnswerToAkinator(finalAnswer) {
 
     handleAkinatorResponse(respuesta);
 }
-
-
 
 /**
  * Abre un pop-up para que el jugador elabore su respuesta.
@@ -858,6 +1242,7 @@ function endGame(isWin, reason = "guess", character) {
  * @param {string} sender - 'player', 'brain', o 'system'.
  * @param {function} [callback] - Una función a ejecutar cuando el typewriter termina.
  */
+
 function addMessageToChat(text, sender, callback) {
     const messageLine = document.createElement('div');
     messageLine.className = `message-line message-line-${sender}`;
@@ -865,37 +1250,16 @@ function addMessageToChat(text, sender, callback) {
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
 
-    let avatarIcon = '⚙️'; // Icono por defecto para 'system'
-    let fullText = text; // Texto por defecto
+    let avatarIcon = '⚙️';
+    let fullText = text;
 
     if (sender === 'player') {
         avatarIcon = '👤';
-        
-        // --- ¡NUEVA LÓGICA DE FORMATO! ---
-        const clarificationMarker = ". Aclaración: ";
-        if (text.includes(clarificationMarker)) {
-            // Si el texto contiene una aclaración, lo dividimos y formateamos.
-            const parts = text.split(clarificationMarker);
-            const baseAnswer = parts[0];
-            const clarificationText = parts[1];
-            
-            // Construimos el HTML con la aclaración en un estilo diferente.
-            // Usamos un <span> para poder darle estilo si queremos en el futuro.
-            fullText = `Tú: ${baseAnswer} <span style="color: #ccc; font-style: italic;">("Aclaración: ${clarificationText}")</span>`;
-        } else {
-            // Si no hay aclaración, el formato es el de siempre.
-            fullText = `Tú: ${text}`;
-        }
-
+        // ¡CORRECCIÓN! Nos aseguramos de que el texto se construya correctamente.
+        fullText = `Tú: ${text}`; 
     } else if (sender === 'brain') {
         avatarIcon = '🧠';
-        if (state.currentGameMode === 'duelo_1v1') {
-            const opponentRole = (state.rol_jugador === 'oraculo') ? 'Adivino' : 'Oráculo';
-            avatarIcon = (state.rol_jugador === 'oraculo') ? '👤' : '🧠';
-            fullText = `${opponentRole}: ${text}`;
-        } else {
-            fullText = `Oráculo: ${text}`;
-        }
+        fullText = `Oráculo: ${text}`;
     }
     
     avatar.textContent = avatarIcon;
@@ -906,31 +1270,36 @@ function addMessageToChat(text, sender, callback) {
     messageLine.appendChild(avatar);
     messageLine.appendChild(textContainer);
     elements.game.chatHistory.appendChild(messageLine);
-
-    // Hacemos scroll inmediato para que no haya saltos mientras se escribe.
     elements.game.chatHistory.scrollTop = elements.game.chatHistory.scrollHeight;
 
-    // Llamamos a la función de typewriter para escribir el texto formateado.
     typewriterEffect(textContainer, fullText, callback);
 }
-
 
 const typewriterIntervals = {};
 
 function typewriterEffect(element, text, callback) {
-    if (typewriterIntervals[element.id]) {
-        clearInterval(typewriterIntervals[element.id]);
+    // Generamos un ID único para cada elemento que usa el typewriter
+    const elementId = element.id || (element.id = `typewriter-target-${Math.random()}`);
+
+    // Si ya hay un typewriter escribiendo en este elemento, lo cancelamos limpiamente.
+    if (typewriterIntervals[elementId]) {
+        clearInterval(typewriterIntervals[elementId]);
     }
-    element.innerHTML = '';
+
+    element.innerHTML = ''; // Limpiamos el contenido anterior
     element.classList.remove('hidden');
     let i = 0;
+
     function write() {
+        // Condición de parada: si ya hemos escrito todo el texto
         if (i >= text.length) {
-            clearInterval(typewriterIntervals[element.id]);
-            delete typewriterIntervals[element.id];
-            if (callback) callback();
+            clearInterval(typewriterIntervals[elementId]); // Detenemos el intervalo
+            delete typewriterIntervals[elementId]; // Lo eliminamos del gestor
+            if (callback) callback(); // Ejecutamos el callback si existe
             return;
         }
+
+        // Lógica para manejar etiquetas HTML dentro del texto (para negritas, etc.)
         if (text[i] === '<') {
             const closingTagIndex = text.indexOf('>', i);
             if (closingTagIndex !== -1) {
@@ -940,16 +1309,20 @@ function typewriterEffect(element, text, callback) {
                 element.innerHTML += text[i++];
             }
         } else {
+            // Escribimos el siguiente carácter
             element.innerHTML += text[i++];
         }
-        if (element.id === 'stage-dialog') {
-            element.scrollTop = element.scrollHeight;
-        } else if (elements.game.chatHistory) {
+
+        // Auto-scroll para mantener el último mensaje visible
+        if (elements.game.chatHistory) {
             elements.game.chatHistory.scrollTop = elements.game.chatHistory.scrollHeight;
         }
     }
-    typewriterIntervals[element.id] = setInterval(write, config.typewriterSpeed);
+
+    // Iniciamos el intervalo y guardamos su ID en nuestro gestor
+    typewriterIntervals[elementId] = setInterval(write, config.typewriterSpeed);
 }
+
 
 function adjustScreenHeight() { if (elements.arcadeScreen) elements.arcadeScreen.style.height = `${window.innerHeight}px`; }
 
@@ -1033,17 +1406,158 @@ function showGameStage(withCurtain = true) {
     }
 }
 
+// Pega esta nueva función en tu script.js
+
+// Reemplaza o crea esta función en script.js
+function showClassicChallengeScreen() {
+    closeCurtains(() => {
+        elements.stage.dialog.classList.add('hidden');
+        elements.stage.menuButtons.classList.add('hidden');
+        openCurtains(() => {
+            const challengeText = "Has elegido desafiar mi intelecto. Tu tarea es simple: piensa en un personaje y manténlo en tu mente. Yo, a través de una serie de preguntas precisas, desvelaré su identidad.";
+            typewriterEffect(elements.stage.dialog, challengeText, () => {
+                // ¡CAMBIO CLAVE! Usamos onclick para llamar a startGame directamente.
+                elements.stage.menuButtons.innerHTML = `
+                    <button class="menu-button button-green" onclick="startGame('classic_ia')">Aceptar Desafío</button>
+                    <button class="menu-button button-red" onclick="showGameStage(false)">Huir</button>
+                `;
+                elements.stage.menuButtons.classList.remove('hidden');
+            });
+        }, 1);
+    }, 1);
+}
+
+
+
+// --- ¡NUEVA FUNCIÓN PARA EL DESAFÍO DEL MODO CLÁSICO! ---
+async function handleClassicAnswer(answer) {
+    if (!state.isGameActive || state.isAwaitingBrainResponse) return;
+    state.isAwaitingBrainResponse = true;
+    elements.game.classicControls.querySelectorAll('button').forEach(btn => btn.disabled = true);
+    addMessageToChat(answer, 'player');
+
+    const payload = {
+        skillset_target: "akinator",
+        accion: "procesar_respuesta_jugador",
+        respuesta: answer,
+        estado_juego: {
+            es_segunda_oportunidad: state.isSecondChance || false,
+            limite_preguntas: config.questionsLimit
+        }
+    };
+
+    const respuesta = await callALE(payload);
+    
+    // --- ¡AQUÍ EMPIEZA LA LÓGICA DEL SUPERVISOR! ---
+
+    if (!respuesta || respuesta.error || !respuesta.accion) {
+        state.isAwaitingBrainResponse = false;
+        addMessageToChat("Mi mente se ha nublado... No puedo continuar. Has ganado esta vez.", 'brain');
+        endGame(true, "classic_lose");
+        return;
+    }
+
+    // Si la IA intenta adivinar, primero la supervisamos.
+    if (respuesta.accion === "Adivinar") {
+        const guessText = respuesta.texto;
+        
+        // Lista de palabras "prohibidas" que indican una categoría, no un nombre.
+        const badGuessKeywords = ['humano', 'personaje', 'alguien', 'un ', 'una ', 'de ', 'dentro', 'con '];
+        
+        // Comprobamos si la adivinanza es "mala" (corta, en minúsculas, o contiene palabras prohibidas).
+        const isBadGuess = (guessText.length < 3) || (guessText.toLowerCase() === guessText && !guessText.includes(' ')) || badGuessKeywords.some(keyword => guessText.toLowerCase().includes(keyword));
+
+        if (isBadGuess) {
+            // ¡ADIVINANZA RECHAZADA!
+            console.warn(`SUPERVISOR: Adivinanza rechazada ('${guessText}'). Forzando a la IA a reintentar.`);
+            addMessageToChat(`(El Oráculo murmura algo ininteligible sobre '${guessText}'... y parece que se corrige a sí mismo.)`, 'system');
+            
+            // "Castigamos" a la IA y la forzamos a jugar de nuevo.
+            // Le decimos que su adivinanza fue incorrecta y le damos una nueva instrucción.
+            handleClassicAnswer(`No, no es '${guessText}'. Eso no es un nombre, es una descripción. Intenta adivinar un nombre propio la próxima vez.`);
+            return; // Detenemos la ejecución aquí.
+        } else {
+            // La adivinanza parece un nombre propio. Procedemos a mostrar el pop-up de confirmación.
+            handleAkinatorGuess(guessText);
+        }
+    } else {
+        // Si la acción no es "Adivinar", la procesamos normalmente.
+        handleAkinatorResponse(respuesta);
+    }
+}
+
+// --- ¡NUEVA FUNCIÓN DE AYUDA PARA MANEJAR LA ADIVINANZA! ---
+// (Pega esta función justo debajo de handleClassicAnswer)
+function handleAkinatorGuess(characterName) {
+    addMessageToChat(`He llegado a una conclusión... Creo que estás pensando en... **${characterName}**.`, 'brain');
+    
+    const popup = document.getElementById('confirm-guess-popup');
+    document.getElementById('confirm-guess-character').textContent = characterName;
+    popup.classList.remove('hidden');
+
+    document.getElementById('confirm-guess-yes').onclick = () => {
+        popup.classList.add('hidden');
+        addMessageToChat(`¡He acertado! Sabía que era ${characterName}.`, 'brain');
+        endGame(false, "classic_win");
+    };
+
+    document.getElementById('confirm-guess-no').onclick = () => {
+        popup.classList.add('hidden');
+        if (state.isSecondChance) {
+            addMessageToChat(`¡Vaya! He fallado de nuevo. Me rindo. Tú ganas.`, 'brain');
+            endGame(true, "classic_lose");
+        } else {
+            state.isSecondChance = true;
+            const preguntasExtra = Math.floor(Math.random() * 3) + 3; // Menos preguntas extra
+            config.questionsLimit += preguntasExtra;
+            addMessageToChat(`¡Maldición! Estaba seguro. De acuerdo, me concentraré más. Ahora tengo ${config.questionsLimit} preguntas en total.`, 'brain');
+            elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+            // Forzamos el siguiente turno con la corrección.
+            handleClassicAnswer(`No, no es ${characterName}`);
+        }
+    };
+}
+
+// --- ¡FUNCIÓN MODIFICADA PARA PROCESAR OTRAS RESPUESTAS! ---
+// (Reemplaza tu función handleAkinatorResponse actual por esta)
+function handleAkinatorResponse(respuesta) {
+    state.isAwaitingBrainResponse = false;
+    elements.game.classicControls.querySelectorAll('button').forEach(btn => btn.disabled = false);
+
+    if (respuesta.accion === "Preguntar") {
+        addMessageToChat(respuesta.texto, 'brain');
+        state.questionCount++;
+        elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+    } else if (respuesta.accion === "Comentar_y_Preguntar") {
+        addMessageToChat(respuesta.comentario, 'brain', () => {
+            setTimeout(() => {
+                addMessageToChat(respuesta.pregunta, 'brain');
+                state.questionCount++;
+                elements.header.questionCounter.textContent = `${state.questionCount}/${config.questionsLimit}`;
+            }, 300);
+        });
+    } else if (respuesta.accion === "Rendirse") {
+        addMessageToChat(respuesta.texto, 'brain');
+        endGame(true, "classic_lose");
+    }
+}
+
+
+// Reemplaza esta función en script.js
 function showChallengeScreen() {
     closeCurtains(() => {
         elements.stage.dialog.classList.add('hidden');
+        elements.stage.menuButtons.classList.add('hidden');
         openCurtains(() => {
-            elements.stage.menuButtons.innerHTML = `
-                <button class="button-green" data-action="accept-challenge">Aceptar Reto</button>
-                <button class="button-red" data-action="flee-challenge">Huir</button>
-            `;
             typewriterEffect(elements.stage.dialog, phrases.challenge, () => {
+                // ¡CAMBIO CLAVE! Usamos onclick para llamar a startGame directamente.
+                elements.stage.menuButtons.innerHTML = `
+                    <button class="menu-button button-green" onclick="startGame('oracle_ia')">Aceptar Reto</button>
+                    <button class="menu-button button-red" onclick="showGameStage(false)">Huir</button>
+                `;
                 elements.stage.menuButtons.classList.remove('hidden');
             });
-        }, 2.5);
+        }, 1);
     }, 1);
 }
+
