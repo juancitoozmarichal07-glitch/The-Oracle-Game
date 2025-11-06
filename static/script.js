@@ -57,33 +57,17 @@ let state = {
 // ==        CONEXIÓN CON SERVIDORES (SELECTOR AUTOMÁTICO)        ==
 // ===================================================================
 
-const urls = {
-    local: {
-        ale: 'http://127.0.0.1:5000/api/execute',
-        coop: 'http://127.0.0.1:8080'
-    },
-    production: {
-        ale: 'http://127.0.0.1:5000/api/execute', // Asumo que esta URL también cambiará en producción real
-        coop: 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'
-    }
-};
+// La URL de la API de Vercel es simplemente una ruta relativa al dominio actual.
+const ALE_URL = '/api/execute'; 
 
-let ALE_URL;
-let REPLIT_URL;
+// El servidor de Replit necesita una lógica de selección.
+const REPLIT_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+    ? 'http://127.0.0.1:8080' // URL para desarrollo local
+    : 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'; // URL para producción
 
-if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-    console.log("🚀 Entorno Local Detectado. Usando URLs de desarrollo.");
-    ALE_URL = urls.local.ale;
-    REPLIT_URL = urls.local.coop;
-} else {
-    console.log("🌍 Entorno de Producción Detectado. Usando URLs de producción.");
-    ALE_URL = urls.production.ale;
-    REPLIT_URL = urls.production.coop;
-}
-
-console.log(`[CONFIG] URL del motor IA (ALE): ${ALE_URL}`);
-console.log(`[CONFIG] URL del servidor Cooperativo: ${REPLIT_URL}`);
-
+console.log(`[CONFIG] Entorno detectado: ${window.location.hostname}`);
+console.log(`[CONFIG] URL del motor IA (ALE) establecida en: ${ALE_URL}`);
+console.log(`[CONFIG] URL del servidor Cooperativo establecida en: ${REPLIT_URL}`);
 
 // --- SELECTORES DEL DOM ---
 const elements = {
