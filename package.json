@@ -1,7 +1,6 @@
 {
   "name": "the-oracle-game",
   "version": "1.0.0",
-  "description": "The Oracle Game - Brain",
   "private": true,
   "scripts": {
     "vercel-build": "pip install -r requirements.txt"
