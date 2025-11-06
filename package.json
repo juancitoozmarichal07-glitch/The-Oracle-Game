@@ -1,1 +1,12 @@
 
+{
+  "name": "the-oracle-game",
+  "version": "1.0.0",
+  "description": "The Oracle Game - Brain",
+  "main": "script.js",
+  "scripts": {
+    "start": "echo \"Error: no start script specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
