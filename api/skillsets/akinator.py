@@ -88,28 +88,37 @@ class Akinator:
         model_info = [f"{model}[{retries}]" for model, retries in self._model_priority_list]
         print(f"      Cola de modelos y reintentos: {' -> '.join(model_info)}")
 
-    async def _llamar_a_g4f_robusto(self, prompt_text, timeout=45):
-        # Esta función ahora solo hace el ciclo interno de reintentos.
-        for model_name, num_retries in self._model_priority_list:
-            for attempt in range(num_retries):
-                try:
-                    print(f"    >> Akinator: Intentando con '{model_name}' (Intento {attempt + 1}/{num_retries})...")
-                    response = await g4f.ChatCompletion.create_async(
-                        model=model_name,
-                        messages=[{"role": "user", "content": prompt_text}],
-                        timeout=timeout
-                    )
-                    if response and response.strip().startswith('{'):
-                        print(f"    ✅ Akinator: Éxito con '{model_name}'.")
-                        return response
-                    raise ValueError("Respuesta inválida o no es un JSON.")
-                except Exception as e:
-                    print(f"    ⚠️ Akinator: Falló '{model_name}' en el intento {attempt + 1}. Error: {e}")
-                    if attempt < num_retries - 1:
-                        await asyncio.sleep(2)
-        
-        print("    🚨 Akinator: El ciclo interno de llamadas ha fallado.")
-        return None
+    # Pega esta función en tu akinator.py (reemplazando la que ya tengas para llamar a g4f)
+async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=60):
+    print(f"    ⚙️ [Akinator] Forzando el uso del proveedor: g4f.Provider.Bing")
+    
+    # Si no tienes una lista de modelos en Akinator, puedes definir una simple aquí
+    model_priority_list = [('gpt-4', 5)] 
+
+    for model_name, num_retries in model_priority_list:
+        for attempt in range(num_retries):
+            try:
+                print(f"    >> Akinator: Intentando con '{model_name}' vía Bing (Intento {attempt + 1}/{num_retries})...")
+                
+                response = await g4f.ChatCompletion.create_async(
+                    model=g4f.models.gpt_4,
+                    provider=g4f.Provider.Bing,
+                    messages=[{"role": "user", "content": prompt_text}],
+                    timeout=timeout
+                )
+
+                if response and response.strip():
+                    print(f"    ✅ Akinator: Éxito con '{model_name}' vía Bing.")
+                    return response
+                raise ValueError("Respuesta inválida o vacía del modelo.")
+            except Exception as e:
+                print(f"    ⚠️ Akinator: Falló '{model_name}' en el intento {attempt + 1}. Error: {e}")
+                if attempt < num_retries - 1:
+                    await asyncio.sleep(2)
+    
+    print("    🚨 Akinator: El ciclo interno de llamadas ha fallado.")
+    return None
+
 
     def _extraer_json(self, texto_crudo):
         if not texto_crudo:
