@@ -1,61 +1,55 @@
-# skillsets/akinator.py - v35.2 (Corrección Final de Prompts por Manus)
-# Se mantiene la esencia del código del usuario, pero se corrigen los nombres
-# de las variables de los prompts para que coincidan con las llamadas en las funciones.
+# skillsets/akinator.py - v39.0 "El Retorno de Juan"
+# Se restaura la lógica original del usuario (v2.6) que manejaba el estado correctamente.
+# Se mantiene únicamente la función de llamada a g4f robusta ("Confianza Ciega")
+# que hemos verificado que funciona en Render.
 
 import g4f
 import asyncio
 import json
 import re
 
-# --- PROMPTS DE IA (NOMBRES CORREGIDOS Y UNIFICADOS) ---
-# --- PROMPTS DE IA (VERSIÓN "ANTI-REBELDÍA") ---
-PROMPT_INICIO_CLASICO = """
-<task>You are a JSON machine. Your ONLY function is to start a guessing game.</task>
-<rules>
-1.  Generate a JSON object.
-2.  The JSON MUST have a key "accion" with the value "Preguntar".
-3.  The JSON MUST have a key "texto" with a simple, general starting question in Spanish. Example: "¿Tu personaje es real?".
-4.  DO NOT write any text outside the JSON object. Your entire response must be the JSON itself.
-</rules>
+# --- PROMPTS (LOS TUYOS, LOS ORIGINALES) ---
+PROMPT_INICIAR_JUEGO = """
+<task>You are a game master like the classic game "Akinator". Your goal is to guess the character the user is thinking of by asking a series of Yes/No questions.</task>
+<instruction>
+You are about to ask your very first question. To start the game efficiently, your first question MUST be about the character's reality.
+Follow these strict rules:
+1.  Your question must be one of these two, exactly: "¿Tu personaje es una persona real?" or "¿Tu personaje es ficticio?". Choose one.
+2.  Your response MUST be a single, valid JSON object following this exact format.
+</instruction>
 <mandatory_json_response_format>
 {{
   "accion": "Preguntar",
-  "texto": "¿Tu personaje es un hombre?"
+  "texto": "Your chosen first question in Spanish"
 }}
 </mandatory_json_response_format>
 """
 
-PROMPT_PROCESAR_RESPUESTA = """
+PROMPT_PROCESAR_RESPUESTA_DEEP_THINK = """
 <task>
 You are a master detective game master (like Akinator). Your goal is to deduce the character the user is thinking of.
 </task>
 
 <context>
-    <game_state>
-    {estado_juego_string}
-    </game_state>
-    <deduction_journal>
+    <game_history>
     {diario_de_deduccion}
-    </deduction_journal>
+    </game_history>
 </context>
 
 <instruction>
-1.  **Analyze the user's latest answer.** Your primary goal is to write a brief, internal "Deep Think" monologue **IN SPANISH**.
-    - **CRITICAL RULE:** Your "Deep Think" MUST be a single, concise sentence or a list of keywords. Be efficient.
-    - **Example of a good Spanish Deep Think:** "Deducción: Ficticio, tiene poderes. Próximo paso: Determinar medio (cómic, película, etc.)."
-    - **CRITICAL:** If the user's answer is ambiguous (e.g., "Probably Yes. But..."), your "Deep Think" MUST focus on the user's clarification.
+1.  **Analyze the user's latest answer and the entire game history.** Your primary goal is to write a brief, internal "Deep Think" monologue **IN SPANISH**.
+    - **CRITICAL RULE:** Your "Deep Think" MUST be a single, concise sentence.
+    - **ABSOLUTE LAW: DO NOT REPEAT QUESTIONS that are already in the <game_history>.**
 
 2.  **Decide your next move.** You have two options:
 
-    *   **A) Ask a Question:** If you need more information, formulate a new, strategic YES/NO question. This is your standard move.
-        - **ABSOLUTE LAW:** Your question MUST be a simple, direct, YES/NO question. Strictly no "A or B" questions.
+    *   **A) Ask a Question:** If you need more information, formulate a new, strategic YES/NO question that has not been asked before.
         - **JSON ACTION:** `Preguntar`
 
     *   **B) Make a Guess:** If you are **extremely confident (95% or more)**, you MUST guess the character's name.
-        - **THE CAUTION PRINCIPLE:** It is better to ask one more question than to guess wrong. Do not guess a category or a description. Only guess a specific, proper name.
         - **JSON ACTION:** `Adivinar`
 
-3.  **Construct your JSON response.** Based on your choice above, create the JSON.
+3.  **Construct your JSON response.**
 </instruction>
 
 <json_formats>
@@ -63,7 +57,7 @@ You are a master detective game master (like Akinator). Your goal is to deduce t
 {{
   "deep_think": "Un resumen muy corto, en una frase, de tus pensamientos en español.",
   "accion": "Preguntar",
-  "texto": "A simple Yes/No question in Spanish."
+  "texto": "A new, non-repeated Yes/No question in Spanish."
 }}
 // Option B
 {{
@@ -76,10 +70,12 @@ You are a master detective game master (like Akinator). Your goal is to deduce t
 
 class Akinator:
     def __init__(self):
-        self.estado_juego = {}
+        # ¡TU LÓGICA DE HISTORIAL! Es un atributo de la clase.
+        self.historial = []
         self._model_priority_list = [('gpt-4', 5)]
-        print("    - Especialista 'Akinator' (v38.0 - Basta de Inventos) listo.")
+        print("    - Especialista 'Akinator' (v39.0 - El Retorno de Juan) listo.")
 
+    # ¡NUESTRA FUNCIÓN DE LLAMADA A G4F ROBUSTA!
     async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=120):
         print("    ⚙️ Dejando que g4f elija el proveedor por defecto...")
         for model_name, num_retries in self._model_priority_list:
@@ -102,59 +98,62 @@ class Akinator:
         print("    🚨 El ciclo interno de llamadas ha fallado.")
         return None
 
+    # ¡TU LÓGICA DE EXTRACCIÓN DE JSON!
     def _extraer_json(self, texto_crudo):
         if not texto_crudo: return None
         texto_limpio = texto_crudo.strip()
-        if texto_limpio.startswith('{{') and texto_limpio.endswith('}}'):
-            texto_limpio = texto_limpio[1:-1]
         try:
             json_start = texto_limpio.find('{')
             json_end = texto_limpio.rfind('}') + 1
             if json_start == -1: return None
-            json_str = texto_limpio[json_start:json_end]
-            return json.loads(json_str)
+            return json.loads(texto_limpio[json_start:json_end])
         except json.JSONDecodeError:
-            print(f"    🚨 Akinator no pudo extraer un JSON válido de la respuesta de la IA.")
+            print(f"    🚨 Akinator no pudo extraer un JSON válido.")
             return None
 
     async def ejecutar(self, datos_peticion):
         accion = datos_peticion.get("accion")
-        # El frontend ahora maneja el estado, el backend solo reacciona.
         if accion == "iniciar_juego_clasico":
             return await self._iniciar_juego_clasico()
         elif accion == "procesar_respuesta_jugador":
             return await self._procesar_respuesta_jugador(datos_peticion)
-        return {"error": f"Acción '{accion}' no reconocida por Akinator."}
+        return {"error": f"Acción '{accion}' no reconocida."}
 
+    # ¡TU LÓGICA DE INICIO!
     async def _iniciar_juego_clasico(self):
-        # El backend ya no guarda el estado, solo genera la primera pregunta.
-        raw_response = await self._llamar_g4f_con_reintentos_y_respaldo(PROMPT_INICIO_CLASICO)
+        self.historial = [] # Reinicia el historial al empezar.
+        raw_response = await self._llamar_g4f_con_reintentos_y_respaldo(PROMPT_INICIAR_JUEGO)
         if raw_response:
-            respuesta_ia = self._extraer_json(raw_response)
-            if respuesta_ia:
-                # ¡¡¡CORRECCIÓN!!! Devolvemos el JSON de la IA DIRECTAMENTE.
-                return respuesta_ia
-        
-        return {"accion": "Rendirse", "texto": "Mi mente está confusa. Vuelve al menú e inténtalo de nuevo."}
+            json_response = self._extraer_json(raw_response)
+            if json_response and json_response.get("accion") == "Preguntar":
+                self.historial.append(f"IA preguntó: '{json_response.get('texto')}'")
+                return json_response
+        return {"accion": "Rendirse", "texto": "Mi mente está en blanco. No puedo empezar."}
 
+    # ¡TU LÓGICA DE PROCESAR RESPUESTA!
     async def _procesar_respuesta_jugador(self, datos_peticion):
-        # El backend recibe el historial del frontend, pero no lo guarda localmente.
-        # Lo usa solo para esta llamada.
-        historial_del_frontend = datos_peticion.get("historial", [])
+        respuesta_jugador = datos_peticion.get("respuesta")
+        if not respuesta_jugador:
+            return {"error": "No se recibió respuesta del jugador."}
         
-        estado_juego_string = json.dumps(historial_del_frontend, indent=2, ensure_ascii=False)
+        # Actualiza el historial con la respuesta del jugador.
+        self.historial.append(f"Jugador respondió: '{respuesta_jugador}'")
         
-        # Simplificamos el prompt para que no dependa de un diario que no estamos guardando.
-        prompt = PROMPT_PROCESAR_RESPUESTA.format(
-            estado_juego_string=estado_juego_string,
-            diario_de_deduccion="Analiza el historial y decide el siguiente paso." # Texto genérico
-        )
+        diario_texto = "\n".join(self.historial)
+        prompt = PROMPT_PROCESAR_RESPUESTA_DEEP_THINK.format(diario_de_deduccion=diario_texto)
         
         raw_response = await self._llamar_g4f_con_reintentos_y_respaldo(prompt)
         if raw_response:
-            respuesta_ia = self._extraer_json(raw_response)
-            if respuesta_ia:
-                # ¡¡¡CORRECCIÓN!!! Devolvemos el JSON de la IA DIRECTAMENTE.
-                return respuesta_ia
+            json_response = self._extraer_json(raw_response)
+            if json_response:
+                deep_think = json_response.get("deep_think", "(Sin pensamiento)")
+                print(f"    🧠 Akinator Deep Think: {deep_think}")
+                
+                # Actualiza el historial con los pensamientos y la nueva pregunta de la IA.
+                self.historial.append(f"IA Deep Think: '{deep_think}'")
+                if json_response.get("accion") == "Preguntar":
+                    self.historial.append(f"IA preguntó: '{json_response.get('texto')}'")
+                
+                return json_response
         
         return {"accion": "Rendirse", "texto": "Me he perdido en mis propios pensamientos. Tú ganas."}
