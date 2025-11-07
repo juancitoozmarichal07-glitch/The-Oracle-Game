@@ -94,11 +94,10 @@ PROMPT_GENERADOR_SUGERENCIAS_ESTRATEGICO = """
 </context>
 <mandatory_json_response_format>{{{{ "sugerencias": ["¿Pregunta 1?", "¿Pregunta 2?", "¿Pregunta 3?", "¿Pregunta 4?", "¿Pregunta 5?"] }}}}</mandatory_json_response_format>
 """
-# CLASE ORACLE COMPLETA Y DEFINITIVA (v34.0 - Estrategia de Rotación por Juan)
-
 class Oracle:
     def __init__(self):
         self.personaje_actual_dossier = None
+        self._model_priority_list = [('gpt-4', 5)]
         self.character_categories = [
             "from a famous sci-fi movie", "from a popular fantasy book", "a historical figure from ancient times",
             "a famous cartoon character", "a main character from a well-known anime", "a Greek or Roman god",
@@ -107,46 +106,31 @@ class Oracle:
         
         if not os.path.exists(DOSSIER_PATH):
             os.makedirs(DOSSIER_PATH)
-            print(f"    📂 Carpeta 'dossiers' no encontrada. Se ha creado en: {DOSSIER_PATH}")
+        print("    - Especialista 'Oracle' (v35.0 - Confianza Ciega) listo.")
 
-        print(f"    - Especialista 'Oracle' (v34.0 - Rotación de Proveedores) listo.")
-
-    async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=60):
-        # ¡TU ESTRATEGIA! Una lista de proveedores gratuitos y fiables.
-        proveedores_confiables = [
-            g4f.Provider.You,
-            g4f.Provider.bing,
-            g4f.Provider.DuckDuckGo,
-            g4f.Provider.Llama,
-            g4f.Provider.OpenaiChat,
-        ]
+    async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=120):
+        print("    ⚙️ Dejando que g4f elija el proveedor por defecto...")
+        for model_name, num_retries in self._model_priority_list:
+            for attempt in range(num_retries):
+                try:
+                    print(f"    >> Intentando con '{model_name}' (Intento {attempt + 1}/{num_retries})...")
+                    
+                    response = await g4f.ChatCompletion.create_async(
+                        model=model_name,
+                        messages=[{"role": "user", "content": prompt_text}],
+                        timeout=timeout
+                    )
+                    
+                    if response and response.strip():
+                        print(f"    ✅ ¡Éxito! g4f encontró un proveedor que funciona.")
+                        return response
+                    raise ValueError("Respuesta vacía.")
+                except Exception as e:
+                    print(f"    ⚠️ Falló el intento {attempt + 1}. Error: {e}")
+                    if attempt < num_retries - 1:
+                        await asyncio.sleep(2)
         
-        # Barajamos la lista para que cada vez empiece por uno diferente.
-        random.shuffle(proveedores_confiables)
-        
-        print(f"    ⚙️ [Oracle] Iniciando estrategia de rotación. Orden: {[p.__name__ for p in proveedores_confiables]}")
-        
-        for provider_a_usar in proveedores_confiables:
-            try:
-                print(f"    >> [Oracle] Probando con: {provider_a_usar.__name__}...")
-                
-                response = await g4f.ChatCompletion.create_async(
-                    model=g4f.models.gpt_4,
-                    provider=provider_a_usar,
-                    messages=[{"role": "user", "content": prompt_text}],
-                    timeout=timeout
-                )
-
-                if response and response.strip():
-                    print(f"    ✅ [Oracle] ¡Éxito con {provider_a_usar.__name__}!")
-                    return response
-                raise ValueError("Respuesta vacía del proveedor.")
-
-            except Exception as e:
-                print(f"    ⚠️ [Oracle] Falló {provider_a_usar.__name__}. Error: {e}. Probando siguiente...")
-                continue
-        
-        print("    🚨 [Oracle] ¡Desastre! Todos los proveedores de confianza han fallado.")
+        print("    🚨 El ciclo interno de llamadas ha fallado.")
         return None
 
     def _extraer_json(self, texto_crudo):
@@ -171,7 +155,7 @@ class Oracle:
                     return json.loads(json_str_corregido)
                 else: return None
             except Exception as e2:
-                print(f"    🚨 Oracle: La auto-corrección también falló. Error: {e2}")
+                print(f"    🚨 La auto-corrección también falló. Error: {e2}")
                 return None
 
     def _normalizar_nombre_archivo(self, nombre):
@@ -222,11 +206,9 @@ class Oracle:
         return {"error": f"Acción '{accion}' no reconocida."}
 
     async def _iniciar_juego(self, datos_peticion=None):
-        max_intentos_plan_a = 2 # Reducimos a 2 para que los planes B y C se activen antes si hay problemas
+        max_intentos_plan_a = 2
         personaje_elegido = None
-
         print("✨ Iniciando nuevo juego con estrategia de resiliencia A-A / B / C...")
-
         for i in range(max_intentos_plan_a):
             print(f"    [Plan A - Intento {i+1}/{max_intentos_plan_a}] Intentando crear personaje nuevo.")
             personaje_elegido = await self._crear_y_guardar_personaje_autonomo()
@@ -236,7 +218,6 @@ class Oracle:
                 return {"status": "Juego iniciado", "personaje_secreto": personaje_elegido}
         
         print("    🚨 Todos los intentos del Plan A han fallado. Pasando a contingencia.")
-
         print("    [Plan B] Intentando reutilizar personaje existente.")
         try:
             dossiers_existentes = [f for f in os.listdir(DOSSIER_PATH) if f.endswith('.json')]
@@ -262,10 +243,8 @@ class Oracle:
         pregunta_jugador = datos_peticion.get("pregunta", "")
         dossier_personaje = datos_peticion.get("dossier_personaje")
         memoria_actual = datos_peticion.get("memoria", {})
-        
         if not dossier_personaje:
             return {"respuesta": "Los datos son confusos.", "aclaracion": "El Oráculo no tiene un enigma en mente.", "castigo": "ninguno"}
-
         memoria_largo_plazo_string = "\n".join(f"- {k}: {v}" for k, v in memoria_actual.items()) or "Ninguno"
         prompt = PROMPT_MAESTRO_ORACULO.format(
             dossier_string=json.dumps(dossier_personaje, ensure_ascii=False), 
@@ -273,28 +252,18 @@ class Oracle:
             memoria_largo_plazo_string=memoria_largo_plazo_string, 
             nombre_secreto=dossier_personaje.get("nombre", "")
         )
-        
         raw_response = await self._llamar_g4f_con_reintentos_y_respaldo(prompt)
         if raw_response:
             respuesta_ia = self._extraer_json(raw_response)
-            if respuesta_ia:
-                return respuesta_ia
-        
-        # Si después de rotar todos los proveedores no hay respuesta, devolvemos un error amigable.
-        return {"respuesta": "El cosmos está en silencio.", "aclaracion": "El Oráculo no puede responder en este momento.", "castigo": "ninguno"}
-
+            if respuesta_ia: return respuesta_ia
+        return {"respuesta": "El Oráculo está en silencio.", "aclaracion": "Las estrellas no responden.", "castigo": "ninguno"}
 
     async def _verificar_adivinanza(self, datos_peticion):
         self.personaje_actual_dossier = datos_peticion.get("dossier_personaje")
-        if not self.personaje_actual_dossier: 
-            return {"error": "El juego no se ha iniciado."}
-        
+        if not self.personaje_actual_dossier: return {"error": "El juego no se ha iniciado."}
         adivinanza_jugador = datos_peticion.get("adivinanza", "")
         nombre_secreto = self.personaje_actual_dossier.get("nombre", "")
-
         def normalizar_para_comparar(texto):
-            import unicodedata
-            import re
             if not isinstance(texto, str): return ""
             texto = texto.lower()
             try:
@@ -303,36 +272,25 @@ class Oracle:
                 texto_descompuesto = texto
             texto_limpio = re.sub(r'[^a-z0-9]', '', texto_descompuesto)
             return texto_limpio
-
         nombre_secreto_norm = normalizar_para_comparar(nombre_secreto)
         adivinanza_jugador_norm = normalizar_para_comparar(adivinanza_jugador)
-
         if adivinanza_jugador_norm and (adivinanza_jugador_norm in nombre_secreto_norm or nombre_secreto_norm in adivinanza_jugador_norm):
-            print(f"    ✅ ¡Adivinanza CORRECTA! Normalizado: '{adivinanza_jugador_norm}' vs Secreto: '{nombre_secreto_norm}'")
             return {"resultado": "victoria", "personaje_secreto": self.personaje_actual_dossier}
         else:
-            print(f"    🤔 Adivinanza fallida. Normalizado: '{adivinanza_jugador_norm}' vs Secreto: '{nombre_secreto_norm}'")
             return {"resultado": "derrota", "personaje_secreto": self.personaje_actual_dossier}
 
     async def _pedir_sugerencia(self, datos_peticion):
         dossier_personaje = datos_peticion.get("dossier_personaje")
         memoria_actual = datos_peticion.get("memoria", {})
-        
-        if not dossier_personaje: 
-            return {"error": "El juego no ha iniciado."}
-        
+        if not dossier_personaje: return {"error": "El juego no ha iniciado."}
         historial_texto = "\n".join(memoria_actual.keys()) or "Ninguna"
-        
         prompt = PROMPT_GENERADOR_SUGERENCIAS_ESTRATEGICO.format(
             dossier_string=json.dumps(dossier_personaje, ensure_ascii=False), 
             historial_texto=historial_texto
         )
-        
         raw_response = await self._llamar_g4f_con_reintentos_y_respaldo(prompt)
         if raw_response:
             respuesta_ia = self._extraer_json(raw_response)
             if respuesta_ia and "sugerencias" in respuesta_ia:
-                print(f"    ✅ Sugerencias generadas: {respuesta_ia['sugerencias']}")
                 return respuesta_ia
-
-        return {"error": "No se pudieron generar sugerencias."}
+        return {"sugerencias": ["El Oráculo no tiene nada que sugerir."]}
