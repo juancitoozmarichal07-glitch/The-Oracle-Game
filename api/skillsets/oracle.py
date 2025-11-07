@@ -94,12 +94,11 @@ PROMPT_GENERADOR_SUGERENCIAS_ESTRATEGICO = """
 </context>
 <mandatory_json_response_format>{{{{ "sugerencias": ["¿Pregunta 1?", "¿Pregunta 2?", "¿Pregunta 3?", "¿Pregunta 4?", "¿Pregunta 5?"] }}}}</mandatory_json_response_format>
 """
-# CLASE ORACLE COMPLETA Y DEFINITIVA (v32.0 - You Forzado)
+# CLASE ORACLE COMPLETA Y DEFINITIVA (v33.0 - Estrategia 'bing' por Juan)
 
 class Oracle:
     def __init__(self):
         self.personaje_actual_dossier = None
-        # Esta lista ahora es más un formalismo, ya que forzaremos el proveedor.
         self._model_priority_list = [('gpt-4', 5)]
         self.character_categories = [
             "from a famous sci-fi movie", "from a popular fantasy book", "a historical figure from ancient times",
@@ -111,13 +110,13 @@ class Oracle:
             os.makedirs(DOSSIER_PATH)
             print(f"    📂 Carpeta 'dossiers' no encontrada. Se ha creado en: {DOSSIER_PATH}")
 
-        print(f"    - Especialista 'Oracle' (v32.0 - You Forzado) listo.")
+        print(f"    - Especialista 'Oracle' (v33.0 - Estrategia 'bing') listo.")
         model_info = [f"{model}[{retries}]" for model, retries in self._model_priority_list]
         print(f"      Cola de modelos y reintentos: {' -> '.join(model_info)}")
 
     async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=60):
-        # Usamos el proveedor 'You', que es gratuito, fiable y verificado.
-        provider_a_usar = g4f.Provider.You
+        # ¡TU ESTRATEGIA! Usamos 'bing' (minúscula), que sabemos que g4f usa con éxito.
+        provider_a_usar = g4f.Provider.bing
         
         print(f"    ⚙️ Forzando el uso del proveedor: {provider_a_usar.__name__}")
         
