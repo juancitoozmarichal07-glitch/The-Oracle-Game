@@ -78,7 +78,7 @@ class Akinator:
     def __init__(self):
         self.estado_juego = {}
         self._model_priority_list = [('gpt-4', 5)]
-        print("    - Especialista 'Akinator' (v35.3 - Reparación de KeyError) listo.")
+        print("    - Especialista 'Akinator' (v36.0 - Lógica Corregida) listo.")
 
     async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=120):
         print("    ⚙️ Dejando que g4f elija el proveedor por defecto...")
@@ -113,19 +113,10 @@ class Akinator:
             if json_start == -1: return None
             json_str = texto_limpio[json_start:json_end]
             return json.loads(json_str)
-        except json.JSONDecodeError as e:
-            print(f"    ⚠️ Akinator JSON fallido. Error: {e}. Intentando auto-corrección...")
-            texto_corregido = re.sub(r'(?<=["\w\d}])\s*\n\s*(?=")', ',', texto_limpio)
-            try:
-                json_start = texto_corregido.find('{')
-                json_end = texto_corregido.rfind('}') + 1
-                if json_start != -1:
-                    json_str_corregido = texto_corregido[json_start:json_end]
-                    return json.loads(json_str_corregido)
-                else: return None
-            except Exception as e2:
-                print(f"    🚨 La auto-corrección también falló. Error: {e2}")
-                return None
+        except json.JSONDecodeError:
+            # Si falla la extracción, no devolvemos nada. Esto fuerza el mensaje de error.
+            print(f"    🚨 Akinator no pudo extraer un JSON válido de la respuesta de la IA.")
+            return None
 
     async def ejecutar(self, datos_peticion):
         accion = datos_peticion.get("accion")
@@ -137,17 +128,16 @@ class Akinator:
 
     async def _iniciar_juego_clasico(self):
         self.estado_juego = {"historial": [], "diario_deduccion": "Inicio del juego."}
+        # Usamos el prompt "Anti-Rebeldía" que es más robusto
         raw_response = await self._llamar_g4f_con_reintentos_y_respaldo(PROMPT_INICIO_CLASICO)
         if raw_response:
             respuesta_ia = self._extraer_json(raw_response)
             if respuesta_ia:
-                self.estado_juego["historial"].append({"pregunta": respuesta_ia.get("texto", "")})
-                # Devolvemos la respuesta y el estado inicial
-                return {
-                    "respuesta_ia": respuesta_ia,
-                    "estado_juego_actualizado": self.estado_juego
-                }
-        return {"accion": "Rendirse", "texto": "Mi mente está en blanco. No puedo empezar."}
+                # ¡¡¡CORRECCIÓN!!! Devolvemos el JSON de la IA DIRECTAMENTE.
+                return respuesta_ia
+        
+        # Si algo falla, devolvemos el mensaje de error estándar que el frontend espera.
+        return {"accion": "Rendirse", "texto": "Mi mente está confusa. Vuelve al menú e inténtalo de nuevo."}
 
     async def _procesar_respuesta_jugador(self, datos_peticion):
         respuesta_jugador = datos_peticion.get("respuesta", "")
@@ -160,7 +150,6 @@ class Akinator:
 
         self.estado_juego["historial"][-1]["respuesta"] = respuesta_jugador
         
-        # --- INICIO DE LA CORRECCIÓN DEL KEYERROR ---
         estado_juego_string = json.dumps(self.estado_juego["historial"], indent=2, ensure_ascii=False)
         diario_de_deduccion = self.estado_juego.get("diario_deduccion", "Sin deducciones previas.")
 
@@ -168,19 +157,12 @@ class Akinator:
             estado_juego_string=estado_juego_string,
             diario_de_deduccion=diario_de_deduccion
         )
-        # --- FIN DE LA CORRECCIÓN DEL KEYERROR ---
         
         raw_response = await self._llamar_g4f_con_reintentos_y_respaldo(prompt)
         if raw_response:
             respuesta_ia = self._extraer_json(raw_response)
             if respuesta_ia:
-                self.estado_juego["diario_deduccion"] = respuesta_ia.get("deep_think", diario_de_deduccion)
-                if respuesta_ia.get("accion") == "Preguntar":
-                    self.estado_juego["historial"].append({"pregunta": respuesta_ia.get("texto", "")})
-                
-                return {
-                    "respuesta_ia": respuesta_ia,
-                    "estado_juego_actualizado": self.estado_juego
-                }
+                # ¡¡¡CORRECCIÓN!!! Devolvemos el JSON de la IA DIRECTAMENTE.
+                return respuesta_ia
         
         return {"accion": "Rendirse", "texto": "Me he perdido en mis propios pensamientos. Tú ganas."}
