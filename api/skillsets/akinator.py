@@ -85,33 +85,33 @@ class Akinator:
         print(f"      Cola de modelos y reintentos: {' -> '.join(model_info)}")
 
     async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=60):
-        print(f"    ⚙️ [Akinator] Forzando el uso del proveedor: g4f.Provider.Bing")
-        
-        model_priority_list = [('gpt-4', 5)] 
+    async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=60):
+    print(f"    ⚙️ Forzando el uso del proveedor: g4f.Provider.GptGo")
+    
+    for model_name, num_retries in self._model_priority_list:
+        for attempt in range(num_retries):
+            try:
+                print(f"    >> Oracle: Intentando con '{model_name}' vía GptGo (Intento {attempt + 1}/{num_retries})...")
+                
+                response = await g4f.ChatCompletion.create_async(
+                    model=g4f.models.gpt_4,
+                    provider=g4f.Provider.GptGo, # <-- ¡EL CAMBIO!
+                    messages=[{"role": "user", "content": prompt_text}],
+                    timeout=timeout
+                )
 
-        for model_name, num_retries in model_priority_list:
-            for attempt in range(num_retries):
-                try:
-                    print(f"    >> Akinator: Intentando con '{model_name}' vía Bing (Intento {attempt + 1}/{num_retries})...")
-                    
-                    response = await g4f.ChatCompletion.create_async(
-                        model=g4f.models.gpt_4,
-                        provider=g4f.Provider.Bing,
-                        messages=[{"role": "user", "content": prompt_text}],
-                        timeout=timeout
-                    )
+                if response and response.strip():
+                    print(f"    ✅ Oracle: Éxito con '{model_name}' vía GptGo.")
+                    return response
+                raise ValueError("Respuesta inválida o vacía del modelo.")
+            except Exception as e:
+                print(f"    ⚠️ Oracle: Falló '{model_name}' en el intento {attempt + 1}. Error: {e}")
+                if attempt < num_retries - 1:
+                    await asyncio.sleep(2)
+    
+    print("    🚨 Oracle: El ciclo interno de llamadas ha fallado.")
+    return None
 
-                    if response and response.strip():
-                        print(f"    ✅ Akinator: Éxito con '{model_name}' vía Bing.")
-                        return response
-                    raise ValueError("Respuesta inválida o vacía del modelo.")
-                except Exception as e:
-                    print(f"    ⚠️ Akinator: Falló '{model_name}' en el intento {attempt + 1}. Error: {e}")
-                    if attempt < num_retries - 1:
-                        await asyncio.sleep(2)
-        
-        print("    🚨 Akinator: El ciclo interno de llamadas ha fallado.")
-        return None
 
     def _extraer_json(self, texto_crudo):
         # Reutilizamos la misma lógica robusta de extracción de JSON que en Oracle
