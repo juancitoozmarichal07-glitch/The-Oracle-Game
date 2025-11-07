@@ -1,128 +1,88 @@
 # ===================================================================
-# ==         MAIN.PY - VERSIÓN DE DEPURACIÓN TOTAL               ==
+# ==         MAIN.PY - VERSIÓN ESENCIAL Y ROBUSTA                ==
 # ===================================================================
-# - OBJETIVO: Encontrar el error final en Render.
-# - LOGGING AGRESIVO: Cada paso se imprime en la consola.
-# - CAPTURA DE ERRORES: Un bloque try/except gigante para que nada se escape.
+# - OBJETIVO: Funcionar en Render de forma limpia y estable.
+# - MINIMALISTA: Solo carga los skillsets y expone la API.
+# - A PRUEBA DE BALAS: Configuración de CORS y rutas estándar.
 # ===================================================================
 
-import os
 import sys
-import asyncio
-import traceback
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-# --- 1. CONFIGURACIÓN DE RUTA (A PRUEBA DE BALAS) ---
-# Esto asegura que Python siempre encuentre la carpeta 'skillsets'
+# --- 1. CONFIGURACIÓN DE RUTA ---
+# Asegura que Python encuentre la carpeta 'skillsets' desde Render.
 try:
+    # Obtiene la ruta del directorio actual (donde está main.py, es decir, /api)
     current_dir = os.path.dirname(os.path.abspath(__file__))
+    # Sube un nivel para llegar a la raíz del proyecto
     project_root = os.path.abspath(os.path.join(current_dir, '..'))
+    # Añade la raíz del proyecto al path de Python
     if project_root not in sys.path:
         sys.path.insert(0, project_root)
-    print("✅ [LOG] Rutas del proyecto configuradas correctamente.")
-except Exception as e:
-    print(f"🚨 [ERROR CRÍTICO] Fallo al configurar las rutas del sistema: {e}")
-    sys.exit(1)
+except Exception:
+    # Si esto falla, la aplicación no puede arrancar.
+    sys.exit("Error crítico: No se pudieron configurar las rutas del proyecto.")
 
-# --- 2. IMPORTACIÓN DE SKILLSETS (SOLO LO QUE EXISTE) ---
+# --- 2. IMPORTACIÓN DE SKILLSETS ---
+# Importamos los skillsets usando la ruta relativa desde la raíz.
 try:
     from api.skillsets.oracle import Oracle
     from api.skillsets.akinator import Akinator
-    print("✅ [LOG] Skillsets 'Oracle' y 'Akinator' importados correctamente.")
-except ModuleNotFoundError as e:
-    print(f"🚨 [ERROR CRÍTICO] No se encontró un archivo de skillset: {e}")
-    print("   Asegúrate de que 'oracle.py' y 'akinator.py' están en 'api/skillsets'.")
-    sys.exit(1)
-except Exception as e:
-    print(f"🚨 [ERROR CRÍTICO] Fallo inesperado al importar skillsets: {e}")
-    sys.exit(1)
+except ModuleNotFoundError:
+    sys.exit("Error crítico: No se encontró 'oracle.py' o 'akinator.py' en 'api/skillsets/'.")
 
 
 # --- 3. INICIALIZACIÓN DE FLASK Y CORS ---
 app = Flask(__name__)
-# Habilitamos CORS para toda la aplicación, aceptando peticiones de cualquier origen.
-CORS(app, resources={r"/*": {"origins": "*"}})
-print("✅ [LOG] Flask y CORS inicializados.")
+# Habilita CORS para todas las rutas y orígenes. Es la configuración más permisiva.
+CORS(app)
 
-# --- 4. MOTOR SIMPLE Y DIRECTO ---
+
+# --- 4. CARGA DE LOS SKILLSETS ---
+# Creamos las instancias de nuestros skillsets.
 try:
     skillsets_cargados = {
         "oracle": Oracle(),
         "akinator": Akinator()
     }
-    print(f"✅ [LOG] Motor listo con skillsets: {list(skillsets_cargados.keys())}")
 except Exception as e:
-    print(f"🚨 [ERROR CRÍTICO] Fallo al inicializar los skillsets: {e}")
-    traceback.print_exc()
-    # Continuamos para que la app al menos arranque y podamos ver otros errores.
-    skillsets_cargados = {}
+    sys.exit(f"Error crítico al inicializar un skillset: {e}")
 
 
-# --- 5. RUTA DE LA API (CON SÚPER-DEPURACIÓN) ---
-@app.route('/api/execute', methods=['POST', 'OPTIONS'])
+# --- 5. RUTA PRINCIPAL DE LA API ---
+# Esta es la ruta que tu juego llamará. Es asíncrona para ser compatible con tus skillsets.
+@app.route('/api/execute', methods=['POST'])
 async def api_execute():
-    print("\n--- [LOG] INICIO DE PETICIÓN A /api/execute ---")
-
-    if request.method == 'OPTIONS':
-        print("-> [LOG] Recibida petición OPTIONS (pre-vuelo CORS). Respondiendo OK.")
-        return ('', 204, {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type',
-        })
-
     try:
-        print("-> [LOG] Recibida petición POST. Procesando...")
-        
-        # Verificamos los headers para depuración
-        print(f"-> [LOG] Headers de la petición: {request.headers}")
-
         datos_peticion = request.get_json()
         if not datos_peticion:
-            print("🚨 [ERROR] La petición no contenía un cuerpo JSON válido.")
-            return jsonify({"error": "Petición sin JSON."}), 400
-
-        print(f"-> [LOG] Cuerpo JSON recibido: {datos_peticion}")
+            return jsonify({"error": "Petición sin cuerpo JSON."}), 400
 
         target_skillset = datos_peticion.get("skillset_target")
-        print(f"-> [LOG] Petición para el skillset: '{target_skillset}'")
-
         skillset_instance = skillsets_cargados.get(target_skillset)
+
         if not skillset_instance:
-            print(f"🚨 [ERROR] Skillset '{target_skillset}' no encontrado en la lista de skillsets cargados.")
             return jsonify({"error": f"Skillset '{target_skillset}' no encontrado."}), 404
 
-        print(f"-> [LOG] Ejecutando el skillset '{target_skillset}'...")
+        # Ejecutamos el skillset de forma asíncrona
         respuesta = await skillset_instance.ejecutar(datos_peticion)
-        print(f"-> [LOG] Skillset ejecutado. Respuesta obtenida (primeros 200 chars): {str(respuesta)[:200]}...")
-        
-        print("-> [LOG] Enviando respuesta JSON al cliente.")
         return jsonify(respuesta)
 
     except Exception as e:
-        # ESTE ES EL BLOQUE MÁS IMPORTANTE
-        print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("!!!!      ERROR CATASTRÓFICO EN /api/execute      !!!!")
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(f"TIPO DE ERROR: {type(e).__name__}")
-        print(f"MENSAJE DE ERROR: {e}")
-        print("--- TRACEBACK COMPLETO ---")
-        traceback.print_exc()
-        print("--------------------------\n")
-        return jsonify({"error": "Error interno del servidor. Revisa los logs de Render."}), 500
+        # Si algo falla dentro de la ejecución, devolvemos un error 500.
+        return jsonify({"error": "Error interno del servidor.", "detalle": str(e)}), 500
 
-# --- 6. RUTA DE VERIFICACIÓN (para saber si el servidor está vivo) ---
+
+# --- 6. RUTA DE VERIFICACIÓN DE SALUD ---
+# Render usará esta ruta para saber si tu servicio está vivo.
 @app.route('/')
-def index():
-    print("-> [LOG] Petición a la ruta raíz ('/'). Respondiendo que el motor está vivo.")
-    return "<h1>El motor de la API está vivo y en modo DEPURACIÓN.</h1>"
+def health_check():
+    return "<h1>API Engine is alive.</h1>"
 
-# --- 7. PUNTO DE ENTRADA PARA EL SERVIDOR ---
+# --- 7. PUNTO DE ENTRADA (SOLO PARA PRUEBAS LOCALES) ---
+# Render ignorará esto y usará el "Start Command" que le dimos.
 if __name__ == '__main__':
-    # Esto es solo para pruebas locales, Render usará el "Start Command"
-    print("⚠️ [AVISO] Ejecutando en modo de desarrollo local de Flask.")
     app.run(host='0.0.0.0', port=8080, debug=True)
-else:
-    print("✅ [LOG] Aplicación Flask lista para ser servida por un servidor de producción (Gunicorn/Flask).")
 
