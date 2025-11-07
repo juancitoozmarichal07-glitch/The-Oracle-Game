@@ -94,9 +94,12 @@ PROMPT_GENERADOR_SUGERENCIAS_ESTRATEGICO = """
 </context>
 <mandatory_json_response_format>{{{{ "sugerencias": ["¿Pregunta 1?", "¿Pregunta 2?", "¿Pregunta 3?", "¿Pregunta 4?", "¿Pregunta 5?"] }}}}</mandatory_json_response_format>
 """
+# CLASE ORACLE COMPLETA Y DEFINITIVA (v32.0 - You Forzado)
+
 class Oracle:
     def __init__(self):
         self.personaje_actual_dossier = None
+        # Esta lista ahora es más un formalismo, ya que forzaremos el proveedor.
         self._model_priority_list = [('gpt-4', 5)]
         self.character_categories = [
             "from a famous sci-fi movie", "from a popular fantasy book", "a historical figure from ancient times",
@@ -108,27 +111,30 @@ class Oracle:
             os.makedirs(DOSSIER_PATH)
             print(f"    📂 Carpeta 'dossiers' no encontrada. Se ha creado en: {DOSSIER_PATH}")
 
-        print(f"    - Especialista 'Oracle' (v31.2 - GptGo Forzado) listo.")
+        print(f"    - Especialista 'Oracle' (v32.0 - You Forzado) listo.")
         model_info = [f"{model}[{retries}]" for model, retries in self._model_priority_list]
         print(f"      Cola de modelos y reintentos: {' -> '.join(model_info)}")
 
     async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=60):
-        print(f"    ⚙️ Forzando el uso del proveedor: g4f.Provider.GptGo")
+        # Usamos el proveedor 'You', que es gratuito, fiable y verificado.
+        provider_a_usar = g4f.Provider.You
+        
+        print(f"    ⚙️ Forzando el uso del proveedor: {provider_a_usar.__name__}")
         
         for model_name, num_retries in self._model_priority_list:
             for attempt in range(num_retries):
                 try:
-                    print(f"    >> Oracle: Intentando con '{model_name}' vía GptGo (Intento {attempt + 1}/{num_retries})...")
+                    print(f"    >> Oracle: Intentando con '{model_name}' vía {provider_a_usar.__name__} (Intento {attempt + 1}/{num_retries})...")
                     
                     response = await g4f.ChatCompletion.create_async(
                         model=g4f.models.gpt_4,
-                        provider=g4f.Provider.GptGo,
+                        provider=provider_a_usar, # ¡LA LÍNEA CLAVE Y CORRECTA!
                         messages=[{"role": "user", "content": prompt_text}],
                         timeout=timeout
                     )
 
                     if response and response.strip():
-                        print(f"    ✅ Oracle: Éxito con '{model_name}' vía GptGo.")
+                        print(f"    ✅ Oracle: Éxito con '{model_name}' vía {provider_a_usar.__name__}.")
                         return response
                     raise ValueError("Respuesta inválida o vacía del modelo.")
                 except Exception as e:
