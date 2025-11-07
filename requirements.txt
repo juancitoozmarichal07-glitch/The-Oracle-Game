@@ -3,3 +3,4 @@ Flask[async]
 Flask-Cors
 g4f==6.5.7
 typing_extensions
+gevent
