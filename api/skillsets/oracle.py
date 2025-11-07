@@ -113,18 +113,26 @@ class Oracle:
         model_info = [f"{model}[{retries}]" for model, retries in self._model_priority_list]
         print(f"      Cola de modelos y reintentos: {' -> '.join(model_info)}")
 
-    async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=60):
+        async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=60):
+        # ¡NUEVA LÍNEA DE DEPURACIÓN!
+        print(f"    ⚙️ Forzando el uso del proveedor: g4f.Provider.Bing")
+        
         for model_name, num_retries in self._model_priority_list:
             for attempt in range(num_retries):
                 try:
-                    print(f"    >> Oracle: Intentando con '{model_name}' (Intento {attempt + 1}/{num_retries})...")
+                    print(f"    >> Oracle: Intentando con '{model_name}' vía Bing (Intento {attempt + 1}/{num_retries})...")
+                    
+                    # --- ¡AQUÍ ESTÁ EL CAMBIO CLAVE! ---
                     response = await g4f.ChatCompletion.create_async(
-                        model=model_name,
+                        model=g4f.models.gpt_4,      # Usamos un modelo conocido y potente
+                        provider=g4f.Provider.Bing,  # Forzamos el proveedor para reducir memoria
                         messages=[{"role": "user", "content": prompt_text}],
                         timeout=timeout
                     )
+                    # ------------------------------------
+
                     if response and response.strip():
-                        print(f"    ✅ Oracle: Éxito con '{model_name}'.")
+                        print(f"    ✅ Oracle: Éxito con '{model_name}' vía Bing.")
                         return response
                     raise ValueError("Respuesta inválida o vacía del modelo.")
                 except Exception as e:
@@ -134,6 +142,7 @@ class Oracle:
         
         print("    🚨 Oracle: El ciclo interno de llamadas ha fallado.")
         return None
+
 
     def _extraer_json(self, texto_crudo):
         if not texto_crudo:
