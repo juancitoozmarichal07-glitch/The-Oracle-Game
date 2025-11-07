@@ -76,9 +76,11 @@ You are a master detective game master (like Akinator). Your goal is to deduce t
 
 class Akinator:
     def __init__(self):
+        # El estado del juego ahora es un atributo de la instancia.
+        # Esto es clave para la persistencia entre llamadas.
         self.estado_juego = {}
         self._model_priority_list = [('gpt-4', 5)]
-        print("    - Especialista 'Akinator' (v36.0 - Lógica Corregida) listo.")
+        print("    - Especialista 'Akinator' (v37.0 - Con Memoria) listo.")
 
     async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=120):
         print("    ⚙️ Dejando que g4f elija el proveedor por defecto...")
@@ -114,7 +116,6 @@ class Akinator:
             json_str = texto_limpio[json_start:json_end]
             return json.loads(json_str)
         except json.JSONDecodeError:
-            # Si falla la extracción, no devolvemos nada. Esto fuerza el mensaje de error.
             print(f"    🚨 Akinator no pudo extraer un JSON válido de la respuesta de la IA.")
             return None
 
@@ -127,28 +128,34 @@ class Akinator:
         return {"error": f"Acción '{accion}' no reconocida por Akinator."}
 
     async def _iniciar_juego_clasico(self):
+        # 1. Reinicia el estado del juego
         self.estado_juego = {"historial": [], "diario_deduccion": "Inicio del juego."}
-        # Usamos el prompt "Anti-Rebeldía" que es más robusto
+        
         raw_response = await self._llamar_g4f_con_reintentos_y_respaldo(PROMPT_INICIO_CLASICO)
         if raw_response:
             respuesta_ia = self._extraer_json(raw_response)
             if respuesta_ia:
-                # ¡¡¡CORRECCIÓN!!! Devolvemos el JSON de la IA DIRECTAMENTE.
-                return respuesta_ia
+                # 2. Guarda la primera pregunta en el historial
+                self.estado_juego["historial"].append({"pregunta": respuesta_ia.get("texto", "")})
+                
+                # 3. ¡¡¡CORRECCIÓN CLAVE!!! Devuelve la respuesta Y el estado inicial.
+                return {
+                    "respuesta_ia": respuesta_ia,
+                    "estado_juego_actualizado": self.estado_juego
+                }
         
-        # Si algo falla, devolvemos el mensaje de error estándar que el frontend espera.
         return {"accion": "Rendirse", "texto": "Mi mente está confusa. Vuelve al menú e inténtalo de nuevo."}
 
     async def _procesar_respuesta_jugador(self, datos_peticion):
-        respuesta_jugador = datos_peticion.get("respuesta", "")
-        estado_remoto = datos_peticion.get("estado_juego", {})
+        # 1. Carga el estado que manda el frontend (¡la memoria!)
+        self.estado_juego = datos_peticion.get("estado_juego", {})
         
-        self.estado_juego = estado_remoto
-        
-        if "historial" not in self.estado_juego or not self.estado_juego["historial"]:
+        if not self.estado_juego or "historial" not in self.estado_juego or not self.estado_juego["historial"]:
+             # Si no hay memoria, es un error, reiniciamos.
              return await self._iniciar_juego_clasico()
 
-        self.estado_juego["historial"][-1]["respuesta"] = respuesta_jugador
+        # 2. Guarda la respuesta del jugador en el último elemento del historial
+        self.estado_juego["historial"][-1]["respuesta"] = datos_peticion.get("respuesta", "")
         
         estado_juego_string = json.dumps(self.estado_juego["historial"], indent=2, ensure_ascii=False)
         diario_de_deduccion = self.estado_juego.get("diario_deduccion", "Sin deducciones previas.")
@@ -162,7 +169,16 @@ class Akinator:
         if raw_response:
             respuesta_ia = self._extraer_json(raw_response)
             if respuesta_ia:
-                # ¡¡¡CORRECCIÓN!!! Devolvemos el JSON de la IA DIRECTAMENTE.
-                return respuesta_ia
+                # 3. Actualiza el estado con la nueva información de la IA
+                self.estado_juego["diario_deduccion"] = respuesta_ia.get("deep_think", diario_de_deduccion)
+                if respuesta_ia.get("accion") == "Preguntar":
+                    self.estado_juego["historial"].append({"pregunta": respuesta_ia.get("texto", "")})
+                
+                # 4. ¡¡¡CORRECCIÓN CLAVE!!! Devuelve la respuesta Y el estado actualizado.
+                return {
+                    "respuesta_ia": respuesta_ia,
+                    "estado_juego_actualizado": self.estado_juego
+                }
         
         return {"accion": "Rendirse", "texto": "Me he perdido en mis propios pensamientos. Tú ganas."}
+
