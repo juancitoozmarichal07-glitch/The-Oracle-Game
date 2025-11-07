@@ -1,14 +1,14 @@
-# skillsets/akinator.py - v2.6 (Estructura Unificada por Manus)
-# CORRECCIÓN: Se unifican todos los métodos en una sola definición de clase
-# y se refactoriza el método `ejecutar` para que sea el único punto de entrada.
+# skillsets/akinator.py - v35.2 (Corrección Final de Prompts por Manus)
+# Se mantiene la esencia del código del usuario, pero se corrigen los nombres
+# de las variables de los prompts para que coincidan con las llamadas en las funciones.
 
 import g4f
 import asyncio
 import json
 import re
 
-# --- PROMPTS DE IA (SIN CAMBIOS) ---
-PROMPT_INICIAR_JUEGO = """
+# --- PROMPTS DE IA (NOMBRES CORREGIDOS Y UNIFICADOS) ---
+PROMPT_INICIO_CLASICO = """
 <task>You are a game master like the classic game "Akinator". Your goal is to guess the character the user is thinking of by asking a series of Yes/No questions.</task>
 <instruction>
 You are about to ask your very first question. To start the game efficiently, your first question MUST be about the character's reality.
@@ -24,10 +24,7 @@ Follow these strict rules:
 </mandatory_json_response_format>
 """
 
-# --- REEMPLAZA ESTE PROMPT EN AKINATOR.PY ---
-# En akinator.py
-
-PROMPT_PROCESAR_RESPUESTA_DEEP_THINK = """
+PROMPT_PROCESAR_RESPUESTA = """
 <task>
 You are a master detective game master (like Akinator). Your goal is to deduce the character the user is thinking of.
 </task>
@@ -75,6 +72,120 @@ You are a master detective game master (like Akinator). Your goal is to deduce t
 }}
 </json_formats>
 """
+
+class Akinator:
+    def __init__(self):
+        self.estado_juego = {}
+        self._model_priority_list = [('gpt-4', 5)]
+        print("    - Especialista 'Akinator' (v35.2 - Confianza Ciega Corregida) listo.")
+
+    async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=120):
+        print("    ⚙️ Dejando que g4f elija el proveedor por defecto...")
+        for model_name, num_retries in self._model_priority_list:
+            for attempt in range(num_retries):
+                try:
+                    print(f"    >> Intentando con '{model_name}' (Intento {attempt + 1}/{num_retries})...")
+                    
+                    response = await g4f.ChatCompletion.create_async(
+                        model=model_name,
+                        messages=[{"role": "user", "content": prompt_text}],
+                        timeout=timeout
+                    )
+                    
+                    if response and response.strip():
+                        print(f"    ✅ ¡Éxito! g4f encontró un proveedor que funciona.")
+                        return response
+                    raise ValueError("Respuesta vacía.")
+                except Exception as e:
+                    print(f"    ⚠️ Falló el intento {attempt + 1}. Error: {e}")
+                    if attempt < num_retries - 1:
+                        await asyncio.sleep(2)
+        
+        print("    🚨 El ciclo interno de llamadas ha fallado.")
+        return None
+
+    def _extraer_json(self, texto_crudo):
+        if not texto_crudo: return None
+        texto_limpio = texto_crudo.strip()
+        if texto_limpio.startswith('{{') and texto_limpio.endswith('}}'):
+            texto_limpio = texto_limpio[1:-1]
+        try:
+            json_start = texto_limpio.find('{')
+            json_end = texto_limpio.rfind('}') + 1
+            if json_start == -1: return None
+            json_str = texto_limpio[json_start:json_end]
+            return json.loads(json_str)
+        except json.JSONDecodeError as e:
+            print(f"    ⚠️ Akinator JSON fallido. Error: {e}. Intentando auto-corrección...")
+            texto_corregido = re.sub(r'(?<=["\w\d}])\s*\n\s*(?=")', ',', texto_limpio)
+            try:
+                json_start = texto_corregido.find('{')
+                json_end = texto_corregido.rfind('}') + 1
+                if json_start != -1:
+                    json_str_corregido = texto_corregido[json_start:json_end]
+                    return json.loads(json_str_corregido)
+                else: return None
+            except Exception as e2:
+                print(f"    🚨 La auto-corrección también falló. Error: {e2}")
+                return None
+
+    async def ejecutar(self, datos_peticion):
+        accion = datos_peticion.get("accion")
+        if accion == "iniciar_juego_clasico":
+            return await self._iniciar_juego_clasico()
+        elif accion == "procesar_respuesta_jugador":
+            return await self._procesar_respuesta_jugador(datos_peticion)
+        return {"error": f"Acción '{accion}' no reconocida por Akinator."}
+
+    async def _iniciar_juego_clasico(self):
+        self.estado_juego = {"historial": [], "diario_deduccion": "Inicio del juego."}
+        # ¡CORREGIDO! Ahora usa la variable correcta.
+        raw_response = await self._llamar_g4f_con_reintentos_y_respaldo(PROMPT_INICIO_CLASICO)
+        if raw_response:
+            respuesta_ia = self._extraer_json(raw_response)
+            if respuesta_ia:
+                self.estado_juego["historial"].append({"pregunta": respuesta_ia.get("texto", "")})
+                return respuesta_ia
+        return {"accion": "Rendirse", "texto": "Mi mente está en blanco. No puedo empezar."}
+
+    async def _procesar_respuesta_jugador(self, datos_peticion):
+        respuesta_jugador = datos_peticion.get("respuesta", "")
+        estado_remoto = datos_peticion.get("estado_juego", {})
+        
+        # Sincronizamos el estado local con el que viene del frontend
+        self.estado_juego = estado_remoto
+        
+        if "historial" not in self.estado_juego or not self.estado_juego["historial"]:
+             return await self._iniciar_juego_clasico()
+
+        self.estado_juego["historial"][-1]["respuesta"] = respuesta_jugador
+        
+        estado_juego_string = json.dumps(self.estado_juego["historial"], indent=2, ensure_ascii=False)
+        diario_de_deduccion = self.estado_juego.get("diario_deduccion", "Sin deducciones previas.")
+
+        # ¡CORREGIDO! Ahora usa la variable correcta.
+        prompt = PROMPT_PROCESAR_RESPUESTA.format(
+            estado_juego_string=estado_juego_string,
+            diario_de_deduccion=diario_de_deduccion
+        )
+        
+        raw_response = await self._llamar_g4f_con_reintentos_y_respaldo(prompt)
+        if raw_response:
+            respuesta_ia = self._extraer_json(raw_response)
+            if respuesta_ia:
+                # Actualizamos el diario de deducción para la siguiente ronda
+                self.estado_juego["diario_deduccion"] = respuesta_ia.get("deep_think", diario_de_deduccion)
+                if respuesta_ia.get("accion") == "Preguntar":
+                    self.estado_juego["historial"].append({"pregunta": respuesta_ia.get("texto", "")})
+                
+                # Devolvemos la respuesta de la IA junto con el estado actualizado del juego
+                return {
+                    "respuesta_ia": respuesta_ia,
+                    "estado_juego_actualizado": self.estado_juego
+                }
+        
+        return {"accion": "Rendirse", "texto": "Me he perdido en mis propios pensamientos. Tú ganas."}
+
 class Akinator:
     def __init__(self):
         self.estado_juego = {}
