@@ -28,8 +28,8 @@ except Exception:
 # --- 2. IMPORTACIÓN DE SKILLSETS ---
 # Importamos los skillsets usando la ruta relativa desde la raíz.
 try:
-    from skillsets.oracle import Oracle
-    from skillsets.akinator import Akinator
+    from api.skillsets.oracle import Oracle
+    from api.skillsets.akinator import Akinator
 except ModuleNotFoundError:
     sys.exit("Error crítico: No se encontró 'oracle.py' o 'akinator.py' en 'api/skillsets/'.")
 
