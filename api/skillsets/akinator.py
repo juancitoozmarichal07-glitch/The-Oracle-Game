@@ -75,43 +75,43 @@ You are a master detective game master (like Akinator). Your goal is to deduce t
 }}
 </json_formats>
 """
-# Pega esta clase completa en tu archivo akinator.py
+# Reemplaza la clase Akinator entera con este bloque
 
 class Akinator:
     def __init__(self):
         # Puedes añadir cualquier inicialización que necesites aquí
-        print(f"    - Especialista 'Akinator' (v3.0 - Proveedor Forzado) listo.")
+        print(f"    - Especialista 'Akinator' (v3.1 - GptGo Forzado) listo.")
         model_info = [f"{model}[{retries}]" for model, retries in [('gpt-4', 5)]]
         print(f"      Cola de modelos y reintentos: {' -> '.join(model_info)}")
 
     async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=60):
-    async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=60):
-    print(f"    ⚙️ Forzando el uso del proveedor: g4f.Provider.GptGo")
-    
-    for model_name, num_retries in self._model_priority_list:
-        for attempt in range(num_retries):
-            try:
-                print(f"    >> Oracle: Intentando con '{model_name}' vía GptGo (Intento {attempt + 1}/{num_retries})...")
-                
-                response = await g4f.ChatCompletion.create_async(
-                    model=g4f.models.gpt_4,
-                    provider=g4f.Provider.GptGo, # <-- ¡EL CAMBIO!
-                    messages=[{"role": "user", "content": prompt_text}],
-                    timeout=timeout
-                )
+        print(f"    ⚙️ [Akinator] Forzando el uso del proveedor: g4f.Provider.GptGo")
+        
+        model_priority_list = [('gpt-4', 5)] 
 
-                if response and response.strip():
-                    print(f"    ✅ Oracle: Éxito con '{model_name}' vía GptGo.")
-                    return response
-                raise ValueError("Respuesta inválida o vacía del modelo.")
-            except Exception as e:
-                print(f"    ⚠️ Oracle: Falló '{model_name}' en el intento {attempt + 1}. Error: {e}")
-                if attempt < num_retries - 1:
-                    await asyncio.sleep(2)
-    
-    print("    🚨 Oracle: El ciclo interno de llamadas ha fallado.")
-    return None
+        for model_name, num_retries in model_priority_list:
+            for attempt in range(num_retries):
+                try:
+                    print(f"    >> Akinator: Intentando con '{model_name}' vía GptGo (Intento {attempt + 1}/{num_retries})...")
+                    
+                    response = await g4f.ChatCompletion.create_async(
+                        model=g4f.models.gpt_4,
+                        provider=g4f.Provider.GptGo,
+                        messages=[{"role": "user", "content": prompt_text}],
+                        timeout=timeout
+                    )
 
+                    if response and response.strip():
+                        print(f"    ✅ Akinator: Éxito con '{model_name}' vía GptGo.")
+                        return response
+                    raise ValueError("Respuesta inválida o vacía del modelo.")
+                except Exception as e:
+                    print(f"    ⚠️ Akinator: Falló '{model_name}' en el intento {attempt + 1}. Error: {e}")
+                    if attempt < num_retries - 1:
+                        await asyncio.sleep(2)
+        
+        print("    🚨 Akinator: El ciclo interno de llamadas ha fallado.")
+        return None
 
     def _extraer_json(self, texto_crudo):
         # Reutilizamos la misma lógica robusta de extracción de JSON que en Oracle
@@ -126,24 +126,30 @@ class Akinator:
             json_str = texto_limpio[json_start:json_end]
             return json.loads(json_str)
         except json.JSONDecodeError:
-            return None # En Akinator, si el JSON falla, es mejor no intentar adivinar.
+            return None
 
     async def ejecutar(self, datos_peticion):
         accion = datos_peticion.get("accion")
         
-        # Aquí iría la lógica de tus prompts para Akinator
-        # Como no la tengo, crearé una respuesta de ejemplo para que la estructura funcione
+        # =================================================================
+        # ¡OJO! Esta parte es una SIMULACIÓN. 
+        # Debes reemplazarla con tus prompts y lógica reales de Akinator.
+        # =================================================================
         
         if accion == "iniciar_juego_clasico":
             # Ejemplo: El juego siempre empieza con la misma pregunta
-            return {"accion": "Preguntar", "texto": "¿Tu personaje es un hombre?"}
+            return {"accion": "Preguntar", "texto": "¿Tu personaje es del sexo masculino?"}
             
         elif accion == "procesar_respuesta_jugador":
             respuesta_jugador = datos_peticion.get("respuesta", "No lo sé")
-            # Aquí llamarías a la IA con el historial de preguntas y la nueva respuesta
-            # y la IA decidiría si hacer otra pregunta o adivinar.
             
-            # Simulación de respuesta de la IA
+            # Aquí iría tu lógica real:
+            # 1. Construir el prompt con el historial de preguntas.
+            # 2. Llamar a la IA con: await self._llamar_g4f_con_reintentos_y_respaldo(tu_prompt)
+            # 3. Extraer el JSON de la respuesta.
+            # 4. Devolver la acción correspondiente (Preguntar, Adivinar, etc.).
+            
+            # Simulación de respuesta de la IA para que la estructura no se rompa:
             preguntas_siguientes = [
                 "¿Tu personaje es de una película?",
                 "¿Tu personaje usa un sombrero?",
