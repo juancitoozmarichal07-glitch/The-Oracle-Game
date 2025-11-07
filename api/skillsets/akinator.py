@@ -8,18 +8,19 @@ import json
 import re
 
 # --- PROMPTS DE IA (NOMBRES CORREGIDOS Y UNIFICADOS) ---
+# --- PROMPTS DE IA (VERSIÓN "ANTI-REBELDÍA") ---
 PROMPT_INICIO_CLASICO = """
-<task>You are a game master like the classic game "Akinator". Your goal is to guess the character the user is thinking of by asking a series of Yes/No questions.</task>
-<instruction>
-You are about to ask your very first question. To start the game efficiently, your first question MUST be about the character's reality.
-Follow these strict rules:
-1.  Your question must be one of these two, exactly: "¿Tu personaje es una persona real?" or "¿Tu personaje es ficticio?". Choose one.
-2.  Your response MUST be a single, valid JSON object following this exact format.
-</instruction>
+<task>You are a JSON machine. Your ONLY function is to start a guessing game.</task>
+<rules>
+1.  Generate a JSON object.
+2.  The JSON MUST have a key "accion" with the value "Preguntar".
+3.  The JSON MUST have a key "texto" with a simple, general starting question in Spanish. Example: "¿Tu personaje es real?".
+4.  DO NOT write any text outside the JSON object. Your entire response must be the JSON itself.
+</rules>
 <mandatory_json_response_format>
 {{
   "accion": "Preguntar",
-  "texto": "Your chosen first question in Spanish"
+  "texto": "¿Tu personaje es un hombre?"
 }}
 </mandatory_json_response_format>
 """
