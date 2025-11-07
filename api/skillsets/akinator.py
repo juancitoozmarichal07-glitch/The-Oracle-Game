@@ -75,18 +75,17 @@ You are a master detective game master (like Akinator). Your goal is to deduce t
 }}
 </json_formats>
 """
-# CLASE AKINATOR COMPLETA Y DEFINITIVA (v3.2 - You Forzado)
+# CLASE AKINATOR COMPLETA Y DEFINITIVA (v3.3 - Estrategia 'bing' por Juan)
 
 class Akinator:
     def __init__(self):
-        # Puedes añadir cualquier inicialización que necesites aquí
-        print(f"    - Especialista 'Akinator' (v3.2 - You Forzado) listo.")
+        print(f"    - Especialista 'Akinator' (v3.3 - Estrategia 'bing') listo.")
         model_info = [f"{model}[{retries}]" for model, retries in [('gpt-4', 5)]]
         print(f"      Cola de modelos y reintentos: {' -> '.join(model_info)}")
 
     async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=60):
-        # Usamos el proveedor 'You', que es gratuito, fiable y verificado.
-        provider_a_usar = g4f.Provider.You
+        # ¡TU ESTRATEGIA! Usamos 'bing' (minúscula), que sabemos que g4f usa con éxito.
+        provider_a_usar = g4f.Provider.bing
         
         print(f"    ⚙️ [Akinator] Forzando el uso del proveedor: {provider_a_usar.__name__}")
         
@@ -117,7 +116,6 @@ class Akinator:
         return None
 
     def _extraer_json(self, texto_crudo):
-        # Reutilizamos la misma lógica robusta de extracción de JSON que en Oracle
         if not texto_crudo: return None
         texto_limpio = texto_crudo.strip()
         if texto_limpio.startswith('{{') and texto_limpio.endswith('}}'):
@@ -140,17 +138,10 @@ class Akinator:
         # =================================================================
         
         if accion == "iniciar_juego_clasico":
-            # Ejemplo: El juego siempre empieza con la misma pregunta
             return {"accion": "Preguntar", "texto": "¿Tu personaje es del sexo masculino?"}
             
         elif accion == "procesar_respuesta_jugador":
             respuesta_jugador = datos_peticion.get("respuesta", "No lo sé")
-            
-            # Aquí iría tu lógica real:
-            # 1. Construir el prompt con el historial de preguntas.
-            # 2. Llamar a la IA con: await self._llamar_g4f_con_reintentos_y_respaldo(tu_prompt)
-            # 3. Extraer el JSON de la respuesta.
-            # 4. Devolver la acción correspondiente (Preguntar, Adivinar, etc.).
             
             # Simulación de respuesta de la IA para que la estructura no se rompa:
             preguntas_siguientes = [
@@ -159,10 +150,9 @@ class Akinator:
                 "¿Tu personaje es conocido por ser malvado?"
             ]
             
-            if random.random() > 0.8: # 20% de probabilidad de intentar adivinar
+            if random.random() > 0.8:
                 return {"accion": "Adivinar", "texto": "Goku"}
             else:
                 return {"accion": "Preguntar", "texto": random.choice(preguntas_siguientes)}
 
         return {"error": f"Acción '{accion}' no reconocida en Akinator."}
-
