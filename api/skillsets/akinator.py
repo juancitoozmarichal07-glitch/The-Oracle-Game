@@ -75,44 +75,48 @@ You are a master detective game master (like Akinator). Your goal is to deduce t
 }}
 </json_formats>
 """
-# CLASE AKINATOR COMPLETA Y DEFINITIVA (v3.3 - Estrategia 'bing' por Juan)
+# CLASE AKINATOR COMPLETA Y DEFINITIVA (v3.4 - Estrategia de Rotación por Juan)
 
 class Akinator:
     def __init__(self):
-        print(f"    - Especialista 'Akinator' (v3.3 - Estrategia 'bing') listo.")
-        model_info = [f"{model}[{retries}]" for model, retries in [('gpt-4', 5)]]
-        print(f"      Cola de modelos y reintentos: {' -> '.join(model_info)}")
+        print(f"    - Especialista 'Akinator' (v3.4 - Rotación de Proveedores) listo.")
 
     async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=60):
-        # ¡TU ESTRATEGIA! Usamos 'bing' (minúscula), que sabemos que g4f usa con éxito.
-        provider_a_usar = g4f.Provider.bing
+        # ¡TU ESTRATEGIA! Una lista de proveedores gratuitos y fiables.
+        proveedores_confiables = [
+            g4f.Provider.You,
+            g4f.Provider.bing,
+            g4f.Provider.DuckDuckGo,
+            g4f.Provider.Llama,
+            g4f.Provider.OpenaiChat,
+        ]
         
-        print(f"    ⚙️ [Akinator] Forzando el uso del proveedor: {provider_a_usar.__name__}")
+        # Barajamos la lista para que cada vez empiece por uno diferente.
+        random.shuffle(proveedores_confiables)
         
-        model_priority_list = [('gpt-4', 5)] 
+        print(f"    ⚙️ [Akinator] Iniciando estrategia de rotación. Orden: {[p.__name__ for p in proveedores_confiables]}")
+        
+        for provider_a_usar in proveedores_confiables:
+            try:
+                print(f"    >> [Akinator] Probando con: {provider_a_usar.__name__}...")
+                
+                response = await g4f.ChatCompletion.create_async(
+                    model=g4f.models.gpt_4,
+                    provider=provider_a_usar,
+                    messages=[{"role": "user", "content": prompt_text}],
+                    timeout=timeout
+                )
 
-        for model_name, num_retries in model_priority_list:
-            for attempt in range(num_retries):
-                try:
-                    print(f"    >> Akinator: Intentando con '{model_name}' vía {provider_a_usar.__name__} (Intento {attempt + 1}/{num_retries})...")
-                    
-                    response = await g4f.ChatCompletion.create_async(
-                        model=g4f.models.gpt_4,
-                        provider=provider_a_usar, # ¡LA LÍNEA CLAVE Y CORRECTA!
-                        messages=[{"role": "user", "content": prompt_text}],
-                        timeout=timeout
-                    )
+                if response and response.strip():
+                    print(f"    ✅ [Akinator] ¡Éxito con {provider_a_usar.__name__}!")
+                    return response
+                raise ValueError("Respuesta vacía del proveedor.")
 
-                    if response and response.strip():
-                        print(f"    ✅ Akinator: Éxito con '{model_name}' vía {provider_a_usar.__name__}.")
-                        return response
-                    raise ValueError("Respuesta inválida o vacía del modelo.")
-                except Exception as e:
-                    print(f"    ⚠️ Akinator: Falló '{model_name}' en el intento {attempt + 1}. Error: {e}")
-                    if attempt < num_retries - 1:
-                        await asyncio.sleep(2)
+            except Exception as e:
+                print(f"    ⚠️ [Akinator] Falló {provider_a_usar.__name__}. Error: {e}. Probando siguiente...")
+                continue
         
-        print("    🚨 Akinator: El ciclo interno de llamadas ha fallado.")
+        print("    🚨 [Akinator] ¡Desastre! Todos los proveedores de confianza han fallado.")
         return None
 
     def _extraer_json(self, texto_crudo):
