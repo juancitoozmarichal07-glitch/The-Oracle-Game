@@ -58,15 +58,19 @@ let state = {
 
 // La URL de nuestra API de Python desplegada en Render.
 // ¡IMPORTANTE! Pega aquí la URL exacta que te dio Render para tu Web Service.
-const ALE_URL = 'https://the-oracle-game-api.onrender.com/api/execute';
+const ALE_URL = 'https://the-oracle-game.onrender.com/api/execute';
+
 // El servidor cooperativo de Replit no cambia.
 const REPLIT_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
     ? 'http://127.0.0.1:8080'
     : 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/';
 
+// Logs de consola para verificar que las URLs son correctas al cargar la página.
 console.log(`[CONFIG] URL del motor IA (ALE) establecida en: ${ALE_URL}`);
 console.log(`[CONFIG] URL del servidor Cooperativo establecida en: ${REPLIT_URL}`);
+
 // --- SELECTORES DEL DOM ---
+
 const elements = {
     arcadeScreen: document.getElementById('arcade-screen'),
     screens: { title: document.getElementById('title-screen'), stage: document.getElementById('game-stage'), mainGame: document.getElementById('main-game-screen'), win: document.getElementById('win-screen'), lose: document.getElementById('lose-screen') },
