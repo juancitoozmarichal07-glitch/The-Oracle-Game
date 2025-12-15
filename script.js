@@ -452,7 +452,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- MANEJADORES DE EVENTOS GLOBALES ---
     elements.title.startButton.addEventListener('click', () => showGameStage(true));
-    elements.title.exitButton.addEventListener('click', () => { elements.arcadeScreen.classList.add('shutdown-effect'); });
+elements.title.exitButton.addEventListener('click', () => {
+    elements.arcadeScreen.classList.add('shutdown-effect');
+    
+    setTimeout(() => {
+        showRestartMessage();
+    }, 600); // coincide con la animación shutdown
+});
     elements.game.askButton.addEventListener('click', handlePlayerInput);
     elements.game.input.addEventListener('keyup', (e) => { if (e.key === 'Enter') handlePlayerInput(); });
     elements.header.backToMenu.addEventListener('click', () => {
@@ -1050,6 +1056,14 @@ async function sendAnswerToAkinator(finalAnswer) {
 }
 // ¡NUEVO! Función centralizada para manejar las respuestas de Akinator.
 
+function showRestartMessage() {
+    const noSignal = document.getElementById('no-signal');
+    if (!noSignal) {
+        console.error('NO EXISTE #no-signal');
+        return;
+    }
+    noSignal.classList.add('visible');
+}
 
 function startTimer() {
     clearInterval(state.gameTimerInterval);
@@ -1198,7 +1212,6 @@ function typewriterEffect(element, text, callback) {
     typewriterIntervals[elementId] = setInterval(write, config.typewriterSpeed);
 }
 
-
 function adjustScreenHeight() { if (elements.arcadeScreen) elements.arcadeScreen.style.height = `${window.innerHeight}px`; }
 
 function closeCurtains(callback, speed = 1) {
@@ -1307,6 +1320,11 @@ const showModeMenu = () => {
             showModeMenu
         );
     }
+}
+
+
+function fleeToTitle() {
+    location.reload();
 }
 
 // Pega esta nueva función en tu script.js
