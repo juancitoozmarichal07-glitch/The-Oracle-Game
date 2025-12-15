@@ -151,6 +151,18 @@
                 </div>
             </div>
         </div>
+<!-- Pop-up para Confirmar Adivinanza (Modo Clásico) -->
+<div id="confirm-guess-popup" class="popup-overlay hidden">
+    <div class="popup-content">
+        <h3>¿Es este tu personaje?</h3>
+        <p>El Oráculo cree que estás pensando en:</p>
+        <h2 id="confirm-guess-character" style="color: var(--main-purple);"></h2>
+        <div class="popup-buttons">
+            <button id="confirm-guess-yes" class="button-green">¡Sí, has acertado!</button>
+            <button id="confirm-guess-no" class="button-red">No, no es ese</button>
+        </div>
+    </div>
+</div>
 
         <!-- Pop-up para Sugerencias -->
         <div id="suggestion-popup" class="popup-overlay hidden">
