@@ -20,21 +20,19 @@ body {
 }
 
 #arcade-screen {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: fixed;
+    inset: 0;
     width: 100vw;
     height: 100vh;
-    max-width: 100vw;
-    max-height: 100vh;
+    
     border: 5px solid var(--main-green);
     border-radius: 15px;
     box-shadow: 0 0 20px var(--main-green), inset 0 0 20px var(--main-green);
     background-color: var(--background-dark);
+    
     display: flex;
     flex-direction: column;
-    box-sizing: border-box; 
+    box-sizing: border-box;
     overflow: hidden;
 }
 
@@ -133,9 +131,27 @@ button:disabled {
 }
 
 #title-buttons { display: flex; flex-direction: column; gap: 15px; width: 80%; max-width: 300px; }
-.shutdown-effect { animation: shutdown 0.5s forwards; }
-@keyframes shutdown { 0% { transform: scaleY(1); opacity: 1; } 80% { transform: scaleY(0.01) scaleX(1.3); opacity: 1; } 100% { transform: scaleY(0); opacity: 0; } }
+.shutdown-effect {
+    animation: crt-shutdown 0.5s ease-in forwards;
+    transform-origin: center center;
+}
 
+@keyframes crt-shutdown {
+    0% {
+        transform: scale(1, 1);
+        opacity: 1;
+    }
+    
+    40% {
+        transform: scale(1, 0.05);
+        opacity: 1;
+    }
+    
+    100% {
+        transform: scale(0, 0);
+        opacity: 0;
+    }
+}
 #game-stage { z-index: 200; background-color: var(--background-dark); }
 #stage-content-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; z-index: 2; }
 #stage-brain { font-size: 100px; filter: drop-shadow(0 0 15px var(--main-purple)); margin-bottom: 20px; }
@@ -592,7 +608,6 @@ button:disabled {
     border-color: var(--main-purple);
     box-shadow: 0 0 10px var(--main-purple);
 }
-/* ============================================= */
 /* == ESTILOS PARA EL ROL ORÁCULO (PÚRPURA) == */
 /* ============================================= */
 
@@ -614,4 +629,74 @@ body.rol-oraculo .message-line-brain .message-text-container {
 /* Cambiamos el avatar del oponente (el Adivino) */
 body.rol-oraculo .message-line-brain .message-avatar {
     content: '👤'; /* No funciona con content, pero lo dejamos por si acaso. El script ya lo maneja. */
+}
+#restart-message {
+    position: fixed;
+    inset: 0;
+    background: black;
+    color: #e0e0e0;
+    font-family: 'Press Start 2P', monospace;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 9999;
+    font-size: 12px;
+    line-height: 1.8;
+    animation: crtFlicker 1.2s infinite;
+}
+
+@keyframes crtFlicker {
+    0% { opacity: 0.85; }
+    50% { opacity: 1; }
+    100% { opacity: 0.9; }
+}
+#no-signal {
+    position: fixed;
+    inset: 0;
+    background: black;
+    z-index: 9999;
+
+    display: none; /* oculto por defecto */
+
+    justify-content: center;
+    align-items: center;
+}
+
+#no-signal.visible {
+    display: flex;
+    animation: crtFlicker 1.2s infinite;
+}
+
+.no-signal-text {
+    font-family: 'Press Start 2P', monospace;
+    color: #e0e0e0;
+    text-align: center;
+    font-size: 14px;
+    line-height: 2;
+}
+
+#no-signal {
+    position: fixed;
+    inset: 0;
+    background: black;
+    z-index: 99999;
+    
+    display: none;
+    
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+#no-signal.visible {
+    display: flex;
+}
+
+.no-signal-text {
+    font-family: 'Press Start 2P', monospace;
+    color: #e0e0e0;
+    font-size: 14px;
+    line-height: 2;
 }
