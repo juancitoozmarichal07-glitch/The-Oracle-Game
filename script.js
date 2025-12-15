@@ -62,36 +62,22 @@ let state = {
 
 
 // ===================================================================
-// ==        CONEXIÓN CON SERVIDORES (SELECTOR AUTOMÁTICO)        ==
+// ===================================================================
+// ==    CONEXIÓN CON SERVIDORES (Vercel + Render Architecture)   ==
 // ===================================================================
 
-const urls = {
-    local: {
-        ale: 'http://127.0.0.1:5000/api/execute',
-        coop: 'http://127.0.0.1:8080'
-    },
-    production: {
-        ale: 'http://127.0.0.1:5000/api/execute', // Asumo que esta URL también cambiará en producción real
-        coop: 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/'
-    }
-};
+// La URL de nuestra API de Python desplegada en Render.
+// ¡IMPORTANTE! Pega aquí la URL exacta que te dio Render para tu Web Service.
+const ALE_URL = 'https://the-oracle-game.onrender.com/api/execute';
 
-let ALE_URL;
-let REPLIT_URL;
+// El servidor cooperativo de Replit no cambia.
+const REPLIT_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+    ? 'http://127.0.0.1:8080'
+    : 'https://ce254311-0432-4d98-9904-395645c74498-00-37ujzri44dfx3.riker.replit.dev/';
 
-if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-    console.log("🚀 Entorno Local Detectado. Usando URLs de desarrollo.");
-    ALE_URL = urls.local.ale;
-    REPLIT_URL = urls.local.coop;
-} else {
-    console.log("🌍 Entorno de Producción Detectado. Usando URLs de producción.");
-    ALE_URL = urls.production.ale;
-    REPLIT_URL = urls.production.coop;
-}
-
-console.log(`[CONFIG] URL del motor IA (ALE): ${ALE_URL}`);
-console.log(`[CONFIG] URL del servidor Cooperativo: ${REPLIT_URL}`);
-
+// Logs de consola para verificar que las URLs son correctas al cargar la página.
+console.log(`[CONFIG] URL del motor IA (ALE) establecida en: ${ALE_URL}`);
+console.log(`[CONFIG] URL del servidor Cooperativo establecida en: ${REPLIT_URL}`);
 
 // --- SELECTORES DEL DOM ---
 const elements = {
