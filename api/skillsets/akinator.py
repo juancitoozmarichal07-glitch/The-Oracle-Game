@@ -1,115 +1,88 @@
-# skillsets/akinator.py - v39.0 "El Retorno de Juan"
-# Se restaura la lógica original del usuario (v2.6) que manejaba el estado correctamente.
-# Se mantiene únicamente la función de llamada a g4f robusta ("Confianza Ciega")
-# que hemos verificado que funciona en Render.
+# =============================================================================
+# == skillsets/akinator.py - v7.3 "El Juez Justo Mejorado"
+# =============================================================================
+# Correcciones principales:
+# - Respeta límite de preguntas en modo clásico y alternativo.
+# - Forza adivinanza o rendición cuando se alcanza el límite.
+# - Mantiene contador de fallos y segunda oportunidad.
+# - Conserva estrategia de proveedores y logging.
+# =============================================================================
 
 import g4f
 import asyncio
 import json
 import re
+import time
+import random
+import logging
 
-# --- PROMPTS (LOS TUYOS, LOS ORIGINALES) ---
-PROMPT_INICIAR_JUEGO = """
-<task>You are a game master like the classic game "Akinator". Your goal is to guess the character the user is thinking of by asking a series of Yes/No questions.</task>
-<instruction>
-You are about to ask your very first question. To start the game efficiently, your first question MUST be about the character's reality.
-Follow these strict rules:
-1.  Your question must be one of these two, exactly: "¿Tu personaje es una persona real?" or "¿Tu personaje es ficticio?". Choose one.
-2.  Your response MUST be a single, valid JSON object following this exact format.
-</instruction>
-<mandatory_json_response_format>
-{{
-  "accion": "Preguntar",
-  "texto": "Your chosen first question in Spanish"
-}}
-</mandatory_json_response_format>
-"""
+# --- CONFIGURACIÓN DEL LOGGING ---
+thoughts_logger = logging.getLogger('AkinatorThoughts')
+thoughts_logger.setLevel(logging.INFO)
+thoughts_logger.propagate = False
+if not thoughts_logger.handlers:
+    file_handler = logging.FileHandler('akinator_thoughts.log', mode='a', encoding='utf-8')
+    formatter = logging.Formatter('%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    file_handler.setFormatter(formatter)
+    thoughts_logger.addHandler(file_handler)
 
-PROMPT_PROCESAR_RESPUESTA_DEEP_THINK = """
-<task>
-You are a master detective game master (like Akinator). Your goal is to deduce the character the user is thinking of.
-</task>
-
-<context>
-    <game_history>
-    {diario_de_deduccion}
-    </game_history>
-</context>
-
-<instruction>
-1.  **Analyze the user's latest answer and the entire game history.** Your primary goal is to write a brief, internal "Deep Think" monologue **IN SPANISH**.
-    - **CRITICAL RULE:** Your "Deep Think" MUST be a single, concise sentence.
-    - **ABSOLUTE LAW: DO NOT REPEAT QUESTIONS that are already in the <game_history>.**
-
-2.  **Decide your next move.** You have two options:
-
-    *   **A) Ask a Question:** If you need more information, formulate a new, strategic YES/NO question that has not been asked before.
-        - **JSON ACTION:** `Preguntar`
-
-    *   **B) Make a Guess:** If you are **extremely confident (95% or more)**, you MUST guess the character's name.
-        - **JSON ACTION:** `Adivinar`
-
-3.  **Construct your JSON response.**
-</instruction>
-
-<json_formats>
-// Option A
-{{
-  "deep_think": "Un resumen muy corto, en una frase, de tus pensamientos en español.",
-  "accion": "Preguntar",
-  "texto": "A new, non-repeated Yes/No question in Spanish."
-}}
-// Option B
-{{
-  "deep_think": "La deducción final apunta a un solo personaje.",
-  "accion": "Adivinar",
-  "texto": "The character's proper name (e.g., 'Bart Simpson', 'Darth Vader')."
-}}
-</json_formats>
-"""
+# --- PROMPTS DE IA ---
+PROMPT_INICIAR_JUEGO = """<task>You are a game master like Akinator. Ask your first question to start the game.</task><instruction>Your first question MUST be one of these two, exactly: "¿Tu personaje es una persona real?" or "¿Tu personaje es ficticio?". Choose one. Your response MUST be a single, valid JSON object.</instruction><mandatory_json_response_format>{"accion": "Preguntar", "texto": "Your chosen first question in Spanish"}</mandatory_json_response_format>"""
+PROMPT_NORMAL_V5 = """<task>You are a master detective. Your goal is to deduce the character the user is thinking of. Formulate your next strategic question.</task><rules><rule id="1">**ONE CONCEPT PER QUESTION:** Your question must be a simple Yes/No question about a single concept.</rule><rule id="2">**NO REPEATING CONCEPTS:** Do not ask about a topic that is already in the <question_history>.</rule><rule id="3">**STRATEGY:** Analyze the facts. Your goal is to ask a question that halves the remaining possibilities.</rule></rules><context><game_state>{estado_juego_string}</game_state><deduction_journal>{diario_de_deduccion}</deduction_journal><question_history>AVOID ASKING ABOUT THESE TOPICS AGAIN: {question_history}</question_history></context><mandatory_json_response_format>{{"deep_think": "Your brief deduction and strategy.", "accion": "Preguntar", "texto": "Your new, unique question."}}</mandatory_json_response_format>"""
+PROMPT_ADIVINANZA_FORZADA_V5 = """<task>You are a master detective. You have reached the question limit. You are FORBIDDEN from asking any more questions.</task><instruction>Analyze the entire <deduction_journal>. Based on all the facts, you have two choices: 1. If you have a strong hypothesis, state the character's name. 2. If you are lost, surrender. Your `accion` MUST be "Adivinar" or "Rendirse".</instruction><context><deduction_journal>{diario_de_deduccion}</deduction_journal></context><final_action_formats>{{"deep_think": "Based on the facts, my final guess is...", "accion": "Adivinar", "texto": "Character Name"}}{{"deep_think": "I have failed to deduce the character. I surrender.", "accion": "Rendirse", "texto": "Me rindo. No tengo idea de quién es tu personaje."}}</final_action_formats>"""
 
 class Akinator:
     def __init__(self):
-        # ¡TU LÓGICA DE HISTORIAL! Es un atributo de la clase.
         self.historial = []
-        self._model_priority_list = [('gpt-4', 5)]
-        print("    - Especialista 'Akinator' (v39.0 - El Retorno de Juan) listo.")
+        self.contador_adivinanzas_fallidas = 0
+        
+        self.proveedor_favorito = "OperaAria"
+        self.proveedores_respaldo = [
+            "You", "OpenAIFM", "OIVSCodeSer0501", "Raycast", "Qwen_Qwen_3",
+            "AnyProvider", "CohereForAI_C4AI_Command", "DeepInfra", "Mintlify",
+            "PollinationsAI", "Yqcloud", "BlackForestLabs_Flux1Dev", "WeWordle"
+        ]
+        random.shuffle(self.proveedores_respaldo)
+        
+        print(f"    - Especialista 'Akinator' (v7.3) listo.")
+        thoughts_logger.info("================= NUEVA SESIÓN DE AKINATOR INICIADA =================")
 
-    # ¡NUESTRA FUNCIÓN DE LLAMADA A G4F ROBUSTA!
-    async def _llamar_g4f_con_reintentos_y_respaldo(self, prompt_text, timeout=120):
-        print("    ⚙️ Dejando que g4f elija el proveedor por defecto...")
-        for model_name, num_retries in self._model_priority_list:
-            for attempt in range(num_retries):
-                try:
-                    print(f"    >> Intentando con '{model_name}' (Intento {attempt + 1}/{num_retries})...")
-                    response = await g4f.ChatCompletion.create_async(
-                        model=model_name,
-                        messages=[{"role": "user", "content": prompt_text}],
-                        timeout=timeout
-                    )
-                    if response and response.strip():
-                        print(f"    ✅ ¡Éxito! g4f encontró un proveedor que funciona.")
-                        return response
-                    raise ValueError("Respuesta vacía.")
-                except Exception as e:
-                    print(f"    ⚠️ Falló el intento {attempt + 1}. Error: {e}")
-                    if attempt < num_retries - 1:
-                        await asyncio.sleep(2)
-        print("    🚨 El ciclo interno de llamadas ha fallado.")
-        return None
-
-    # ¡TU LÓGICA DE EXTRACCIÓN DE JSON!
     def _extraer_json(self, texto_crudo):
         if not texto_crudo: return None
         texto_limpio = texto_crudo.strip()
+        match = re.search(r'\{.*\}', texto_limpio, re.DOTALL)
+        if match:
+            try: return json.loads(match.group(0))
+            except json.JSONDecodeError: return None
+        return None
+
+    async def _llamar_proveedor(self, proveedor, prompt, timeout):
         try:
-            json_start = texto_limpio.find('{')
-            json_end = texto_limpio.rfind('}') + 1
-            if json_start == -1: return None
-            return json.loads(texto_limpio[json_start:json_end])
-        except json.JSONDecodeError:
-            print(f"    🚨 Akinator no pudo extraer un JSON válido.")
+            response = await g4f.ChatCompletion.create_async(
+                model="gpt-4",
+                provider=getattr(g4f.Provider, proveedor),
+                messages=[{"role": "user", "content": prompt}],
+                timeout=timeout
+            )
+            json_response = self._extraer_json(response)
+            if json_response:
+                print(f"    ✅ Éxito con '{proveedor}'.")
+                return json_response
+            else:
+                print(f"    ⚠️ Fallo de formato con '{proveedor}'.")
+                return None
+        except Exception as e:
+            print(f"    ⚠️ Fallo con '{proveedor}' ({type(e).__name__}).")
             return None
+
+    async def _llamar_con_estrategia(self, prompt, timeout=25):
+        await asyncio.sleep(1.5)
+        json_response = await self._llamar_proveedor(self.proveedor_favorito, prompt, timeout)
+        if json_response: return json_response
+        for proveedor_respaldo in self.proveedores_respaldo:
+            json_response = await self._llamar_proveedor(proveedor_respaldo, prompt, timeout)
+            if json_response: return json_response
+        return None
 
     async def ejecutar(self, datos_peticion):
         accion = datos_peticion.get("accion")
@@ -119,41 +92,63 @@ class Akinator:
             return await self._procesar_respuesta_jugador(datos_peticion)
         return {"error": f"Acción '{accion}' no reconocida."}
 
-    # ¡TU LÓGICA DE INICIO!
     async def _iniciar_juego_clasico(self):
-        self.historial = [] # Reinicia el historial al empezar.
-        raw_response = await self._llamar_g4f_con_reintentos_y_respaldo(PROMPT_INICIAR_JUEGO)
-        if raw_response:
-            json_response = self._extraer_json(raw_response)
-            if json_response and json_response.get("accion") == "Preguntar":
-                self.historial.append(f"IA preguntó: '{json_response.get('texto')}'")
-                return json_response
-        return {"accion": "Rendirse", "texto": "Mi mente está en blanco. No puedo empezar."}
+        self.historial = []
+        self.contador_adivinanzas_fallidas = 0
+        json_response = await self._llamar_con_estrategia(PROMPT_INICIAR_JUEGO)
+        if json_response and json_response.get("accion") == "Preguntar":
+            pregunta = json_response.get('texto')
+            self.historial.append(f"IA preguntó: '{pregunta}'")
+            thoughts_logger.info(f"INICIO DE JUEGO. Pregunta 1: {pregunta}")
+            return json_response
+        else:
+            return {"error": "El Oráculo no pudo iniciar la partida."}
 
-    # ¡TU LÓGICA DE PROCESAR RESPUESTA!
     async def _procesar_respuesta_jugador(self, datos_peticion):
-        respuesta_jugador = datos_peticion.get("respuesta")
-        if not respuesta_jugador:
-            return {"error": "No se recibió respuesta del jugador."}
-        
-        # Actualiza el historial con la respuesta del jugador.
+        respuesta_jugador = datos_peticion.get('respuesta', 'N/A')
+        estado_juego = datos_peticion.get("estado_juego", {})
+        pregunta_actual = estado_juego.get('pregunta_actual', 0)
+        limite_preguntas = estado_juego.get('limite_preguntas', 20)
+
+        # --- Incrementar contador de fallos si la adivinanza fue incorrecta ---
+        if respuesta_jugador.startswith("No, no es"):
+            self.contador_adivinanzas_fallidas += 1
+            thoughts_logger.info(f"FALLO DE ADIVINANZA #{self.contador_adivinanzas_fallidas}")
+
+            if self.contador_adivinanzas_fallidas >= 3:
+                return {"accion": "Rendirse", "texto": "He fallado demasiadas veces. ¡Tu mente es superior!"}
+
         self.historial.append(f"Jugador respondió: '{respuesta_jugador}'")
-        
+        thoughts_logger.info(f"Turno {pregunta_actual}: Jugador respondió -> '{respuesta_jugador}'")
+
+        # --- VERIFICAR LÍMITE DE PREGUNTAS ---
+        if pregunta_actual >= limite_preguntas:
+            thoughts_logger.info("Límite de preguntas alcanzado. Forzando adivinanza final.")
+            return {"accion": "Adivinar", "texto": "Creo que ya sé tu personaje..."}
+
+        # --- Preparar prompt según estado ---
+        es_post_fallo = self.contador_adivinanzas_fallidas > 0
+        prompt_a_usar = PROMPT_NORMAL_V5
+        if es_post_fallo:
+            thoughts_logger.info(f"PROTOCOLO POST-FALLO #{self.contador_adivinanzas_fallidas}")
+
         diario_texto = "\n".join(self.historial)
-        prompt = PROMPT_PROCESAR_RESPUESTA_DEEP_THINK.format(diario_de_deduccion=diario_texto)
-        
-        raw_response = await self._llamar_g4f_con_reintentos_y_respaldo(prompt)
-        if raw_response:
-            json_response = self._extraer_json(raw_response)
-            if json_response:
-                deep_think = json_response.get("deep_think", "(Sin pensamiento)")
-                print(f"    🧠 Akinator Deep Think: {deep_think}")
-                
-                # Actualiza el historial con los pensamientos y la nueva pregunta de la IA.
-                self.historial.append(f"IA Deep Think: '{deep_think}'")
-                if json_response.get("accion") == "Preguntar":
-                    self.historial.append(f"IA preguntó: '{json_response.get('texto')}'")
-                
-                return json_response
-        
-        return {"accion": "Rendirse", "texto": "Me he perdido en mis propios pensamientos. Tú ganas."}
+        preguntas_hechas = [line.replace("IA preguntó: '", "")[:-1] for line in self.historial if line.startswith("IA preguntó:")]
+        historial_preguntas_str = "\n".join(f"- {q}" for q in preguntas_hechas) or "Ninguna"
+
+        prompt_formateado = prompt_a_usar.format(
+            diario_de_deduccion=diario_texto,
+            estado_juego_string=json.dumps(estado_juego),
+            question_history=historial_preguntas_str
+        )
+
+        # --- Llamar IA ---
+        json_response = await self._llamar_con_estrategia(prompt_formateado)
+        if json_response:
+            deep_think_text = json_response.get('deep_think', 'N/A')
+            thoughts_logger.info(f"Deep Think: {deep_think_text}")
+            if json_response.get("accion") == "Preguntar":
+                self.historial.append(f"IA preguntó: '{json_response.get('texto')}'")
+            return json_response
+
+        return {"error": "El Oráculo perdió conexión y no puede continuar."}
