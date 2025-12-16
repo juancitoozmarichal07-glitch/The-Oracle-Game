@@ -1208,16 +1208,19 @@ function startTimer() {
 
 function stopTimer() { clearInterval(state.gameTimerInterval); }
 
-// ¡MODIFICADO! La función endGame ahora maneja los nuevos resultados del Modo Clásico
 function endGame(isWin, reason = "guess", character) {
     stopTimer();
     state.isGameActive = false;
-    const characterName = (typeof character === 'object' && character !== null)
-        ? character.nombre
-        : (character || (state.secretCharacter ? state.secretCharacter.nombre : "un misterio"));
-
+    
+    // Determinar nombre del personaje
+    const characterName = (typeof character === 'object' && character !== null) ?
+        character.nombre :
+        (character || (state.secretCharacter ? state.secretCharacter.nombre : "un misterio"));
+    
+    // Ocultar todas las pantallas
     Object.values(elements.screens).forEach(s => s.classList.add('hidden'));
-
+    
+    // Preparar mensaje y pantalla
     let message;
     if (isWin) {
         message = `¡Correcto! El personaje era ${characterName}.`;
@@ -1230,7 +1233,44 @@ function endGame(isWin, reason = "guess", character) {
         elements.screens.lose.classList.remove('hidden');
         playSound('lose');
     }
+    
+    // Función interna para limpiar la pantalla de endgame y preparar siguiente acción
+    const exitEndGame = (callback) => {
+        // Detener música actual
+        stopAllSounds();
+        
+        // Ocultar pantallas de endgame
+        elements.screens.win.classList.add('hidden');
+        elements.screens.lose.classList.add('hidden');
+        
+        // Ejecutar la acción que corresponda (volver al menú, jugar de nuevo, etc)
+        if (callback) callback();
+    };
+    
+    // Botones de la pantalla de endgame
+    const setupEndgameButtons = () => {
+        const botones = elements.endScreens.endButtons;
+        botones.innerHTML = `
+            <button class="menu-button button-green" id="replay-button">Jugar de nuevo</button>
+            <button class="menu-button button-purple" id="menu-button">Volver al menú</button>
+        `;
+        botones.classList.remove('hidden');
+        
+        document.getElementById('replay-button').onclick = () => {
+            exitEndGame(() => {
+                startGame(); // reinicia el juego
+            });
+        };
+        document.getElementById('menu-button').onclick = () => {
+            exitEndGame(() => {
+                showGameStage(); // vuelve al menú de modos
+            });
+        };
+    };
+    
+    setupEndgameButtons();
 }
+
 
 // =================================================================================
 // == ¡FUNCIÓN MODIFICADA PARA MOSTRAR ACLARACIONES! ==
