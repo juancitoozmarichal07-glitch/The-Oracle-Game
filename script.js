@@ -20,13 +20,13 @@ const sounds = {
 
 // Volúmenes
 sounds.logo.volume = 0.5;
-sounds.shutdown.volume = 0.7;
+sounds.shutdown.volume = 0.6;
 sounds.static.volume = 0.25;
 sounds.thunder.volume = 0.65;
 sounds.blip.volume = 0.12;
 sounds.typewriter.volume = 0.5;
-sounds.win.volume = 0.7;
-sounds.lose.volume = 0.7;
+sounds.win.volume = 0.3;
+sounds.lose.volume = 0.5;
 sounds.button.volume = 0.35;
 
 // Función para reproducir sonido
@@ -35,6 +35,12 @@ function playSound(name) {
     if (!sound) return;
     const tempSound = sound.cloneNode();
     tempSound.play().catch(() => {});
+}
+
+function enterMainMenu({ withCurtain = true } = {}) {
+    stopAllMusic();
+    startMenuMusic(true); // 🔥 SPACE LEVEL SIEMPRE ACÁ
+    showGameStage(withCurtain);
 }
 
 // --- CONFIGURACIÓN Y ESTADO ---
@@ -62,12 +68,12 @@ function playLogoReveal() {
 // Música del menú
 const menuAmbient = new Audio('sounds/space-level.mp3');
 menuAmbient.loop = true;
-menuAmbient.volume = 0.2;
+menuAmbient.volume = 0.4;
 
 // Música de los modos
 const oracleAmbient = new Audio('sounds/oracle-ambient.mp3');
 oracleAmbient.loop = true;
-oracleAmbient.volume = 0.15;
+oracleAmbient.volume = 0.10;
 
 const classicAmbient = new Audio('sounds/classic-ambient.mp3');
 classicAmbient.loop = true;
@@ -139,6 +145,9 @@ let state = {
     isSecondChance: false,
 };
 
+
+
+
 // ===================================================================
 // ===================================================================
 // ==    CONEXIÓN CON SERVIDORES (Vercel + Render Architecture)   ==
@@ -156,7 +165,6 @@ const REPLIT_URL = (window.location.hostname === '127.0.0.1' || window.location.
 // Logs de consola para verificar que las URLs son correctas al cargar la página.
 console.log(`[CONFIG] URL del motor IA (ALE) establecida en: ${ALE_URL}`);
 console.log(`[CONFIG] URL del servidor Cooperativo establecida en: ${REPLIT_URL}`);
-
 // --- SELECTORES DEL DOM ---
 const elements = {
     arcadeScreen: document.getElementById('arcade-screen'),
@@ -1208,6 +1216,7 @@ function startTimer() {
 
 function stopTimer() { clearInterval(state.gameTimerInterval); }
 
+// ¡MODIFICADO! La función endGame ahora maneja los nuevos resultados del Modo Clásico
 function endGame(isWin, reason = "guess", character) {
     stopTimer();
     state.isGameActive = false;
@@ -1222,12 +1231,12 @@ function endGame(isWin, reason = "guess", character) {
     
     // Preparar mensaje y pantalla
     let message;
-    if (isWin) {
+    if (isWin) { stopAllMusic()
         message = `¡Correcto! El personaje era ${characterName}.`;
         elements.endScreens.winMessage.textContent = message;
         elements.screens.win.classList.remove('hidden');
         playSound('win');
-    } else {
+    } else {stopAllMusic()
         message = `Has perdido. El personaje era ${characterName}.`;
         elements.endScreens.loseMessage.textContent = message;
         elements.screens.lose.classList.remove('hidden');
@@ -1245,23 +1254,25 @@ function endGame(isWin, reason = "guess", character) {
         
         // Ejecutar la acción que corresponda (volver al menú, jugar de nuevo, etc)
         if (callback) callback();
+    
     };
     
     // Botones de la pantalla de endgame
-    const setupEndgameButtons = () => {
+    const setupEndgameButtons = () => { 
         const botones = elements.endScreens.endButtons;
         botones.innerHTML = `
             <button class="menu-button button-green" id="replay-button">Jugar de nuevo</button>
             <button class="menu-button button-purple" id="menu-button">Volver al menú</button>
         `;
         botones.classList.remove('hidden');
-        
-        document.getElementById('replay-button').onclick = () => {
-            exitEndGame(() => {
-                startGame(); // reinicia el juego
-            });
-        };
-        document.getElementById('menu-button').onclick = () => {
+       document.getElementById('replay-button').onclick = () => {
+    stopAllMusic();
+    startMenuMusic(); // ← ACÁ, directo en el click
+    exitEndGame(() => {
+        showGameStage(true);
+    });
+};
+        document.getElementById('menu-button').onclick = () => { 
             exitEndGame(() => {
                 showGameStage(); // vuelve al menú de modos
             });
@@ -1270,8 +1281,6 @@ function endGame(isWin, reason = "guess", character) {
     
     setupEndgameButtons();
 }
-
-
 // =================================================================================
 // == ¡FUNCIÓN MODIFICADA PARA MOSTRAR ACLARACIONES! ==
 // Reemplaza tu antigua función addMessageToChat con esta nueva versión.
@@ -1361,6 +1370,8 @@ function typewriterEffect(element, text, callback, isOracle = true) {
     
     typewriterIntervals[elementId] = setInterval(write, config.typewriterSpeed);
 }
+
+
 
 function adjustScreenHeight() { if (elements.arcadeScreen) elements.arcadeScreen.style.height = `${window.innerHeight}px`; }
 
