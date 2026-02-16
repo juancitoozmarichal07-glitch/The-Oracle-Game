@@ -1,2 +1,5 @@
-Flask[async]
-Flask-Cors
+flask
+flask_cors
+random
+unicodedata
+difflib
