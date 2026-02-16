@@ -7,7 +7,7 @@
 const config = {
     questionsLimit: 20,
     typewriterSpeed: 20, // Velocidad suave del typewriter (ms por carácter)
-    backendURL: 'https://the-oracle-game.onrender.com',
+    backendURL: 'https://the-oracle-game.onrender.com/api/oracle',
     suggestionsAfterQuestion: 2,  // Sugerencias desde pregunta 2
     hintsAfterQuestion: 5,         // Pistas desde pregunta 5
     maxHints: 2                    // Máximo 2 pistas
