@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>The Oracle Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="arcade-screen">
+        <!-- PANTALLA DE TÍTULO -->
+        <div id="title-screen" class="screen">
+            <div id="lightning-overlay"></div>
+            <div id="title-layout">
+                <div id="title-brain">🧠</div>
+                <h1 id="game-title" data-text="THE ORACLE GAME">THE ORACLE GAME</h1>
+                <div id="title-buttons">
+                    <button id="start-button" class="button-green">COMENZAR</button>
+                    <button id="exit-button" class="button-red">SALIR</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PANTALLA DE JUEGO -->
+        <div id="main-game-screen" class="screen hidden">
+            <div class="game-header">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div style="color:#0f0;">🧠 ORÁCULO</div>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <div id="question-counter" style="color:#0f0;">0/20</div>
+                        <button id="back-to-menu-button">← MENÚ</button>
+                    </div>
+                </div>
+                
+                <!-- Línea verde principal (más abajo) -->
+                <div class="main-divider"></div>
+                
+                <!-- Espacio para el timer (entre línea y subrayado) -->
+                <div class="timer-space">
+                    <div id="timer-display">00:00</div>
+                </div>
+                
+                <!-- Subrayado del timer (línea fina) -->
+                <div class="timer-underline"></div>
+            </div>
+            
+            <div id="chat-history"></div>
+            
+            <div class="player-controls">
+                <div class="input-area">
+                    <input type="text" id="user-question-input" placeholder="Escribe tu pregunta..." disabled>
+                    <button id="ask-button" class="button-green" disabled>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="action-buttons">
+                    <button id="suggestions-btn" class="button-green" disabled>SUGERENCIAS</button>
+                    <button id="hints-btn" class="button-green" disabled>PISTAS</button>
+                    <button id="guess-button" class="button-purple" disabled>¡ADIVINAR!</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PANTALLA DE VICTORIA -->
+        <div id="win-screen" class="screen hidden">
+            <div id="title-layout">
+                <div id="title-brain">🧠</div>
+                <h1 id="game-title" style="color:#0f0;">¡VICTORIA!</h1>
+                <p id="win-message" style="text-align:center; font-size:1.2em; margin:20px; line-height:1.6;"></p>
+                <div id="title-buttons">
+                    <button class="button-green" onclick="location.reload()">JUGAR DE NUEVO</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PANTALLA DE DERROTA -->
+        <div id="lose-screen" class="screen hidden">
+            <div id="title-layout">
+                <div id="title-brain">🧠</div>
+                <h1 id="game-title" style="color:#ff0000;">DERROTA</h1>
+                <p id="lose-message" style="text-align:center; font-size:1.2em; margin:20px; line-height:1.6;"></p>
+                <div id="title-buttons">
+                    <button class="button-green" onclick="location.reload()">JUGAR DE NUEVO</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- POP-UP DE ADIVINAR -->
+        <div id="guess-popup" class="popup-overlay hidden">
+            <div class="popup-content">
+                <h3 style="color:#ff00ff; margin-bottom:15px;">MOMENTO DE LA VERDAD</h3>
+                <p>Escribe el nombre del personaje:</p>
+                <input type="text" id="guess-input" placeholder="Nombre..." style="width:100%; padding:10px; margin:15px 0; background:#222; border:2px solid #ff00ff; color:#fff; font-family:'Courier New', monospace; font-size:0.9em;">
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button id="confirm-guess" class="button-green" style="flex:1;">CONFIRMAR</button>
+                    <button id="cancel-guess" class="button-red" style="flex:1;">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- POP-UP DE SUGERENCIAS -->
+        <div id="suggestions-popup" class="popup-overlay hidden">
+            <div class="popup-content">
+                <h3 style="color:#ff00ff; margin-bottom:15px;">SUGERENCIAS</h3>
+                <p>Preguntas que podrías hacer:</p>
+                <div id="suggestions-list" style="margin:20px 0; max-height:300px; overflow-y:auto;"></div>
+                <button id="close-suggestions" class="button-green" style="width:100%;">CERRAR</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+
+</html>
