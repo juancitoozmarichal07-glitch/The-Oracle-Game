@@ -4,6 +4,7 @@
 // ===================================================================
 
 // --- CONFIGURACIÓN ---
+
 const config = {
     questionsLimit: 20,
     typewriterSpeed: 20, // Velocidad suave del typewriter (ms por carácter)
