@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """
-THE ORACLE - Backend Mejorado y Pulido VERSIÓN FINAL
-Compatible con Pydroid (Android) y frontend game.js
-20 Personajes + Sistema Robusto de Respuestas
+THE ORACLE - Backend Mejorado con DETECCIÓN DE HUECOS
+Versión: MVP Estable - SIN IA
+- Registra preguntas no cubiertas para análisis posterior
+- Probablemente sí/no con aclaraciones
+- Respuestas rápidas, sin dependencias externas
 """
 
 from flask import Flask, request, jsonify
@@ -10,13 +12,54 @@ from flask_cors import CORS
 import random
 import unicodedata
 import difflib
+import json
+import os
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
 
+# ===================================================================
+# SISTEMA DE REGISTRO DE PREGUNTAS NO CUBIERTAS
+# ===================================================================
+
+REGISTRO_HUECOS_FILE = "huecos_diccionario.json"
+
+def registrar_hueco(pregunta, personaje, pregunta_normalizada):
+    """
+    Registra una pregunta que el diccionario no pudo responder.
+    Esto permite analizar después qué falta agregar.
+    """
+    try:
+        # Cargar registros existentes
+        if os.path.exists(REGISTRO_HUECOS_FILE):
+            with open(REGISTRO_HUECOS_FILE, 'r', encoding='utf-8') as f:
+                registros = json.load(f)
+        else:
+            registros = []
+        
+        # Agregar nuevo registro
+        registros.append({
+            "timestamp": datetime.now().isoformat(),
+            "pregunta_original": pregunta,
+            "pregunta_normalizada": pregunta_normalizada,
+            "personaje": personaje.get("nombre", "desconocido"),
+            "tipo_personaje": personaje.get("tipo", "desconocido")
+        })
+        
+        # Guardar (solo últimos 1000 para no saturar)
+        if len(registros) > 1000:
+            registros = registros[-1000:]
+        
+        with open(REGISTRO_HUECOS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(registros, f, ensure_ascii=False, indent=2)
+            
+        print(f"📝 Hueco registrado: '{pregunta}' para {personaje.get('nombre')}")
+    except Exception as e:
+        print(f"⚠️ Error registrando hueco: {e}")
 
 # ===================================================================
-# SISTEMA DE NORMALIZACIÓN Y SINÓNIMOS
+# SISTEMA DE NORMALIZACIÓN Y SINÓNIMOS (ORIGINAL)
 # ===================================================================
 
 def normalizar_texto(texto):
@@ -30,27 +73,16 @@ def normalizar_texto(texto):
     if not texto:
         return ""
     
-    # Convertir a minúsculas
     texto = texto.lower()
-    
-    # Eliminar tildes usando NFD (Normalization Form Decomposition)
     texto = unicodedata.normalize('NFD', texto)
     texto = ''.join(char for char in texto if unicodedata.category(char) != 'Mn')
-    
-    # Eliminar signos de puntuación comunes
     signos = '¿?¡!.,;:()[]{}"\'-'
     for signo in signos:
         texto = texto.replace(signo, ' ')
-    
-    # Eliminar espacios extra
     texto = ' '.join(texto.split())
-    
     return texto
 
-
-# Diccionario de sinónimos mejorado
 SINONIMOS = {
-    # Profesiones y roles
     'superheroina': 'superheroe',
     'hechicera': 'mago',
     'hechicero': 'mago',
@@ -64,22 +96,16 @@ SINONIMOS = {
     'pintora': 'artista',
     'pintor': 'artista',
     'guerrera': 'guerrero',
-    
-    # Estados
     'muerto': 'muerto',
     'muerta': 'muerto',
     'fallecido': 'muerto',
     'fallecida': 'muerto',
     'difunto': 'muerto',
     'difunta': 'muerto',
-    
-    # Características
     'adinerado': 'rico',
     'millonario': 'rico',
     'acaudalado': 'rico',
     'pudiente': 'rico',
-    
-    # Género
     'varon': 'hombre',
     'masculino': 'hombre',
     'chico': 'hombre',
@@ -88,16 +114,12 @@ SINONIMOS = {
     'chica': 'mujer',
     'femina': 'mujer',
     'dama': 'mujer',
-    
-    # Épocas
     'edad media': 'medieval',
     'medioevo': 'medieval',
     'antigua': 'antiguo',
     'antiguo': 'antiguo',
     'clasico': 'antiguo',
     'clasica': 'antiguo',
-    
-    # Otros
     'lentes': 'gafas',
     'anteojos': 'gafas',
     'espejuelos': 'gafas',
@@ -107,27 +129,18 @@ SINONIMOS = {
     'renombrado': 'famoso',
 }
 
-
 def aplicar_sinonimos(texto):
-    """
-    Reemplaza palabras por sus sinónimos base.
-    Procesa palabra por palabra para evitar reemplazos parciales incorrectos.
-    """
     palabras = texto.split()
-    palabras_procesadas = []
-    
+    procesadas = []
     for palabra in palabras:
-        # Si la palabra está en el diccionario de sinónimos, usar su versión base
         if palabra in SINONIMOS:
-            palabras_procesadas.append(SINONIMOS[palabra])
+            procesadas.append(SINONIMOS[palabra])
         else:
-            palabras_procesadas.append(palabra)
-    
-    return ' '.join(palabras_procesadas)
-
+            procesadas.append(palabra)
+    return ' '.join(procesadas)
 
 # ===================================================================
-# BASE DE DATOS DE 20 PERSONAJES (CORREGIDA)
+# BASE DE DATOS DE 20 PERSONAJES (ORIGINAL)
 # ===================================================================
 
 PERSONAJES = [
@@ -566,47 +579,33 @@ PERSONAJES = [
     }
 ]
 
-
 # ===================================================================
-# SISTEMA DE ANÁLISIS DE PREGUNTAS MEJORADO
+# SISTEMA DE ANÁLISIS DE PREGUNTAS CON PROBABLEMENTE Y ACLARACIONES
 # ===================================================================
 
 def es_pregunta_valida(pregunta):
-    """
-    Verifica si la pregunta tiene contenido mínimo.
-    """
     pregunta = pregunta.strip()
-    
-    # Muy corta (menos de 3 caracteres)
     if len(pregunta) < 3:
         return False
-    
-    # Si tiene al menos 2 palabras, probablemente es válida
     palabras = pregunta.split()
     if len(palabras) >= 2:
         return True
-    
-    # Si es una sola palabra, verificar si es pregunta común
     palabra_unica = palabras[0].lower()
-    preguntas_validas_una_palabra = ['real', 'ficticio', 'hombre', 'mujer', 'vivo', 'muerto', 
-                                      'famoso', 'rico', 'pobre', 'antiguo', 'moderno', 'medieval']
-    if palabra_unica in preguntas_validas_una_palabra:
-        return True
-    
-    return False
+    preguntas_validas = ['real', 'ficticio', 'hombre', 'mujer', 'vivo', 'muerto', 
+                         'famoso', 'rico', 'pobre', 'antiguo', 'moderno', 'medieval']
+    return palabra_unica in preguntas_validas
 
 
 def analizar_pregunta(pregunta, personaje):
     """
     Analiza pregunta y devuelve respuesta robusta.
+    - Sí/No rotundos
+    - Probablemente sí/no con aclaraciones
+    - No lo sé con registro de hueco
     """
-    # PASO 1: Normalizar el texto
     pregunta_normalizada = normalizar_texto(pregunta)
-    
-    # PASO 2: Aplicar sinónimos
     pregunta_procesada = aplicar_sinonimos(pregunta_normalizada)
     
-    # Verificar validez básica
     if not es_pregunta_valida(pregunta_procesada):
         return {
             'answer': 'No lo sé',
@@ -648,7 +647,13 @@ def analizar_pregunta(pregunta, personaje):
     # === PROFESIÓN: CIENTÍFICO ===
     if any(kw in pregunta_procesada for kw in ['cientifico', 'ciencia', 'cientifica', 'investigador', 'laboratorio']):
         es_cientifico = personaje.get('profesion') in ['cientifico', 'cientifica'] or personaje.get('area') in ['fisica', 'quimica']
-        return {'answer': 'Sí' if es_cientifico else 'No', 'clarification': ''}
+        if es_cientifico:
+            return {'answer': 'Sí', 'clarification': ''}
+        # Probablemente no para científicos que no son de ciencias duras
+        elif personaje.get('profesion') in ['artista', 'escritor', 'militar']:
+            return {'answer': 'Probablemente no', 'clarification': 'Su genio es de otra naturaleza'}
+        else:
+            return {'answer': 'No', 'clarification': ''}
     
     # === PROFESIÓN: ARTISTA ===
     if any(kw in pregunta_procesada for kw in ['artista', 'pintor', 'pintora', 'arte', 'cuadro', 'lienzo', 'pintura']):
@@ -677,7 +682,8 @@ def analizar_pregunta(pregunta, personaje):
     
     # === VILLANO ===
     if any(kw in pregunta_procesada for kw in ['villano', 'malo', 'malvado', 'antagonista']):
-        return {'answer': 'Sí' if personaje.get('profesion') == 'villano' else 'No', 'clarification': ''}
+        es_villano = personaje.get('profesion') == 'villano'
+        return {'answer': 'Sí' if es_villano else 'No', 'clarification': ''}
     
     # === PODER SOBREHUMANO ===
     if any(kw in pregunta_procesada for kw in ['poderoso', 'sobrehumano', 'superpoderes', 'habilidad especial', 'superfuerza', 'poderes']):
@@ -721,29 +727,54 @@ def analizar_pregunta(pregunta, personaje):
     
     # === UNIVERSO: HARRY POTTER ===
     if any(kw in pregunta_procesada for kw in ['harry potter', 'hogwarts']):
-        return {'answer': 'Sí' if personaje.get('universo') == 'Harry Potter' else 'No', 'clarification': ''}
+        es_hp = personaje.get('universo') == 'Harry Potter'
+        return {'answer': 'Sí' if es_hp else 'No', 'clarification': ''}
     
     # === UNIVERSO: DC COMICS ===
     if any(kw in pregunta_procesada for kw in ['dc comics', 'dc']):
-        return {'answer': 'Sí' if personaje.get('universo') == 'DC Comics' else 'No', 'clarification': ''}
+        es_dc = personaje.get('universo') == 'DC Comics'
+        return {'answer': 'Sí' if es_dc else 'No', 'clarification': ''}
     
     # === UNIVERSO: MARVEL ===
     if any(kw in pregunta_procesada for kw in ['marvel', 'vengadores']):
-        return {'answer': 'Sí' if personaje.get('universo') == 'Marvel' else 'No', 'clarification': ''}
+        es_marvel = personaje.get('universo') == 'Marvel'
+        return {'answer': 'Sí' if es_marvel else 'No', 'clarification': ''}
     
-    # === ES HUMANO? (AHORA VA AL FINAL, DESPUÉS DE TODOS LOS CHEQUEOS ESPECÍFICOS) ===
+    # === UNIVERSO: LOTR ===
+    if any(kw in pregunta_procesada for kw in ['señor de los anillos', 'tolkien', 'lotr', 'tierra media', 'anillo']):
+        es_lotr = personaje.get('universo') in ['El Señor de los Anillos', 'Tierra Media']
+        return {'answer': 'Sí' if es_lotr else 'No', 'clarification': ''}
+    
+    # === ES HUMANO? ===
     if any(kw in pregunta_procesada for kw in ['humano', 'ser humano', 'es humano', 'humana', 'persona humana']):
-        # Personajes reales son humanos
         if personaje['tipo'] == 'real':
             return {'answer': 'Sí', 'clarification': ''}
-        # Personajes ficticios con casos especiales (no humanos)
         elif personaje['nombre'] in ['Gandalf', 'Darth Vader', 'Wonder Woman']:
             return {'answer': 'No', 'clarification': ''}
-        # El resto de ficticios (Sherlock, Harry, etc.) son humanos
         else:
             return {'answer': 'Sí', 'clarification': ''}
     
-    # === RESPUESTA POR DEFECTO (pregunta válida pero no reconocida) ===
+    # === ES HÉROE? (CASO ESPECIAL CON PROBABLEMENTE) ===
+    if any(kw in pregunta_procesada for kw in ['heroe', 'héroe', 'es heroe', 'es un heroe', 'considerado heroe']):
+        heroes_conocidos = ['Harry Potter', 'Spiderman', 'Batman', 'Wonder Woman', 'Gandalf', 'Mulan']
+        if personaje['nombre'] in heroes_conocidos:
+            return {'answer': 'Sí', 'clarification': ''}
+        elif personaje.get('profesion') in ['villano']:
+            return {'answer': 'No', 'clarification': ''}
+        else:
+            return {'answer': 'Probablemente no', 'clarification': 'La línea entre héroe y antihéroe es difusa'}
+    
+    # === ES PARTE DE UN GRUPO? ===
+    if any(kw in pregunta_procesada for kw in ['grupo', 'parte de un grupo', 'pertenece a grupo', 'trabaja en equipo']):
+        personajes_en_grupo = ['Harry Potter', 'Hermione Granger', 'Gandalf', 'Spiderman', 'Batman', 'Wonder Woman']
+        if personaje['nombre'] in personajes_en_grupo:
+            return {'answer': 'Sí', 'clarification': ''}
+        else:
+            return {'answer': 'No', 'clarification': ''}
+    
+    # === SI LLEGAMOS ACÁ, NO HAY CATEGORÍA: REGISTRAR HUECO ===
+    registrar_hueco(pregunta, personaje, pregunta_normalizada)
+    
     return {
         'answer': 'No lo sé',
         'clarification': 'No estoy seguro de cómo interpretar eso. ¿Podrías reformularlo?'
@@ -751,22 +782,15 @@ def analizar_pregunta(pregunta, personaje):
 
 
 # ===================================================================
-# SISTEMA DE SUGERENCIAS MEJORADO
+# SISTEMA DE SUGERENCIAS MEJORADO (ORIGINAL)
 # ===================================================================
 
 def generar_sugerencias(personaje, question_count, asked_questions):
     """
-    Genera sugerencias INTELIGENTES basadas en:
-    - Lo que ya se preguntó
-    - El género del personaje
-    - Si es real o ficticio
-    - Evita preguntas absurdas
+    Genera sugerencias de preguntas estratégicas
     """
-    
-    # Normalizar preguntas ya hechas para comparación
     preguntas_normalizadas = [normalizar_texto(q) for q in asked_questions]
     
-    # Determinar qué información ya tenemos
     info_conocida = {
         'tipo': any('real' in q or 'ficticio' in q for q in preguntas_normalizadas),
         'genero': any('hombre' in q or 'mujer' in q for q in preguntas_normalizadas),
@@ -777,11 +801,10 @@ def generar_sugerencias(personaje, question_count, asked_questions):
         'profesion': any('cientific' in q or 'artista' in q or 'escritor' in q or 'militar' in q or 'guerrer' in q or 'mago' in q for q in preguntas_normalizadas),
         'poder': any('poder' in q or 'superpoder' in q for q in preguntas_normalizadas),
         'nacionalidad': any('europe' in q or 'americ' in q for q in preguntas_normalizadas),
-        'universo': any('harry potter' in q or 'dc' in q or 'marvel' in q for q in preguntas_normalizadas),
+        'universo': any('harry potter' in q or 'dc' in q or 'marvel' in q or 'lotr' in q for q in preguntas_normalizadas),
         'caracteristicas': any('gafas' in q or 'barba' in q for q in preguntas_normalizadas),
     }
     
-    # Saber el género del personaje (si ya lo descubrimos)
     genero_descubierto = None
     if info_conocida['genero']:
         for q in asked_questions:
@@ -793,148 +816,80 @@ def generar_sugerencias(personaje, question_count, asked_questions):
                 genero_descubierto = 'mujer'
                 break
     
-    # Base de preguntas posibles con condiciones lógicas
     todas_preguntas = [
-        # === CATEGORÍA TIPO ===
-        {"texto": "¿Es una persona real?", "categoria": "tipo", 
-         "condicion": not info_conocida['tipo']},
-        
-        # === CATEGORÍA GÉNERO ===
-        {"texto": "¿Es hombre?", "categoria": "genero", 
-         "condicion": not info_conocida['genero']},
-        {"texto": "¿Es mujer?", "categoria": "genero", 
-         "condicion": not info_conocida['genero']},
-        
-        # === CATEGORÍA VIVO/MUERTO ===
-        {"texto": "¿Está vivo actualmente?", "categoria": "vivo", 
-         "condicion": not info_conocida['vivo']},
-        
-        # === CATEGORÍA NACIONALIDAD ===
-        {"texto": "¿Es de Europa?", "categoria": "nacionalidad", 
-         "condicion": not info_conocida['nacionalidad'] and personaje['tipo'] == 'real'},
-        {"texto": "¿Es de América?", "categoria": "nacionalidad", 
-         "condicion": not info_conocida['nacionalidad'] and personaje['tipo'] == 'real'},
-        
-        # === CATEGORÍA ÉPOCA ===
-        {"texto": "¿Es de época antigua?", "categoria": "epoca", 
-         "condicion": not info_conocida['epoca'] and personaje['tipo'] == 'real'},
-        {"texto": "¿Vivió en la Edad Media?", "categoria": "epoca", 
-         "condicion": not info_conocida['epoca'] and personaje['tipo'] == 'real'},
-        {"texto": "¿Es de época moderna?", "categoria": "epoca", 
-         "condicion": not info_conocida['epoca'] and personaje['tipo'] == 'real'},
-        
-        # === CATEGORÍA PROFESIÓN ===
-        {"texto": "¿Es científico?", "categoria": "profesion", 
-         "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'real'},
-        {"texto": "¿Es artista?", "categoria": "profesion", 
-         "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'real'},
-        {"texto": "¿Es escritor?", "categoria": "profesion", 
-         "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'real'},
-        {"texto": "¿Es militar o guerrero?", "categoria": "profesion", 
-         "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'real'},
-        {"texto": "¿Es mago o brujo?", "categoria": "profesion", 
-         "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'ficticio'},
-        {"texto": "¿Es superhéroe?", "categoria": "profesion", 
-         "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'ficticio'},
-        {"texto": "¿Es villano?", "categoria": "profesion", 
-         "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'ficticio'},
-        
-        # === CATEGORÍA PODERES ===
-        {"texto": "¿Tiene poderes sobrehumanos?", "categoria": "poder", 
-         "condicion": not info_conocida['poder'] and personaje['tipo'] == 'ficticio'},
-        
-        # === CATEGORÍA UNIVERSO ===
-        {"texto": "¿Pertenece al universo de Harry Potter?", "categoria": "universo", 
-         "condicion": not info_conocida['universo'] and personaje['tipo'] == 'ficticio'},
-        {"texto": "¿Pertenece a DC Comics?", "categoria": "universo", 
-         "condicion": not info_conocida['universo'] and personaje['tipo'] == 'ficticio'},
-        {"texto": "¿Pertenece a Marvel?", "categoria": "universo", 
-         "condicion": not info_conocida['universo'] and personaje['tipo'] == 'ficticio'},
-        
-        # === CATEGORÍA FAMA Y RIQUEZA ===
-        {"texto": "¿Es famoso?", "categoria": "famoso", 
-         "condicion": not info_conocida['famoso']},
-        {"texto": "¿Es rico o millonario?", "categoria": "rico", 
-         "condicion": not info_conocida['rico']},
-        
-        # === CATEGORÍA CARACTERÍSTICAS FÍSICAS ===
-        {"texto": "¿Usa gafas?", "categoria": "caracteristicas", 
-         "condicion": not info_conocida['caracteristicas']},
+        {"texto": "¿Es una persona real?", "condicion": not info_conocida['tipo']},
+        {"texto": "¿Es hombre?", "condicion": not info_conocida['genero']},
+        {"texto": "¿Es mujer?", "condicion": not info_conocida['genero']},
+        {"texto": "¿Está vivo actualmente?", "condicion": not info_conocida['vivo']},
+        {"texto": "¿Es de Europa?", "condicion": not info_conocida['nacionalidad'] and personaje['tipo'] == 'real'},
+        {"texto": "¿Es de América?", "condicion": not info_conocida['nacionalidad'] and personaje['tipo'] == 'real'},
+        {"texto": "¿Es de época antigua?", "condicion": not info_conocida['epoca'] and personaje['tipo'] == 'real'},
+        {"texto": "¿Vivió en la Edad Media?", "condicion": not info_conocida['epoca'] and personaje['tipo'] == 'real'},
+        {"texto": "¿Es de época moderna?", "condicion": not info_conocida['epoca'] and personaje['tipo'] == 'real'},
+        {"texto": "¿Es científico?", "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'real'},
+        {"texto": "¿Es artista?", "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'real'},
+        {"texto": "¿Es escritor?", "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'real'},
+        {"texto": "¿Es militar o guerrero?", "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'real'},
+        {"texto": "¿Es mago o brujo?", "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'ficticio'},
+        {"texto": "¿Es superhéroe?", "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'ficticio'},
+        {"texto": "¿Es villano?", "condicion": not info_conocida['profesion'] and personaje['tipo'] == 'ficticio'},
+        {"texto": "¿Tiene poderes sobrehumanos?", "condicion": not info_conocida['poder'] and personaje['tipo'] == 'ficticio'},
+        {"texto": "¿Pertenece al universo de Harry Potter?", "condicion": not info_conocida['universo'] and personaje['tipo'] == 'ficticio'},
+        {"texto": "¿Pertenece a DC Comics?", "condicion": not info_conocida['universo'] and personaje['tipo'] == 'ficticio'},
+        {"texto": "¿Pertenece a Marvel?", "condicion": not info_conocida['universo'] and personaje['tipo'] == 'ficticio'},
+        {"texto": "¿Pertenece al Señor de los Anillos?", "condicion": not info_conocida['universo'] and personaje['tipo'] == 'ficticio'},
+        {"texto": "¿Es famoso?", "condicion": not info_conocida['famoso']},
+        {"texto": "¿Es rico o millonario?", "condicion": not info_conocida['rico']},
+        {"texto": "¿Usa gafas?", "condicion": not info_conocida['caracteristicas']},
     ]
     
-    # Añadir pregunta de barba solo si no sabemos que es mujer
-    if not info_conocida['caracteristicas']:
-        if genero_descubierto != 'mujer':
-            todas_preguntas.append({
-                "texto": "¿Tiene barba?",
-                "categoria": "caracteristicas",
-                "condicion": True
-            })
+    if not info_conocida['caracteristicas'] and genero_descubierto != 'mujer':
+        todas_preguntas.append({"texto": "¿Tiene barba?", "condicion": True})
     
-    # Filtrar preguntas que ya se hicieron
     sugerencias_disponibles = []
     for pregunta in todas_preguntas:
         if not pregunta["condicion"]:
             continue
-            
         pregunta_normalizada = normalizar_texto(pregunta["texto"])
         ya_preguntada = False
-        
         for q_hecha in preguntas_normalizadas:
             palabras_preg = set(pregunta_normalizada.split())
             palabras_hecha = set(q_hecha.split())
-            
             if len(palabras_preg & palabras_hecha) >= 2:
                 ya_preguntada = True
                 break
-        
         if not ya_preguntada:
             sugerencias_disponibles.append(pregunta["texto"])
     
-    # Si no hay suficientes, añadir preguntas genéricas
     if len(sugerencias_disponibles) < 3:
         preguntas_genericas = [
             "¿Es conocido mundialmente?",
             "¿Murió de forma trágica?",
             "¿Aparece en películas o libros?"
         ]
-        
         for pg in preguntas_genericas:
-            pg_norm = normalizar_texto(pg)
-            ya_preguntada = any(
-                len(set(pg_norm.split()) & set(q.split())) >= 2 
-                for q in preguntas_normalizadas
-            )
-            
-            if not ya_preguntada and pg not in sugerencias_disponibles:
+            if pg not in sugerencias_disponibles:
                 sugerencias_disponibles.append(pg)
     
-    # Asegurar entre 3 y 5 sugerencias
     num_sugerencias = min(5, len(sugerencias_disponibles))
     num_sugerencias = max(3, num_sugerencias)
     
     if len(sugerencias_disponibles) > num_sugerencias:
         return random.sample(sugerencias_disponibles, num_sugerencias)
-    else:
-        return sugerencias_disponibles
+    return sugerencias_disponibles
 
 
 # ===================================================================
-# SISTEMA DE PISTAS
+# SISTEMA DE PISTAS (ORIGINAL)
 # ===================================================================
 
 def generar_pista(personaje, nivel):
-    """
-    Genera pistas enigmáticas (máximo 2 por personaje)
-    """
     pistas = personaje.get('pistas_enigmaticas', [])
-    
     if nivel == 1 and len(pistas) > 0:
         return pistas[0]
     elif nivel == 2 and len(pistas) > 1:
         return pistas[1]
-    else:
-        return "No hay más pistas disponibles."
+    return "No hay más pistas disponibles."
 
 
 # ===================================================================
@@ -943,7 +898,6 @@ def generar_pista(personaje, nivel):
 
 @app.route('/api/oracle', methods=['POST'])
 def oracle():
-    """Endpoint principal del juego"""
     try:
         data = request.get_json()
         action = data.get('action')
@@ -973,14 +927,11 @@ def oracle():
             character = data.get('character', {})
             character_name = character.get('nombre', '').lower().strip()
             
-            # Normalizar ambos para comparación robusta
             guess_norm = normalizar_texto(guess)
             name_norm = normalizar_texto(character_name)
             
-            # Verificar similitud
             correct = guess_norm == name_norm
             
-            # Si no es exacto, probar similitud
             if not correct and len(guess_norm) > 3:
                 ratio = difflib.SequenceMatcher(None, guess_norm, name_norm).ratio()
                 correct = ratio > 0.85
@@ -1015,49 +966,62 @@ def oracle():
 
 @app.route('/health', methods=['GET'])
 def health():
-    """Endpoint de salud"""
     return jsonify({
         'status': 'ok',
         'personajes': len(PERSONAJES),
-        'mensaje': '🧠 The Oracle - 20 Personajes'
+        'mensaje': '🧠 The Oracle - Con Detección de Huecos'
     })
 
 
-@app.route('/', methods=['GET'])
+@app.route('/huecos', methods=['GET'])
+def ver_huecos():
+    """Endpoint para consultar los huecos registrados"""
+    try:
+        if os.path.exists(REGISTRO_HUECOS_FILE):
+            with open(REGISTRO_HUECOS_FILE, 'r', encoding='utf-8') as f:
+                registros = json.load(f)
+            return jsonify({
+                'total': len(registros),
+                'huecos': registros[-50:]  # Últimos 50
+            })
+        else:
+            return jsonify({'total': 0, 'huecos': []})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/')
 def home():
-    """Página de inicio"""
     return """
     <html>
     <head><title>The Oracle</title></head>
     <body style="font-family:sans-serif; background:#000; color:#0f0; padding:20px; text-align:center;">
         <h1 style="color:#ff00ff;">🧠 THE ORACLE</h1>
         <p>20 Personajes Disponibles</p>
-        <p>Sistema Mejorado con Normalización y Sinónimos</p>
-        <p>✅ VERSIÓN CORREGIDA - Sugerencias Inteligentes</p>
+        <p>✅ Con DETECCIÓN DE HUECOS</p>
+        <p>✅ Probablemente sí/no con aclaraciones</p>
+        <p>✅ Sin IA - Totalmente controlado</p>
+        <p>📊 <a href="/huecos" style="color:#0f0;">Ver huecos registrados</a></p>
     </body>
     </html>
     """
 
 
 # ===================================================================
-# EJECUCIÓN DEL SERVIDOR
+# EJECUCIÓN
 # ===================================================================
 
 if __name__ == '__main__':
-    print("=" * 60)
-    print("🧠 THE ORACLE - Backend Mejorado VERSIÓN CORREGIDA")
-    print("=" * 60)
+    print("=" * 70)
+    print("🧠 THE ORACLE - Backend con DETECCIÓN DE HUECOS")
+    print("=" * 70)
     print(f"📡 Servidor: http://0.0.0.0:5000")
     print(f"🎭 Personajes: {len(PERSONAJES)}")
-    print("✅ Normalización de texto activada")
-    print("✅ Sistema de sinónimos mejorado")
-    print("✅ Validación flexible de preguntas")
-    print("✅ Sugerencias inteligentes basadas en contexto")
-    print("✅ Comparación de nombres con similitud")
-    print("✅ Campos de época corregidos para Juana de Arco")
-    print("✅ Filtro de género para preguntas físicas")
-    print("✅ Pregunta '¿Es humano?' agregada (Sí/No seco)")
-    print("=" * 60)
+    print("✅ Probablemente sí/no con aclaraciones")
+    print("✅ Registro de preguntas no cubiertas")
+    print("✅ Sin dependencias de IA")
+    print(f"📊 Huecos guardados en: {REGISTRO_HUECOS_FILE}")
+    print("=" * 70)
     
     # Para producción con Gunicorn
 if __name__ == '__main__':
