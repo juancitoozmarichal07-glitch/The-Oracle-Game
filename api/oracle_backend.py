@@ -2020,19 +2020,19 @@ def home():
     """
 
 
+# ===================================================================
+# EJECUCIÓN
+# ===================================================================
+
 if __name__ == '__main__':
+    import os
     print("=" * 80)
-    print("🧠 THE ORACLE - Backend Definitivo + Razonamiento")
+    print("🧠 THE ORACLE - Backend")
     print("=" * 80)
     print(f"📡 Servidor: http://0.0.0.0:5000")
     print(f"🎭 Personajes: {len(PERSONAJES)}")
-    print("✅ Razonamiento estratégico ACTIVADO")
-    print("✅ Memoria por partida ACTIVADA")
-    print("✅ Registro de huecos ACTIVADO")
     print("=" * 80)
     
-    port = # Para producción con Gunicorn
-if __name__ == '__main__':
-    import os
+    # Puerto para producción
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port, debug=False)
