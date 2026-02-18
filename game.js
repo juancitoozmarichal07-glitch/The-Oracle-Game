@@ -448,3 +448,140 @@ el.closeSuggestions.addEventListener('click', closeSuggestionsPopup);
 el.guessInput.addEventListener('keyup', (e) => e.key === 'Enter' && confirmGuess());
 
 console.log('🧠 THE ORACLE GAME - Versión Arcade con temporizador');
+// ===================================================================
+// EFECTO DE APAGADO - EL ORÁCULO TE EXPULSA (Versión legible)
+// ===================================================================
+
+// Añadir estilos de animación (manteniendo el formato legible)
+const shutdownStyle = document.createElement('style');
+shutdownStyle.textContent = `
+    .shutdown-effect {
+        animation: shutdown 0.9s forwards;
+    }
+    
+    @keyframes shutdown {
+        0% { transform: scaleY(1); opacity: 1; }
+        30% { transform: scaleY(0.1) scaleX(1.5); opacity: 1; }
+        60% { transform: scaleY(0.01) scaleX(1.8); opacity: 0.5; }
+        100% { transform: scaleY(0) scaleX(2); opacity: 0; }
+    }
+    
+    /* Mismo formato legible que usaste antes */
+    .farewell-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #111;
+        border: 3px solid #ff00ff;
+        box-shadow: 0 0 30px #ff00ff;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        width: 90%;
+        max-width: 500px;
+        z-index: 1000;
+        animation: fadeIn 0.5s;
+        font-family: Arial, sans-serif;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translate(-50%, -40%); }
+        to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    
+    .farewell-message h3 {
+        color: #ff00ff;
+        font-size: 1.2em;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+    
+    .farewell-message p {
+        color: #fff;
+        font-size: 0.95em;
+        line-height: 1.6;
+        margin: 15px 0;
+    }
+    
+    .farewell-message .brain-icon {
+        font-size: 60px;
+        filter: drop-shadow(0 0 20px #ff00ff);
+        margin-bottom: 10px;
+    }
+    
+    .farewell-message .green-text {
+        color: #0f0;
+    }
+    
+    .farewell-message .quote {
+        color: #888;
+        font-size: 0.8em;
+        margin-top: 20px;
+        font-style: italic;
+        border-top: 1px solid #333;
+        padding-top: 15px;
+    }
+    
+    .farewell-message button {
+        background-color: #222;
+        color: #0f0;
+        border: 2px solid #0f0;
+        padding: 12px 25px;
+        margin: 10px 0 5px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.85em;
+        font-weight: bold;
+        text-transform: uppercase;
+        transition: all 0.2s;
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .farewell-message button:hover {
+        background-color: #0f0;
+        color: #000;
+        box-shadow: 0 0 15px #0f0;
+    }
+    
+    .farewell-message button.purple {
+        border-color: #ff00ff;
+        color: #ff00ff;
+    }
+    
+    .farewell-message button.purple:hover {
+        background-color: #ff00ff;
+        color: #000;
+        box-shadow: 0 0 15px #ff00ff;
+    }
+`;
+document.head.appendChild(shutdownStyle);
+
+// Reemplazar el event listener del botón de salir
+if (el.exitBtn) {
+    const oldBtn = el.exitBtn;
+    const newBtn = oldBtn.cloneNode(true);
+    oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+    el.exitBtn = newBtn;
+    
+    el.exitBtn.addEventListener('click', () => {
+        // Efecto de apagado
+        const screen = document.getElementById('arcade-screen');
+        screen.classList.add('shutdown-effect');
+        
+        // Mensaje de despedida (mismo formato legible)
+        const farewell = document.createElement('div');
+        farewell.className = 'farewell-message';
+        farewell.innerHTML = `
+            <div class="brain-icon">🧠</div>
+            <h3>EL ORÁCULO TE EXPULSA</h3>
+            <p>Has presionado el botón de salida.<br><span class="green-text">No hay vuelta atrás.</span></p>
+            <p style="color: #ff00ff; font-size: 1.1em;">Tu tiempo en este plano ha terminado.</p>
+            <p>Si deseas volver a buscar conocimiento,<br>deberás invocar al Oráculo nuevamente<br>recargando la página.</p>
+            <div class="quote">"El que abandona el templo del saber,<br>solo regresa si el cosmos lo permite"</div>
+            <button class="purple" onclick="window.location.reload()">🔄 INVOCAR DE NUEVO</button>
+        `;
+        document.body.appendChild(farewell);
+    });
+}
