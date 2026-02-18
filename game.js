@@ -13,8 +13,6 @@ const config = {
     maxHints: 2                    // Máximo 2 pistas
 };
 
-En game.js
-
 // --- ESTADO ---
 let state = {
     questionCount: 0,
