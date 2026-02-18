@@ -5,7 +5,6 @@
 
 // --- CONFIGURACIÓN ---
 const config = {
-const config = {
     questionsLimit: 20,
     typewriterSpeed: 20, // Velocidad suave del typewriter (ms por carácter)
     backendURL: 'https://the-oracle-game.onrender.com/api/oracle',
