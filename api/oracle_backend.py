@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-THE ORACLE - Backend CORREGIDO
-Versión: 20 personajes + Sistema FUNCIONAL
-- ✅ Clasificación de preguntas ARREGLADA
-- ✅ Respuestas CORRECTAS
-- ✅ Sugerencias ÚTILES
-- ✅ Sistema simplificado pero COMPLETO
+THE ORACLE - Backend con Panel de Control
+Versión: 20 personajes + Dashboard de Métricas
+- ✅ Sistema de métricas completo
+- ✅ Panel de control web (/dashboard)
+- ✅ Estadísticas en tiempo real
+- ✅ Análisis de huecos y patrones
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template_string
 from flask_cors import CORS
 import random
 import unicodedata
@@ -16,6 +16,7 @@ import json
 import os
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
+from collections import Counter, defaultdict
 
 app = Flask(__name__)
 CORS(app)
@@ -25,7 +26,139 @@ CORS(app)
 # ===================================================================
 
 REGISTRO_HUECOS_FILE = "huecos_diccionario.json"
+METRICAS_FILE = "metricas_oracle.json"
 MAX_PREGUNTAS = 20
+
+
+# ===================================================================
+# SISTEMA DE MÉTRICAS
+# ===================================================================
+
+class MetricasManager:
+    """Gestor de métricas del juego"""
+    
+    def __init__(self):
+        self.metricas = self.cargar_metricas()
+    
+    def cargar_metricas(self) -> Dict:
+        """Carga métricas desde archivo"""
+        if os.path.exists(METRICAS_FILE):
+            try:
+                with open(METRICAS_FILE, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except:
+                pass
+        
+        return {
+            "partidas_totales": 0,
+            "partidas_ganadas": 0,
+            "partidas_perdidas": 0,
+            "preguntas_totales": 0,
+            "personajes_usados": {},
+            "preguntas_frecuentes": {},
+            "huecos_por_categoria": {},
+            "tasa_exito_por_personaje": {},
+            "errores": []
+        }
+    
+    def guardar_metricas(self):
+        """Guarda métricas a archivo"""
+        try:
+            with open(METRICAS_FILE, 'w', encoding='utf-8') as f:
+                json.dump(self.metricas, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Error guardando métricas: {e}")
+    
+    def registrar_partida_iniciada(self, personaje: str):
+        """Registra inicio de partida"""
+        self.metricas["partidas_totales"] += 1
+        
+        # Contador de personajes
+        if personaje not in self.metricas["personajes_usados"]:
+            self.metricas["personajes_usados"][personaje] = 0
+        self.metricas["personajes_usados"][personaje] += 1
+        
+        self.guardar_metricas()
+    
+    def registrar_pregunta(self, pregunta: str):
+        """Registra una pregunta hecha"""
+        self.metricas["preguntas_totales"] += 1
+        
+        # Normalizar pregunta para contar frecuencia
+        pregunta_key = pregunta.lower()[:100]  # Limitar longitud
+        if pregunta_key not in self.metricas["preguntas_frecuentes"]:
+            self.metricas["preguntas_frecuentes"][pregunta_key] = 0
+        self.metricas["preguntas_frecuentes"][pregunta_key] += 1
+        
+        self.guardar_metricas()
+    
+    def registrar_resultado(self, personaje: str, ganado: bool):
+        """Registra resultado de partida"""
+        if ganado:
+            self.metricas["partidas_ganadas"] += 1
+        else:
+            self.metricas["partidas_perdidas"] += 1
+        
+        # Tasa de éxito por personaje
+        if personaje not in self.metricas["tasa_exito_por_personaje"]:
+            self.metricas["tasa_exito_por_personaje"][personaje] = {"ganadas": 0, "perdidas": 0}
+        
+        if ganado:
+            self.metricas["tasa_exito_por_personaje"][personaje]["ganadas"] += 1
+        else:
+            self.metricas["tasa_exito_por_personaje"][personaje]["perdidas"] += 1
+        
+        self.guardar_metricas()
+    
+    def registrar_hueco_categoria(self, categoria: str):
+        """Registra categoría de hueco"""
+        if categoria not in self.metricas["huecos_por_categoria"]:
+            self.metricas["huecos_por_categoria"][categoria] = 0
+        self.metricas["huecos_por_categoria"][categoria] += 1
+        
+        self.guardar_metricas()
+    
+    def registrar_error(self, error: str, contexto: str = ""):
+        """Registra un error del sistema"""
+        self.metricas["errores"].append({
+            "timestamp": datetime.now().isoformat(),
+            "error": error,
+            "contexto": contexto
+        })
+        
+        # Mantener solo últimos 100 errores
+        if len(self.metricas["errores"]) > 100:
+            self.metricas["errores"] = self.metricas["errores"][-100:]
+        
+        self.guardar_metricas()
+    
+    def obtener_estadisticas(self) -> Dict:
+        """Obtiene resumen de estadísticas"""
+        total_partidas = self.metricas["partidas_totales"]
+        ganadas = self.metricas["partidas_ganadas"]
+        
+        return {
+            "partidas_totales": total_partidas,
+            "partidas_ganadas": ganadas,
+            "partidas_perdidas": self.metricas["partidas_perdidas"],
+            "tasa_victoria": round(ganadas / total_partidas * 100, 2) if total_partidas > 0 else 0,
+            "preguntas_totales": self.metricas["preguntas_totales"],
+            "promedio_preguntas": round(self.metricas["preguntas_totales"] / total_partidas, 2) if total_partidas > 0 else 0,
+            "personajes_mas_usados": sorted(
+                self.metricas["personajes_usados"].items(),
+                key=lambda x: x[1],
+                reverse=True
+            )[:10],
+            "personajes_menos_usados": sorted(
+                self.metricas["personajes_usados"].items(),
+                key=lambda x: x[1]
+            )[:10],
+            "total_errores": len(self.metricas["errores"]),
+            "huecos_por_categoria": self.metricas["huecos_por_categoria"]
+        }
+
+
+metricas_manager = MetricasManager()
 
 
 # ===================================================================
@@ -672,10 +805,14 @@ def registrar_hueco(pregunta: str, personaje: Dict, pregunta_norm: str):
         
         with open(REGISTRO_HUECOS_FILE, 'w', encoding='utf-8') as f:
             json.dump(registros, f, ensure_ascii=False, indent=2)
+        
+        # Registrar en métricas
+        metricas_manager.registrar_hueco_categoria("pregunta_no_clasificable")
             
         print(f"📝 Hueco registrado: '{pregunta}' para {personaje.get('nombre')}")
     except Exception as e:
         print(f"⚠️ Error registrando hueco: {e}")
+        metricas_manager.registrar_error(str(e), "registrar_hueco")
 
 
 # ===================================================================
@@ -683,25 +820,34 @@ def registrar_hueco(pregunta: str, personaje: Dict, pregunta_norm: str):
 # ===================================================================
 
 class MemoriaPartida:
-    def __init__(self):
+    def __init__(self, personaje_nombre: str):
+        self.personaje_nombre = personaje_nombre
         self.preguntas = []
         self.respuestas = []
         self.preguntas_restantes = MAX_PREGUNTAS
+        self.inicio = datetime.now()
     
     def registrar(self, pregunta: str, respuesta: str):
         self.preguntas.append(pregunta)
         self.respuestas.append(respuesta)
         self.preguntas_restantes -= 1
+        
+        # Registrar en métricas globales
+        metricas_manager.registrar_pregunta(pregunta)
     
     def puede_seguir(self) -> bool:
         return self.preguntas_restantes > 0
+    
+    def finalizar(self, ganado: bool):
+        """Marca el fin de la partida"""
+        metricas_manager.registrar_resultado(self.personaje_nombre, ganado)
 
 
 memorias = {}
 
 
 # ===================================================================
-# ENDPOINTS
+# ENDPOINTS DEL JUEGO
 # ===================================================================
 
 analizador = AnalizadorPreguntas()
@@ -717,7 +863,11 @@ def oracle():
         
         if action == 'start':
             character = random.choice(PERSONAJES)
-            memorias[session_id] = MemoriaPartida()
+            memorias[session_id] = MemoriaPartida(character['nombre'])
+            
+            # Registrar inicio en métricas
+            metricas_manager.registrar_partida_iniciada(character['nombre'])
+            
             return jsonify({
                 'character': character,
                 'message': 'Juego iniciado',
@@ -733,11 +883,12 @@ def oracle():
             
             # Obtener memoria
             if session_id not in memorias:
-                memorias[session_id] = MemoriaPartida()
+                memorias[session_id] = MemoriaPartida(character.get('nombre', 'desconocido'))
             
             memoria = memorias[session_id]
             
             if not memoria.puede_seguir():
+                memoria.finalizar(False)
                 return jsonify({'answer': 'Has agotado tus preguntas. Debes adivinar.', 'clarification': ''})
             
             # Analizar pregunta
@@ -761,6 +912,10 @@ def oracle():
             name_norm = Normalizador.normalizar(character_name)
             
             correct = guess_norm == name_norm
+            
+            # Finalizar partida
+            if session_id in memorias:
+                memorias[session_id].finalizar(correct)
             
             return jsonify({'correct': correct, 'character': character['nombre']})
         
@@ -794,31 +949,716 @@ def oracle():
     
     except Exception as e:
         print(f"❌ Error: {e}")
+        metricas_manager.registrar_error(str(e), f"oracle_endpoint_{action}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+
+# ===================================================================
+# ENDPOINTS DEL DASHBOARD
+# ===================================================================
+
+@app.route('/api/dashboard/stats', methods=['GET'])
+def dashboard_stats():
+    """Obtiene estadísticas generales"""
+    try:
+        stats = metricas_manager.obtener_estadisticas()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/dashboard/huecos', methods=['GET'])
+def dashboard_huecos():
+    """Obtiene lista de huecos"""
+    try:
+        limit = request.args.get('limit', 50, type=int)
+        
+        if os.path.exists(REGISTRO_HUECOS_FILE):
+            with open(REGISTRO_HUECOS_FILE, 'r', encoding='utf-8') as f:
+                huecos = json.load(f)
+            
+            # Analizar patrones
+            preguntas_counter = Counter([h['pregunta_normalizada'] for h in huecos])
+            personajes_counter = Counter([h['personaje'] for h in huecos])
+            
+            return jsonify({
+                'total': len(huecos),
+                'ultimos': huecos[-limit:],
+                'preguntas_frecuentes': preguntas_counter.most_common(20),
+                'personajes_problematicos': personajes_counter.most_common(10)
+            })
+        else:
+            return jsonify({
+                'total': 0,
+                'ultimos': [],
+                'preguntas_frecuentes': [],
+                'personajes_problematicos': []
+            })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/dashboard/personajes', methods=['GET'])
+def dashboard_personajes():
+    """Obtiene estadísticas de personajes"""
+    try:
+        personajes_stats = []
+        
+        for p in PERSONAJES:
+            nombre = p['nombre']
+            veces_usado = metricas_manager.metricas['personajes_usados'].get(nombre, 0)
+            
+            tasa_exito = metricas_manager.metricas['tasa_exito_por_personaje'].get(nombre, {"ganadas": 0, "perdidas": 0})
+            total_partidas = tasa_exito['ganadas'] + tasa_exito['perdidas']
+            porcentaje_victoria = round(tasa_exito['ganadas'] / total_partidas * 100, 2) if total_partidas > 0 else 0
+            
+            personajes_stats.append({
+                'nombre': nombre,
+                'tipo': p['tipo'],
+                'veces_usado': veces_usado,
+                'partidas_ganadas': tasa_exito['ganadas'],
+                'partidas_perdidas': tasa_exito['perdidas'],
+                'porcentaje_victoria': porcentaje_victoria
+            })
+        
+        # Ordenar por veces usado
+        personajes_stats.sort(key=lambda x: x['veces_usado'], reverse=True)
+        
+        return jsonify({
+            'personajes': personajes_stats,
+            'total_personajes': len(PERSONAJES)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/dashboard/errores', methods=['GET'])
+def dashboard_errores():
+    """Obtiene lista de errores del sistema"""
+    try:
+        limit = request.args.get('limit', 50, type=int)
+        errores = metricas_manager.metricas.get('errores', [])
+        
+        return jsonify({
+            'total': len(errores),
+            'ultimos': errores[-limit:]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ===================================================================
+# DASHBOARD HTML
+# ===================================================================
+
+DASHBOARD_HTML = '''
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Oracle Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 2px solid #ff00ff;
+        }
+        
+        h1 {
+            color: #ff00ff;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #ff00ff;
+        }
+        
+        .subtitle {
+            color: #00ff00;
+            font-size: 1.2em;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            padding: 15px 30px;
+            background: rgba(255, 0, 255, 0.2);
+            border: 2px solid #ff00ff;
+            color: #ff00ff;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .tab-button:hover {
+            background: rgba(255, 0, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .tab-button.active {
+            background: #ff00ff;
+            color: #1a1a2e;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #00ff00;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 3em;
+            color: #00ff00;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+        
+        .section {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #00ff00;
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            color: #00ff00;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th {
+            background: rgba(0, 255, 0, 0.2);
+            padding: 15px;
+            text-align: left;
+            color: #00ff00;
+            border-bottom: 2px solid #00ff00;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+        }
+        
+        tr:hover {
+            background: rgba(0, 255, 0, 0.1);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #ff00ff);
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .badge-success {
+            background: rgba(0, 255, 0, 0.3);
+            color: #00ff00;
+        }
+        
+        .badge-error {
+            background: rgba(255, 0, 0, 0.3);
+            color: #ff0000;
+        }
+        
+        .badge-warning {
+            background: rgba(255, 165, 0, 0.3);
+            color: #ffA500;
+        }
+        
+        .refresh-button {
+            padding: 12px 25px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .refresh-button:hover {
+            background: #ff00ff;
+            transform: scale(1.05);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.5em;
+            color: #00ff00;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 1.2em;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 THE ORACLE</h1>
+            <p class="subtitle">Panel de Control y Métricas</p>
+            <button class="refresh-button" onclick="loadAllData()">🔄 Actualizar Datos</button>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('general')">📊 General</button>
+            <button class="tab-button" onclick="switchTab('personajes')">🎭 Personajes</button>
+            <button class="tab-button" onclick="switchTab('huecos')">🕳️ Huecos</button>
+            <button class="tab-button" onclick="switchTab('errores')">⚠️ Errores</button>
+        </div>
+        
+        <!-- TAB GENERAL -->
+        <div id="tab-general" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Partidas Totales</div>
+                    <div class="stat-value" id="stat-partidas">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Partidas Ganadas</div>
+                    <div class="stat-value" id="stat-ganadas">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Tasa de Victoria</div>
+                    <div class="stat-value" id="stat-tasa">-%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Preguntas Totales</div>
+                    <div class="stat-value" id="stat-preguntas">-</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🎯 Personajes Más Jugados</h2>
+                <table id="table-mas-usados">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Personaje</th>
+                            <th>Veces Usado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="3" class="loading">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>🎲 Personajes Menos Jugados</h2>
+                <table id="table-menos-usados">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Personaje</th>
+                            <th>Veces Usado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="3" class="loading">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- TAB PERSONAJES -->
+        <div id="tab-personajes" class="tab-content">
+            <div class="section">
+                <h2>🎭 Estadísticas por Personaje</h2>
+                <table id="table-personajes">
+                    <thead>
+                        <tr>
+                            <th>Personaje</th>
+                            <th>Tipo</th>
+                            <th>Veces Usado</th>
+                            <th>Ganadas</th>
+                            <th>Perdidas</th>
+                            <th>% Victoria</th>
+                            <th>Dificultad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="7" class="loading">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- TAB HUECOS -->
+        <div id="tab-huecos" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total de Huecos</div>
+                    <div class="stat-value" id="stat-huecos-total">-</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>❓ Preguntas Más Frecuentes (No Respondidas)</h2>
+                <table id="table-huecos-frecuentes">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Pregunta</th>
+                            <th>Ocurrencias</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="3" class="loading">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>🎭 Personajes con Más Huecos</h2>
+                <table id="table-personajes-problematicos">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Personaje</th>
+                            <th>Huecos Registrados</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="3" class="loading">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>📝 Últimos Huecos Registrados</h2>
+                <table id="table-huecos-recientes">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Pregunta Original</th>
+                            <th>Personaje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="3" class="loading">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- TAB ERRORES -->
+        <div id="tab-errores" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total de Errores</div>
+                    <div class="stat-value" id="stat-errores-total">-</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>⚠️ Errores del Sistema</h2>
+                <table id="table-errores">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Error</th>
+                            <th>Contexto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="3" class="loading">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(tabName) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Desactivar todos los botones
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Activar tab y botón seleccionados
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        async function loadGeneralStats() {
+            try {
+                const response = await fetch('/api/dashboard/stats');
+                const data = await response.json();
+                
+                document.getElementById('stat-partidas').textContent = data.partidas_totales;
+                document.getElementById('stat-ganadas').textContent = data.partidas_ganadas;
+                document.getElementById('stat-tasa').textContent = data.tasa_victoria + '%';
+                document.getElementById('stat-preguntas').textContent = data.preguntas_totales;
+                
+                // Personajes más usados
+                const tbody1 = document.querySelector('#table-mas-usados tbody');
+                tbody1.innerHTML = data.personajes_mas_usados.map((p, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${p[0]}</td>
+                        <td>${p[1]}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="3" class="empty-state">No hay datos</td></tr>';
+                
+                // Personajes menos usados
+                const tbody2 = document.querySelector('#table-menos-usados tbody');
+                tbody2.innerHTML = data.personajes_menos_usados.map((p, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${p[0]}</td>
+                        <td>${p[1]}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="3" class="empty-state">No hay datos</td></tr>';
+            } catch (error) {
+                console.error('Error cargando stats:', error);
+            }
+        }
+        
+        async function loadPersonajes() {
+            try {
+                const response = await fetch('/api/dashboard/personajes');
+                const data = await response.json();
+                
+                const tbody = document.querySelector('#table-personajes tbody');
+                tbody.innerHTML = data.personajes.map(p => {
+                    let dificultad = 'Normal';
+                    if (p.porcentaje_victoria > 70) dificultad = 'Fácil';
+                    else if (p.porcentaje_victoria < 30) dificultad = 'Difícil';
+                    
+                    return `
+                        <tr>
+                            <td>${p.nombre}</td>
+                            <td><span class="badge ${p.tipo === 'real' ? 'badge-success' : 'badge-warning'}">${p.tipo}</span></td>
+                            <td>${p.veces_usado}</td>
+                            <td>${p.partidas_ganadas}</td>
+                            <td>${p.partidas_perdidas}</td>
+                            <td>${p.porcentaje_victoria}%</td>
+                            <td>${dificultad}</td>
+                        </tr>
+                    `;
+                }).join('') || '<tr><td colspan="7" class="empty-state">No hay datos</td></tr>';
+            } catch (error) {
+                console.error('Error cargando personajes:', error);
+            }
+        }
+        
+        async function loadHuecos() {
+            try {
+                const response = await fetch('/api/dashboard/huecos');
+                const data = await response.json();
+                
+                document.getElementById('stat-huecos-total').textContent = data.total;
+                
+                // Preguntas frecuentes
+                const tbody1 = document.querySelector('#table-huecos-frecuentes tbody');
+                tbody1.innerHTML = data.preguntas_frecuentes.map((p, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${p[0]}</td>
+                        <td><span class="badge badge-error">${p[1]}</span></td>
+                    </tr>
+                `).join('') || '<tr><td colspan="3" class="empty-state">No hay huecos registrados</td></tr>';
+                
+                // Personajes problemáticos
+                const tbody2 = document.querySelector('#table-personajes-problematicos tbody');
+                tbody2.innerHTML = data.personajes_problematicos.map((p, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${p[0]}</td>
+                        <td><span class="badge badge-warning">${p[1]}</span></td>
+                    </tr>
+                `).join('') || '<tr><td colspan="3" class="empty-state">No hay datos</td></tr>';
+                
+                // Últimos huecos
+                const tbody3 = document.querySelector('#table-huecos-recientes tbody');
+                tbody3.innerHTML = data.ultimos.reverse().slice(0, 30).map(h => `
+                    <tr>
+                        <td>${new Date(h.timestamp).toLocaleString()}</td>
+                        <td>${h.pregunta_original}</td>
+                        <td>${h.personaje}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="3" class="empty-state">No hay huecos registrados</td></tr>';
+            } catch (error) {
+                console.error('Error cargando huecos:', error);
+            }
+        }
+        
+        async function loadErrores() {
+            try {
+                const response = await fetch('/api/dashboard/errores');
+                const data = await response.json();
+                
+                document.getElementById('stat-errores-total').textContent = data.total;
+                
+                const tbody = document.querySelector('#table-errores tbody');
+                tbody.innerHTML = data.ultimos.reverse().map(e => `
+                    <tr>
+                        <td>${new Date(e.timestamp).toLocaleString()}</td>
+                        <td><span class="badge badge-error">${e.error}</span></td>
+                        <td>${e.contexto}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="3" class="empty-state">No hay errores registrados</td></tr>';
+            } catch (error) {
+                console.error('Error cargando errores:', error);
+            }
+        }
+        
+        async function loadAllData() {
+            await Promise.all([
+                loadGeneralStats(),
+                loadPersonajes(),
+                loadHuecos(),
+                loadErrores()
+            ]);
+        }
+        
+        // Cargar datos al iniciar
+        loadAllData();
+        
+        // Auto-refresh cada 30 segundos
+        setInterval(loadAllData, 30000);
+    </script>
+</body>
+</html>
+'''
+
+
+@app.route('/dashboard')
+def dashboard():
+    """Panel de control HTML"""
+    return render_template_string(DASHBOARD_HTML)
+
+
+# ===================================================================
+# ENDPOINTS BÁSICOS
+# ===================================================================
 
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({
         'status': 'ok',
         'personajes': len(PERSONAJES),
-        'mensaje': '🧠 The Oracle - Sistema CORREGIDO'
+        'mensaje': '🧠 The Oracle - Con Dashboard de Métricas'
     })
 
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 def home():
     return """
     <html>
     <head><title>The Oracle</title></head>
     <body style="font-family:sans-serif; background:#000; color:#0f0; padding:20px; text-align:center;">
         <h1 style="color:#ff00ff;">🧠 THE ORACLE</h1>
-        <p>20 Personajes | Sistema CORREGIDO</p>
-        <p>✅ Respuestas FUNCIONAN</p>
+        <p>20 Personajes | Sistema FUNCIONAL</p>
+        <p>✅ Respuestas CORRECTAS</p>
         <p>✅ Sugerencias ÚTILES</p>
-        <p>✅ Todo SIMPLIFICADO y FUNCIONAL</p>
+        <p>✅ Panel de Control Activo</p>
+        <br>
+        <a href="/dashboard" style="color:#00ff00; font-size:1.5em;">📊 Ver Dashboard</a>
     </body>
     </html>
     """
@@ -827,13 +1667,13 @@ def home():
 if __name__ == '__main__':
     import os
     print("=" * 60)
-    print("🧠 THE ORACLE - Backend CORREGIDO")
+    print("🧠 THE ORACLE - Backend con Dashboard")
     print("=" * 60)
     print(f"📡 Servidor: http://0.0.0.0:5000")
     print(f"🎭 Personajes: {len(PERSONAJES)}")
-    print("✅ Sistema SIMPLIFICADO")
-    print("✅ Respuestas FUNCIONAN")
-    print("✅ Sugerencias ÚTILES")
+    print(f"📊 Dashboard: http://0.0.0.0:5000/dashboard")
+    print("✅ Sistema de métricas ACTIVADO")
+    print("✅ Registro automático de estadísticas")
     print("=" * 60)
     
     # Puerto para producción
