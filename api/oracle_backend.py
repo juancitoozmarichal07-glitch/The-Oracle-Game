@@ -1,5 +1,4 @@
-
-   #!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 THE ORACLE - Backend con Panel de Control
 Versión: 20 personajes + Dashboard de Métricas
@@ -18,6 +17,9 @@ import os
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 from collections import Counter, defaultdict
+from flask import send_file, make_response
+from io import BytesIO, StringIO
+
 
 app = Flask(__name__)
 CORS(app)
@@ -29,6 +31,195 @@ CORS(app)
 REGISTRO_HUECOS_FILE = "huecos_diccionario.json"
 METRICAS_FILE = "metricas_oracle.json"
 MAX_PREGUNTAS = 20
+
+# ===================================================================
+# CARGADOR DE PERSONAJES DESDE JSON
+# ===================================================================
+
+def cargar_personajes(archivo: str = 'personajes.json') -> List[Dict]:
+    """
+    Carga personajes desde archivo JSON externo.
+    
+    Fallback: Si no existe el archivo, retorna array vacío.
+    El servidor mostrará error claro si no hay personajes.
+    """
+    try:
+        if os.path.exists(archivo):
+            with open(archivo, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                personajes = data.get('personajes', [])
+                print(f"✅ {len(personajes)} personajes cargados desde {archivo}")
+                return personajes
+        else:
+            print(f"⚠️  Archivo {archivo} no encontrado")
+            return []
+    except Exception as e:
+        print(f"❌ Error cargando personajes: {e}")
+        return []
+
+
+
+# ===================================================================
+# CARGADOR DE PERSONAJES DESDE JSON
+# ===================================================================
+
+def cargar_personajes(archivo: str = 'personajes.json') -> List[Dict]:
+    """
+    Carga personajes desde archivo JSON externo.
+    
+    Fallback: Si no existe el archivo, retorna array vacío.
+    El servidor mostrará error claro si no hay personajes.
+    """
+    try:
+        if os.path.exists(archivo):
+            with open(archivo, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                personajes = data.get('personajes', [])
+                print(f"✅ {len(personajes)} personajes cargados desde {archivo}")
+                return personajes
+        else:
+            print(f"⚠️  Archivo {archivo} no encontrado")
+            return []
+    except Exception as e:
+        print(f"❌ Error cargando personajes: {e}")
+        return []
+
+
+
+# ===================================================================
+# CARGADOR DE PERSONAJES DESDE JSON
+# ===================================================================
+
+def cargar_personajes(archivo: str = 'personajes.json') -> List[Dict]:
+    """
+    Carga personajes desde archivo JSON externo.
+    
+    Fallback: Si no existe el archivo, retorna array vacío.
+    El servidor mostrará error claro si no hay personajes.
+    """
+    try:
+        if os.path.exists(archivo):
+            with open(archivo, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                personajes = data.get('personajes', [])
+                print(f"✅ {len(personajes)} personajes cargados desde {archivo}")
+                return personajes
+        else:
+            print(f"⚠️  Archivo {archivo} no encontrado")
+            return []
+    except Exception as e:
+        print(f"❌ Error cargando personajes: {e}")
+        return []
+
+
+
+# ===================================================================
+# CARGADOR DE PERSONAJES DESDE JSON
+# ===================================================================
+
+def cargar_personajes(archivo: str = 'personajes.json') -> List[Dict]:
+    """
+    Carga personajes desde archivo JSON externo.
+    
+    Fallback: Si no existe el archivo, retorna array vacío.
+    El servidor mostrará error claro si no hay personajes.
+    """
+    try:
+        if os.path.exists(archivo):
+            with open(archivo, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                personajes = data.get('personajes', [])
+                print(f"✅ {len(personajes)} personajes cargados desde {archivo}")
+                return personajes
+        else:
+            print(f"⚠️  Archivo {archivo} no encontrado")
+            return []
+    except Exception as e:
+        print(f"❌ Error cargando personajes: {e}")
+        return []
+
+
+
+# ===================================================================
+# CARGADOR DE PERSONAJES DESDE JSON
+# ===================================================================
+
+def cargar_personajes(archivo: str = 'personajes.json') -> List[Dict]:
+    """
+    Carga personajes desde archivo JSON externo.
+    
+    Fallback: Si no existe el archivo, retorna array vacío.
+    El servidor mostrará error claro si no hay personajes.
+    """
+    try:
+        if os.path.exists(archivo):
+            with open(archivo, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                personajes = data.get('personajes', [])
+                print(f"✅ {len(personajes)} personajes cargados desde {archivo}")
+                return personajes
+        else:
+            print(f"⚠️  Archivo {archivo} no encontrado")
+            return []
+    except Exception as e:
+        print(f"❌ Error cargando personajes: {e}")
+        return []
+
+
+
+# ===================================================================
+# CARGADOR DE PERSONAJES DESDE JSON
+# ===================================================================
+
+def cargar_personajes(archivo: str = 'personajes.json') -> List[Dict]:
+    """
+    Carga personajes desde archivo JSON externo.
+    
+    Fallback: Si no existe el archivo, retorna array vacío.
+    El servidor mostrará error claro si no hay personajes.
+    """
+    try:
+        if os.path.exists(archivo):
+            with open(archivo, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                personajes = data.get('personajes', [])
+                print(f"✅ {len(personajes)} personajes cargados desde {archivo}")
+                return personajes
+        else:
+            print(f"⚠️  Archivo {archivo} no encontrado")
+            return []
+    except Exception as e:
+        print(f"❌ Error cargando personajes: {e}")
+        return []
+
+
+
+# ===================================================================
+# CARGADOR DE PERSONAJES DESDE JSON
+# ===================================================================
+
+def cargar_personajes(archivo: str = 'personajes.json') -> List[Dict]:
+    """
+    Carga personajes desde archivo JSON externo.
+    
+    Fallback: Si no existe el archivo, retorna array vacío.
+    El servidor mostrará error claro si no hay personajes.
+    """
+    try:
+        if os.path.exists(archivo):
+            with open(archivo, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                personajes = data.get('personajes', [])
+                print(f"✅ {len(personajes)} personajes cargados desde {archivo}")
+                return personajes
+        else:
+            print(f"⚠️  Archivo {archivo} no encontrado")
+            return []
+    except Exception as e:
+        print(f"❌ Error cargando personajes: {e}")
+        return []
+
+
 
 
 # ===================================================================
@@ -166,371 +357,15 @@ metricas_manager = MetricasManager()
 # BASE DE DATOS - 20 PERSONAJES
 # ===================================================================
 
-PERSONAJES = [
-    # REALES (10)
-    {
-        "nombre": "Albert Einstein",
-        "tipo": "real",
-        "genero": "masculino",
-        "nacionalidad": "aleman",
-        "profesion": "cientifico",
-        "area": "fisica",
-        "epoca": "moderna",
-        "vivo": False,
-        "famoso": True,
-        "rico": False,
-        "caracteristicas": ["gafas", "bigote", "genio"],
-        "pistas": [
-            "El tiempo fluye diferente en su universo teórico",
-            "E=mc² es solo el comienzo de su legado"
-        ]
-    },
-    {
-        "nombre": "Cleopatra",
-        "tipo": "real",
-        "genero": "femenino",
-        "nacionalidad": "egipcia",
-        "profesion": "reina",
-        "area": "politica",
-        "epoca": "antigua",
-        "vivo": False,
-        "famoso": True,
-        "rico": True,
-        "caracteristicas": ["bella", "seductora", "faraona"],
-        "pistas": [
-            "El veneno de una serpiente selló su destino",
-            "César y Marco Antonio cayeron ante su encanto"
-        ]
-    },
-    {
-        "nombre": "Leonardo da Vinci",
-        "tipo": "real",
-        "genero": "masculino",
-        "nacionalidad": "italiano",
-        "profesion": "artista",
-        "area": "arte",
-        "epoca": "renacimiento",
-        "vivo": False,
-        "famoso": True,
-        "rico": False,
-        "caracteristicas": ["pintor", "inventor", "genio"],
-        "pistas": [
-            "Una sonrisa enigmática vigila siglos desde su lienzo",
-            "Dibujó máquinas voladoras antes de que existieran"
-        ]
-    },
-    {
-        "nombre": "Marie Curie",
-        "tipo": "real",
-        "genero": "femenino",
-        "nacionalidad": "polaca",
-        "profesion": "cientifica",
-        "area": "quimica",
-        "epoca": "moderna",
-        "vivo": False,
-        "famoso": True,
-        "rico": False,
-        "caracteristicas": ["radiactividad", "nobel", "pionera"],
-        "pistas": [
-            "Tocó elementos que brillaban con luz mortal",
-            "Dos Premios Nobel no detuvieron su pasión"
-        ]
-    },
-    {
-        "nombre": "Napoleon Bonaparte",
-        "tipo": "real",
-        "genero": "masculino",
-        "nacionalidad": "frances",
-        "profesion": "militar",
-        "area": "guerra",
-        "epoca": "moderna",
-        "vivo": False,
-        "famoso": True,
-        "rico": True,
-        "caracteristicas": ["emperador", "estratega", "bajo"],
-        "pistas": [
-            "Una isla lo vio nacer y otra lo vio morir",
-            "El invierno ruso congeló sus sueños de imperio"
-        ]
-    },
-    {
-        "nombre": "Frida Kahlo",
-        "tipo": "real",
-        "genero": "femenino",
-        "nacionalidad": "mexicana",
-        "profesion": "artista",
-        "area": "arte",
-        "epoca": "moderna",
-        "vivo": False,
-        "famoso": True,
-        "rico": False,
-        "caracteristicas": ["monoceja", "autorretratos", "flores"],
-        "pistas": [
-            "Su espejo fue testigo del dolor transformado en arte",
-            "Flores coronan su cabeza mientras el sufrimiento habita"
-        ]
-    },
-    {
-        "nombre": "William Shakespeare",
-        "tipo": "real",
-        "genero": "masculino",
-        "nacionalidad": "ingles",
-        "profesion": "escritor",
-        "area": "literatura",
-        "epoca": "renacimiento",
-        "vivo": False,
-        "famoso": True,
-        "rico": False,
-        "caracteristicas": ["dramaturgo", "poeta", "hamlet"],
-        "pistas": [
-            "Ser o no ser, esa pregunta eterna nació de su genio",
-            "Los amantes de Verona murieron por su pluma"
-        ]
-    },
-    {
-        "nombre": "Gandhi",
-        "tipo": "real",
-        "genero": "masculino",
-        "nacionalidad": "indio",
-        "profesion": "lider",
-        "area": "politica",
-        "epoca": "moderna",
-        "vivo": False,
-        "famoso": True,
-        "rico": False,
-        "caracteristicas": ["pacifista", "gafas", "asceta"],
-        "pistas": [
-            "Caminó al mar por un puñado de sal prohibida",
-            "Sin disparar un arma liberó a millones"
-        ]
-    },
-    {
-        "nombre": "Juana de Arco",
-        "tipo": "real",
-        "genero": "femenino",
-        "nacionalidad": "francesa",
-        "profesion": "guerrera",
-        "area": "guerra",
-        "epoca": "medieval",
-        "vivo": False,
-        "famoso": True,
-        "rico": False,
-        "caracteristicas": ["santa", "armadura", "visionaria"],
-        "pistas": [
-            "Voces celestiales la guiaron a vestir armadura",
-            "Las llamas la consumieron pero su fe quedó"
-        ]
-    },
-    {
-        "nombre": "Pablo Picasso",
-        "tipo": "real",
-        "genero": "masculino",
-        "nacionalidad": "espanol",
-        "profesion": "artista",
-        "area": "arte",
-        "epoca": "moderna",
-        "vivo": False,
-        "famoso": True,
-        "rico": True,
-        "caracteristicas": ["cubismo", "guernica", "prolifico"],
-        "pistas": [
-            "Rompió la realidad en mil fragmentos geométricos",
-            "El horror de la guerra grita en su lienzo"
-        ]
-    },
-    
-    # FICTICIOS (10)
-    {
-        "nombre": "Harry Potter",
-        "tipo": "ficticio",
-        "genero": "masculino",
-        "nacionalidad": "ingles",
-        "profesion": "mago",
-        "area": "magia",
-        "universo": "Harry Potter",
-        "epoca": "moderna",
-        "vivo": True,
-        "famoso": True,
-        "rico": True,
-        "tiene_poderes": True,
-        "caracteristicas": ["cicatriz", "gafas", "varita"],
-        "pistas": [
-            "Una cicatriz con forma de rayo marca su frente",
-            "El niño que sobrevivió a la maldición más terrible"
-        ]
-    },
-    {
-        "nombre": "Sherlock Holmes",
-        "tipo": "ficticio",
-        "genero": "masculino",
-        "nacionalidad": "ingles",
-        "profesion": "detective",
-        "area": "investigacion",
-        "universo": "Literatura",
-        "epoca": "victoriana",
-        "vivo": True,
-        "famoso": True,
-        "rico": False,
-        "tiene_poderes": False,
-        "caracteristicas": ["deductivo", "pipa", "gorra"],
-        "pistas": [
-            "Desde el 221B de Baker Street desentraña misterios",
-            "Elemental, mi querido... aunque nunca dijo eso"
-        ]
-    },
-    {
-        "nombre": "Wonder Woman",
-        "tipo": "ficticio",
-        "genero": "femenino",
-        "nacionalidad": "amazona",
-        "profesion": "superheroe",
-        "area": "combate",
-        "universo": "DC",
-        "epoca": "moderna",
-        "vivo": True,
-        "famoso": True,
-        "rico": False,
-        "tiene_poderes": True,
-        "caracteristicas": ["lazo verdad", "amazona", "fuerte"],
-        "pistas": [
-            "Un lazo dorado obliga a confesar la verdad",
-            "Hija de dioses, criada por guerreras"
-        ]
-    },
-    {
-        "nombre": "Darth Vader",
-        "tipo": "ficticio",
-        "genero": "masculino",
-        "nacionalidad": "espacial",
-        "profesion": "villano",
-        "area": "guerra",
-        "universo": "Star Wars",
-        "epoca": "futuro",
-        "vivo": False,
-        "famoso": True,
-        "rico": False,
-        "tiene_poderes": True,
-        "caracteristicas": ["armadura negra", "respirador", "sith"],
-        "pistas": [
-            "Su respiración mecánica anuncia el terror",
-            "Cayó en la oscuridad pero un hijo lo redimió"
-        ]
-    },
-    {
-        "nombre": "Batman",
-        "tipo": "ficticio",
-        "genero": "masculino",
-        "nacionalidad": "americano",
-        "profesion": "superheroe",
-        "area": "justicia",
-        "universo": "DC",
-        "epoca": "moderna",
-        "vivo": True,
-        "famoso": True,
-        "rico": True,
-        "tiene_poderes": False,
-        "caracteristicas": ["murcielago", "millonario", "gotham"],
-        "pistas": [
-            "La muerte de sus padres forjó al caballero oscuro",
-            "Sin poderes pero con tecnología y miedo"
-        ]
-    },
-    {
-        "nombre": "Hermione Granger",
-        "tipo": "ficticio",
-        "genero": "femenino",
-        "nacionalidad": "inglesa",
-        "profesion": "bruja",
-        "area": "magia",
-        "universo": "Harry Potter",
-        "epoca": "moderna",
-        "vivo": True,
-        "famoso": True,
-        "rico": False,
-        "tiene_poderes": True,
-        "caracteristicas": ["inteligente", "estudiosa", "leal"],
-        "pistas": [
-            "Los libros son su mayor tesoro y arma",
-            "Nacida sin magia pero convertida en la más brillante"
-        ]
-    },
-    {
-        "nombre": "Spiderman",
-        "tipo": "ficticio",
-        "genero": "masculino",
-        "nacionalidad": "americano",
-        "profesion": "superheroe",
-        "area": "justicia",
-        "universo": "Marvel",
-        "epoca": "moderna",
-        "vivo": True,
-        "famoso": True,
-        "rico": False,
-        "tiene_poderes": True,
-        "caracteristicas": ["telarañas", "mascara", "joven"],
-        "pistas": [
-            "Una picadura radioactiva le dio poderes",
-            "Con gran poder viene gran responsabilidad"
-        ]
-    },
-    {
-        "nombre": "Gandalf",
-        "tipo": "ficticio",
-        "genero": "masculino",
-        "nacionalidad": "tierra media",
-        "profesion": "mago",
-        "area": "magia",
-        "universo": "Tolkien",
-        "epoca": "medieval",
-        "vivo": True,
-        "famoso": True,
-        "rico": False,
-        "tiene_poderes": True,
-        "caracteristicas": ["barba blanca", "baston", "sabio"],
-        "pistas": [
-            "Gris al principio, blanco después de las sombras",
-            "Un simple anillo debía ser destruido"
-        ]
-    },
-    {
-        "nombre": "Don Quijote",
-        "tipo": "ficticio",
-        "genero": "masculino",
-        "nacionalidad": "espanol",
-        "profesion": "caballero",
-        "area": "aventuras",
-        "universo": "Literatura",
-        "epoca": "renacimiento",
-        "vivo": False,
-        "famoso": True,
-        "rico": False,
-        "tiene_poderes": False,
-        "caracteristicas": ["loco", "molinos", "idealista"],
-        "pistas": [
-            "Confundió molinos de viento con gigantes",
-            "Su locura era más noble que la cordura"
-        ]
-    },
-    {
-        "nombre": "Mulan",
-        "tipo": "ficticio",
-        "genero": "femenino",
-        "nacionalidad": "china",
-        "profesion": "guerrera",
-        "area": "guerra",
-        "universo": "Leyenda",
-        "epoca": "antigua",
-        "vivo": True,
-        "famoso": True,
-        "rico": False,
-        "tiene_poderes": False,
-        "caracteristicas": ["valiente", "disfraz", "honor"],
-        "pistas": [
-            "Cortó su cabello y vistió armadura por su padre",
-            "Nadie supo que el soldado era una mujer"
-        ]
-    }
-]
+# Cargar personajes desde archivo JSON
+PERSONAJES = cargar_personajes()
+
+# Validación: Verificar que se cargaron personajes
+if not PERSONAJES:
+    print("=" * 60)
+    print("⚠️  ADVERTENCIA: No se cargaron personajes")
+    print("Asegúrate de que personajes.json existe en el mismo directorio")
+    print("=" * 60)
 
 
 # ===================================================================
@@ -709,6 +544,734 @@ class AnalizadorPreguntas:
             tiene_barba = 'barba' in ' '.join(personaje.get('caracteristicas', [])).lower()
             return {'answer': 'Sí' if tiene_barba else 'No', 'clarification': ''}
         
+        
+        # === NUEVAS PREGUNTAS AGREGADAS EN EL REFACTOR ===
+        
+        # SIGLO
+        if 'siglo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            siglo_inicio = periodo.get('siglo_inicio', 0)
+            siglo_fin = periodo.get('siglo_fin', 0)
+            
+            # Extraer número de siglo de la pregunta si existe
+            import re
+            match = re.search(r'siglo\s+(\d+)', pregunta_norm)
+            if match:
+                siglo_preguntado = int(match.group(1))
+                if siglo_inicio <= siglo_preguntado <= siglo_fin:
+                    return {'answer': 'Sí', 'clarification': ''}
+                else:
+                    return {'answer': 'No', 'clarification': ''}
+            
+            # Pregunta genérica sobre siglo
+            if siglo_inicio > 0:
+                return {'answer': f'Sí, siglo {siglo_inicio}' if siglo_inicio == siglo_fin else f'Siglos {siglo_inicio} al {siglo_fin}', 'clarification': ''}
+        
+        # ANTES DE CRISTO
+        if 'antes de cristo' in pregunta_norm or 'antes cristo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            antes_cristo = periodo.get('antes_de_cristo', False)
+            return {'answer': 'Sí' if antes_cristo else 'No', 'clarification': ''}
+        
+        # PREMIOS / PREMIO NOBEL
+        if 'premio nobel' in pregunta_norm or 'nobel' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_nobel = any('nobel' in str(p).lower() for p in premios)
+            return {'answer': 'Sí' if tiene_nobel else 'No', 'clarification': ''}
+        
+        if 'premio' in pregunta_norm and 'nobel' not in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_premios = len(premios) > 0
+            return {'answer': 'Sí' if tiene_premios else 'No', 'clarification': ''}
+        
+        # REVOLUCIONÓ SU CAMPO
+        if 'revolucion' in pregunta_norm or 'revoluciono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            revoluciono = impacto.get('revoluciono_campo', False)
+            return {'answer': 'Sí' if revoluciono else 'No', 'clarification': ''}
+        
+        # ICÓNICO / CÉLEBRE
+        if 'iconico' in pregunta_norm or 'icono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            iconico = impacto.get('iconico', False)
+            return {'answer': 'Sí' if iconico else 'No', 'clarification': ''}
+        
+        if 'celebre' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            celebre = impacto.get('celebre', False)
+            return {'answer': 'Sí' if celebre else 'No', 'clarification': ''}
+        
+        # PERFIL MORAL
+        if 'violento' in pregunta_norm or 'violencia' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            violento = perfil.get('violento', False)
+            return {'answer': 'Sí' if violento else 'No', 'clarification': ''}
+        
+        if 'pacifista' in pregunta_norm or 'paz' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            pacifista = perfil.get('pacifista', False)
+            return {'answer': 'Sí' if pacifista else 'No', 'clarification': ''}
+        
+        if 'conquistador' in pregunta_norm or 'conquisto' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            conquistador = perfil.get('conquistador', False)
+            return {'answer': 'Sí' if conquistador else 'No', 'clarification': ''}
+        
+        if 'imperialista' in pregunta_norm or 'imperio' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            imperialista = perfil.get('imperialista', False)
+            return {'answer': 'Sí' if imperialista else 'No', 'clarification': ''}
+        
+        # ROL
+        if 'lider' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            lider = rol.get('lider', False)
+            return {'answer': 'Sí' if lider else 'No', 'clarification': ''}
+        
+        if 'gobernante' in pregunta_norm or 'goberno' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            gobernante = rol.get('gobernante', False)
+            return {'answer': 'Sí' if gobernante else 'No', 'clarification': ''}
+        
+        if 'general' in pregunta_norm and 'estadisticas' not in pregunta_norm:
+            rol = personaje.get('rol', {})
+            general = rol.get('general', False)
+            return {'answer': 'Sí' if general else 'No', 'clarification': ''}
+        
+        if 'antagonista' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            antagonista = rol.get('antagonista', False)
+            return {'answer': 'Sí' if antagonista else 'No', 'clarification': ''}
+        
+        # === FIN DE NUEVAS PREGUNTAS ===
+        
+
+        
+        # === NUEVAS PREGUNTAS AGREGADAS EN EL REFACTOR ===
+        
+        # SIGLO
+        if 'siglo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            siglo_inicio = periodo.get('siglo_inicio', 0)
+            siglo_fin = periodo.get('siglo_fin', 0)
+            
+            # Extraer número de siglo de la pregunta si existe
+            import re
+            match = re.search(r'siglo\s+(\d+)', pregunta_norm)
+            if match:
+                siglo_preguntado = int(match.group(1))
+                if siglo_inicio <= siglo_preguntado <= siglo_fin:
+                    return {'answer': 'Sí', 'clarification': ''}
+                else:
+                    return {'answer': 'No', 'clarification': ''}
+            
+            # Pregunta genérica sobre siglo
+            if siglo_inicio > 0:
+                return {'answer': f'Sí, siglo {siglo_inicio}' if siglo_inicio == siglo_fin else f'Siglos {siglo_inicio} al {siglo_fin}', 'clarification': ''}
+        
+        # ANTES DE CRISTO
+        if 'antes de cristo' in pregunta_norm or 'antes cristo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            antes_cristo = periodo.get('antes_de_cristo', False)
+            return {'answer': 'Sí' if antes_cristo else 'No', 'clarification': ''}
+        
+        # PREMIOS / PREMIO NOBEL
+        if 'premio nobel' in pregunta_norm or 'nobel' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_nobel = any('nobel' in str(p).lower() for p in premios)
+            return {'answer': 'Sí' if tiene_nobel else 'No', 'clarification': ''}
+        
+        if 'premio' in pregunta_norm and 'nobel' not in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_premios = len(premios) > 0
+            return {'answer': 'Sí' if tiene_premios else 'No', 'clarification': ''}
+        
+        # REVOLUCIONÓ SU CAMPO
+        if 'revolucion' in pregunta_norm or 'revoluciono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            revoluciono = impacto.get('revoluciono_campo', False)
+            return {'answer': 'Sí' if revoluciono else 'No', 'clarification': ''}
+        
+        # ICÓNICO / CÉLEBRE
+        if 'iconico' in pregunta_norm or 'icono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            iconico = impacto.get('iconico', False)
+            return {'answer': 'Sí' if iconico else 'No', 'clarification': ''}
+        
+        if 'celebre' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            celebre = impacto.get('celebre', False)
+            return {'answer': 'Sí' if celebre else 'No', 'clarification': ''}
+        
+        # PERFIL MORAL
+        if 'violento' in pregunta_norm or 'violencia' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            violento = perfil.get('violento', False)
+            return {'answer': 'Sí' if violento else 'No', 'clarification': ''}
+        
+        if 'pacifista' in pregunta_norm or 'paz' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            pacifista = perfil.get('pacifista', False)
+            return {'answer': 'Sí' if pacifista else 'No', 'clarification': ''}
+        
+        if 'conquistador' in pregunta_norm or 'conquisto' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            conquistador = perfil.get('conquistador', False)
+            return {'answer': 'Sí' if conquistador else 'No', 'clarification': ''}
+        
+        if 'imperialista' in pregunta_norm or 'imperio' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            imperialista = perfil.get('imperialista', False)
+            return {'answer': 'Sí' if imperialista else 'No', 'clarification': ''}
+        
+        # ROL
+        if 'lider' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            lider = rol.get('lider', False)
+            return {'answer': 'Sí' if lider else 'No', 'clarification': ''}
+        
+        if 'gobernante' in pregunta_norm or 'goberno' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            gobernante = rol.get('gobernante', False)
+            return {'answer': 'Sí' if gobernante else 'No', 'clarification': ''}
+        
+        if 'general' in pregunta_norm and 'estadisticas' not in pregunta_norm:
+            rol = personaje.get('rol', {})
+            general = rol.get('general', False)
+            return {'answer': 'Sí' if general else 'No', 'clarification': ''}
+        
+        if 'antagonista' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            antagonista = rol.get('antagonista', False)
+            return {'answer': 'Sí' if antagonista else 'No', 'clarification': ''}
+        
+        # === FIN DE NUEVAS PREGUNTAS ===
+        
+
+        
+        # === NUEVAS PREGUNTAS AGREGADAS EN EL REFACTOR ===
+        
+        # SIGLO
+        if 'siglo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            siglo_inicio = periodo.get('siglo_inicio', 0)
+            siglo_fin = periodo.get('siglo_fin', 0)
+            
+            # Extraer número de siglo de la pregunta si existe
+            import re
+            match = re.search(r'siglo\s+(\d+)', pregunta_norm)
+            if match:
+                siglo_preguntado = int(match.group(1))
+                if siglo_inicio <= siglo_preguntado <= siglo_fin:
+                    return {'answer': 'Sí', 'clarification': ''}
+                else:
+                    return {'answer': 'No', 'clarification': ''}
+            
+            # Pregunta genérica sobre siglo
+            if siglo_inicio > 0:
+                return {'answer': f'Sí, siglo {siglo_inicio}' if siglo_inicio == siglo_fin else f'Siglos {siglo_inicio} al {siglo_fin}', 'clarification': ''}
+        
+        # ANTES DE CRISTO
+        if 'antes de cristo' in pregunta_norm or 'antes cristo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            antes_cristo = periodo.get('antes_de_cristo', False)
+            return {'answer': 'Sí' if antes_cristo else 'No', 'clarification': ''}
+        
+        # PREMIOS / PREMIO NOBEL
+        if 'premio nobel' in pregunta_norm or 'nobel' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_nobel = any('nobel' in str(p).lower() for p in premios)
+            return {'answer': 'Sí' if tiene_nobel else 'No', 'clarification': ''}
+        
+        if 'premio' in pregunta_norm and 'nobel' not in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_premios = len(premios) > 0
+            return {'answer': 'Sí' if tiene_premios else 'No', 'clarification': ''}
+        
+        # REVOLUCIONÓ SU CAMPO
+        if 'revolucion' in pregunta_norm or 'revoluciono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            revoluciono = impacto.get('revoluciono_campo', False)
+            return {'answer': 'Sí' if revoluciono else 'No', 'clarification': ''}
+        
+        # ICÓNICO / CÉLEBRE
+        if 'iconico' in pregunta_norm or 'icono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            iconico = impacto.get('iconico', False)
+            return {'answer': 'Sí' if iconico else 'No', 'clarification': ''}
+        
+        if 'celebre' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            celebre = impacto.get('celebre', False)
+            return {'answer': 'Sí' if celebre else 'No', 'clarification': ''}
+        
+        # PERFIL MORAL
+        if 'violento' in pregunta_norm or 'violencia' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            violento = perfil.get('violento', False)
+            return {'answer': 'Sí' if violento else 'No', 'clarification': ''}
+        
+        if 'pacifista' in pregunta_norm or 'paz' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            pacifista = perfil.get('pacifista', False)
+            return {'answer': 'Sí' if pacifista else 'No', 'clarification': ''}
+        
+        if 'conquistador' in pregunta_norm or 'conquisto' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            conquistador = perfil.get('conquistador', False)
+            return {'answer': 'Sí' if conquistador else 'No', 'clarification': ''}
+        
+        if 'imperialista' in pregunta_norm or 'imperio' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            imperialista = perfil.get('imperialista', False)
+            return {'answer': 'Sí' if imperialista else 'No', 'clarification': ''}
+        
+        # ROL
+        if 'lider' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            lider = rol.get('lider', False)
+            return {'answer': 'Sí' if lider else 'No', 'clarification': ''}
+        
+        if 'gobernante' in pregunta_norm or 'goberno' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            gobernante = rol.get('gobernante', False)
+            return {'answer': 'Sí' if gobernante else 'No', 'clarification': ''}
+        
+        if 'general' in pregunta_norm and 'estadisticas' not in pregunta_norm:
+            rol = personaje.get('rol', {})
+            general = rol.get('general', False)
+            return {'answer': 'Sí' if general else 'No', 'clarification': ''}
+        
+        if 'antagonista' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            antagonista = rol.get('antagonista', False)
+            return {'answer': 'Sí' if antagonista else 'No', 'clarification': ''}
+        
+        # === FIN DE NUEVAS PREGUNTAS ===
+        
+
+        
+        # === NUEVAS PREGUNTAS AGREGADAS EN EL REFACTOR ===
+        
+        # SIGLO
+        if 'siglo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            siglo_inicio = periodo.get('siglo_inicio', 0)
+            siglo_fin = periodo.get('siglo_fin', 0)
+            
+            # Extraer número de siglo de la pregunta si existe
+            import re
+            match = re.search(r'siglo\s+(\d+)', pregunta_norm)
+            if match:
+                siglo_preguntado = int(match.group(1))
+                if siglo_inicio <= siglo_preguntado <= siglo_fin:
+                    return {'answer': 'Sí', 'clarification': ''}
+                else:
+                    return {'answer': 'No', 'clarification': ''}
+            
+            # Pregunta genérica sobre siglo
+            if siglo_inicio > 0:
+                return {'answer': f'Sí, siglo {siglo_inicio}' if siglo_inicio == siglo_fin else f'Siglos {siglo_inicio} al {siglo_fin}', 'clarification': ''}
+        
+        # ANTES DE CRISTO
+        if 'antes de cristo' in pregunta_norm or 'antes cristo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            antes_cristo = periodo.get('antes_de_cristo', False)
+            return {'answer': 'Sí' if antes_cristo else 'No', 'clarification': ''}
+        
+        # PREMIOS / PREMIO NOBEL
+        if 'premio nobel' in pregunta_norm or 'nobel' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_nobel = any('nobel' in str(p).lower() for p in premios)
+            return {'answer': 'Sí' if tiene_nobel else 'No', 'clarification': ''}
+        
+        if 'premio' in pregunta_norm and 'nobel' not in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_premios = len(premios) > 0
+            return {'answer': 'Sí' if tiene_premios else 'No', 'clarification': ''}
+        
+        # REVOLUCIONÓ SU CAMPO
+        if 'revolucion' in pregunta_norm or 'revoluciono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            revoluciono = impacto.get('revoluciono_campo', False)
+            return {'answer': 'Sí' if revoluciono else 'No', 'clarification': ''}
+        
+        # ICÓNICO / CÉLEBRE
+        if 'iconico' in pregunta_norm or 'icono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            iconico = impacto.get('iconico', False)
+            return {'answer': 'Sí' if iconico else 'No', 'clarification': ''}
+        
+        if 'celebre' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            celebre = impacto.get('celebre', False)
+            return {'answer': 'Sí' if celebre else 'No', 'clarification': ''}
+        
+        # PERFIL MORAL
+        if 'violento' in pregunta_norm or 'violencia' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            violento = perfil.get('violento', False)
+            return {'answer': 'Sí' if violento else 'No', 'clarification': ''}
+        
+        if 'pacifista' in pregunta_norm or 'paz' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            pacifista = perfil.get('pacifista', False)
+            return {'answer': 'Sí' if pacifista else 'No', 'clarification': ''}
+        
+        if 'conquistador' in pregunta_norm or 'conquisto' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            conquistador = perfil.get('conquistador', False)
+            return {'answer': 'Sí' if conquistador else 'No', 'clarification': ''}
+        
+        if 'imperialista' in pregunta_norm or 'imperio' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            imperialista = perfil.get('imperialista', False)
+            return {'answer': 'Sí' if imperialista else 'No', 'clarification': ''}
+        
+        # ROL
+        if 'lider' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            lider = rol.get('lider', False)
+            return {'answer': 'Sí' if lider else 'No', 'clarification': ''}
+        
+        if 'gobernante' in pregunta_norm or 'goberno' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            gobernante = rol.get('gobernante', False)
+            return {'answer': 'Sí' if gobernante else 'No', 'clarification': ''}
+        
+        if 'general' in pregunta_norm and 'estadisticas' not in pregunta_norm:
+            rol = personaje.get('rol', {})
+            general = rol.get('general', False)
+            return {'answer': 'Sí' if general else 'No', 'clarification': ''}
+        
+        if 'antagonista' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            antagonista = rol.get('antagonista', False)
+            return {'answer': 'Sí' if antagonista else 'No', 'clarification': ''}
+        
+        # === FIN DE NUEVAS PREGUNTAS ===
+        
+
+        
+        # === NUEVAS PREGUNTAS AGREGADAS EN EL REFACTOR ===
+        
+        # SIGLO
+        if 'siglo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            siglo_inicio = periodo.get('siglo_inicio', 0)
+            siglo_fin = periodo.get('siglo_fin', 0)
+            
+            # Extraer número de siglo de la pregunta si existe
+            import re
+            match = re.search(r'siglo\s+(\d+)', pregunta_norm)
+            if match:
+                siglo_preguntado = int(match.group(1))
+                if siglo_inicio <= siglo_preguntado <= siglo_fin:
+                    return {'answer': 'Sí', 'clarification': ''}
+                else:
+                    return {'answer': 'No', 'clarification': ''}
+            
+            # Pregunta genérica sobre siglo
+            if siglo_inicio > 0:
+                return {'answer': f'Sí, siglo {siglo_inicio}' if siglo_inicio == siglo_fin else f'Siglos {siglo_inicio} al {siglo_fin}', 'clarification': ''}
+        
+        # ANTES DE CRISTO
+        if 'antes de cristo' in pregunta_norm or 'antes cristo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            antes_cristo = periodo.get('antes_de_cristo', False)
+            return {'answer': 'Sí' if antes_cristo else 'No', 'clarification': ''}
+        
+        # PREMIOS / PREMIO NOBEL
+        if 'premio nobel' in pregunta_norm or 'nobel' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_nobel = any('nobel' in str(p).lower() for p in premios)
+            return {'answer': 'Sí' if tiene_nobel else 'No', 'clarification': ''}
+        
+        if 'premio' in pregunta_norm and 'nobel' not in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_premios = len(premios) > 0
+            return {'answer': 'Sí' if tiene_premios else 'No', 'clarification': ''}
+        
+        # REVOLUCIONÓ SU CAMPO
+        if 'revolucion' in pregunta_norm or 'revoluciono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            revoluciono = impacto.get('revoluciono_campo', False)
+            return {'answer': 'Sí' if revoluciono else 'No', 'clarification': ''}
+        
+        # ICÓNICO / CÉLEBRE
+        if 'iconico' in pregunta_norm or 'icono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            iconico = impacto.get('iconico', False)
+            return {'answer': 'Sí' if iconico else 'No', 'clarification': ''}
+        
+        if 'celebre' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            celebre = impacto.get('celebre', False)
+            return {'answer': 'Sí' if celebre else 'No', 'clarification': ''}
+        
+        # PERFIL MORAL
+        if 'violento' in pregunta_norm or 'violencia' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            violento = perfil.get('violento', False)
+            return {'answer': 'Sí' if violento else 'No', 'clarification': ''}
+        
+        if 'pacifista' in pregunta_norm or 'paz' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            pacifista = perfil.get('pacifista', False)
+            return {'answer': 'Sí' if pacifista else 'No', 'clarification': ''}
+        
+        if 'conquistador' in pregunta_norm or 'conquisto' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            conquistador = perfil.get('conquistador', False)
+            return {'answer': 'Sí' if conquistador else 'No', 'clarification': ''}
+        
+        if 'imperialista' in pregunta_norm or 'imperio' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            imperialista = perfil.get('imperialista', False)
+            return {'answer': 'Sí' if imperialista else 'No', 'clarification': ''}
+        
+        # ROL
+        if 'lider' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            lider = rol.get('lider', False)
+            return {'answer': 'Sí' if lider else 'No', 'clarification': ''}
+        
+        if 'gobernante' in pregunta_norm or 'goberno' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            gobernante = rol.get('gobernante', False)
+            return {'answer': 'Sí' if gobernante else 'No', 'clarification': ''}
+        
+        if 'general' in pregunta_norm and 'estadisticas' not in pregunta_norm:
+            rol = personaje.get('rol', {})
+            general = rol.get('general', False)
+            return {'answer': 'Sí' if general else 'No', 'clarification': ''}
+        
+        if 'antagonista' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            antagonista = rol.get('antagonista', False)
+            return {'answer': 'Sí' if antagonista else 'No', 'clarification': ''}
+        
+        # === FIN DE NUEVAS PREGUNTAS ===
+        
+
+        
+        # === NUEVAS PREGUNTAS AGREGADAS EN EL REFACTOR ===
+        
+        # SIGLO
+        if 'siglo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            siglo_inicio = periodo.get('siglo_inicio', 0)
+            siglo_fin = periodo.get('siglo_fin', 0)
+            
+            # Extraer número de siglo de la pregunta si existe
+            import re
+            match = re.search(r'siglo\s+(\d+)', pregunta_norm)
+            if match:
+                siglo_preguntado = int(match.group(1))
+                if siglo_inicio <= siglo_preguntado <= siglo_fin:
+                    return {'answer': 'Sí', 'clarification': ''}
+                else:
+                    return {'answer': 'No', 'clarification': ''}
+            
+            # Pregunta genérica sobre siglo
+            if siglo_inicio > 0:
+                return {'answer': f'Sí, siglo {siglo_inicio}' if siglo_inicio == siglo_fin else f'Siglos {siglo_inicio} al {siglo_fin}', 'clarification': ''}
+        
+        # ANTES DE CRISTO
+        if 'antes de cristo' in pregunta_norm or 'antes cristo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            antes_cristo = periodo.get('antes_de_cristo', False)
+            return {'answer': 'Sí' if antes_cristo else 'No', 'clarification': ''}
+        
+        # PREMIOS / PREMIO NOBEL
+        if 'premio nobel' in pregunta_norm or 'nobel' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_nobel = any('nobel' in str(p).lower() for p in premios)
+            return {'answer': 'Sí' if tiene_nobel else 'No', 'clarification': ''}
+        
+        if 'premio' in pregunta_norm and 'nobel' not in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_premios = len(premios) > 0
+            return {'answer': 'Sí' if tiene_premios else 'No', 'clarification': ''}
+        
+        # REVOLUCIONÓ SU CAMPO
+        if 'revolucion' in pregunta_norm or 'revoluciono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            revoluciono = impacto.get('revoluciono_campo', False)
+            return {'answer': 'Sí' if revoluciono else 'No', 'clarification': ''}
+        
+        # ICÓNICO / CÉLEBRE
+        if 'iconico' in pregunta_norm or 'icono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            iconico = impacto.get('iconico', False)
+            return {'answer': 'Sí' if iconico else 'No', 'clarification': ''}
+        
+        if 'celebre' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            celebre = impacto.get('celebre', False)
+            return {'answer': 'Sí' if celebre else 'No', 'clarification': ''}
+        
+        # PERFIL MORAL
+        if 'violento' in pregunta_norm or 'violencia' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            violento = perfil.get('violento', False)
+            return {'answer': 'Sí' if violento else 'No', 'clarification': ''}
+        
+        if 'pacifista' in pregunta_norm or 'paz' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            pacifista = perfil.get('pacifista', False)
+            return {'answer': 'Sí' if pacifista else 'No', 'clarification': ''}
+        
+        if 'conquistador' in pregunta_norm or 'conquisto' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            conquistador = perfil.get('conquistador', False)
+            return {'answer': 'Sí' if conquistador else 'No', 'clarification': ''}
+        
+        if 'imperialista' in pregunta_norm or 'imperio' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            imperialista = perfil.get('imperialista', False)
+            return {'answer': 'Sí' if imperialista else 'No', 'clarification': ''}
+        
+        # ROL
+        if 'lider' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            lider = rol.get('lider', False)
+            return {'answer': 'Sí' if lider else 'No', 'clarification': ''}
+        
+        if 'gobernante' in pregunta_norm or 'goberno' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            gobernante = rol.get('gobernante', False)
+            return {'answer': 'Sí' if gobernante else 'No', 'clarification': ''}
+        
+        if 'general' in pregunta_norm and 'estadisticas' not in pregunta_norm:
+            rol = personaje.get('rol', {})
+            general = rol.get('general', False)
+            return {'answer': 'Sí' if general else 'No', 'clarification': ''}
+        
+        if 'antagonista' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            antagonista = rol.get('antagonista', False)
+            return {'answer': 'Sí' if antagonista else 'No', 'clarification': ''}
+        
+        # === FIN DE NUEVAS PREGUNTAS ===
+        
+
+        
+        # === NUEVAS PREGUNTAS AGREGADAS EN EL REFACTOR ===
+        
+        # SIGLO
+        if 'siglo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            siglo_inicio = periodo.get('siglo_inicio', 0)
+            siglo_fin = periodo.get('siglo_fin', 0)
+            
+            # Extraer número de siglo de la pregunta si existe
+            import re
+            match = re.search(r'siglo\s+(\d+)', pregunta_norm)
+            if match:
+                siglo_preguntado = int(match.group(1))
+                if siglo_inicio <= siglo_preguntado <= siglo_fin:
+                    return {'answer': 'Sí', 'clarification': ''}
+                else:
+                    return {'answer': 'No', 'clarification': ''}
+            
+            # Pregunta genérica sobre siglo
+            if siglo_inicio > 0:
+                return {'answer': f'Sí, siglo {siglo_inicio}' if siglo_inicio == siglo_fin else f'Siglos {siglo_inicio} al {siglo_fin}', 'clarification': ''}
+        
+        # ANTES DE CRISTO
+        if 'antes de cristo' in pregunta_norm or 'antes cristo' in pregunta_norm:
+            periodo = personaje.get('periodo', {})
+            antes_cristo = periodo.get('antes_de_cristo', False)
+            return {'answer': 'Sí' if antes_cristo else 'No', 'clarification': ''}
+        
+        # PREMIOS / PREMIO NOBEL
+        if 'premio nobel' in pregunta_norm or 'nobel' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_nobel = any('nobel' in str(p).lower() for p in premios)
+            return {'answer': 'Sí' if tiene_nobel else 'No', 'clarification': ''}
+        
+        if 'premio' in pregunta_norm and 'nobel' not in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            premios = impacto.get('premios', [])
+            tiene_premios = len(premios) > 0
+            return {'answer': 'Sí' if tiene_premios else 'No', 'clarification': ''}
+        
+        # REVOLUCIONÓ SU CAMPO
+        if 'revolucion' in pregunta_norm or 'revoluciono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            revoluciono = impacto.get('revoluciono_campo', False)
+            return {'answer': 'Sí' if revoluciono else 'No', 'clarification': ''}
+        
+        # ICÓNICO / CÉLEBRE
+        if 'iconico' in pregunta_norm or 'icono' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            iconico = impacto.get('iconico', False)
+            return {'answer': 'Sí' if iconico else 'No', 'clarification': ''}
+        
+        if 'celebre' in pregunta_norm:
+            impacto = personaje.get('impacto', {})
+            celebre = impacto.get('celebre', False)
+            return {'answer': 'Sí' if celebre else 'No', 'clarification': ''}
+        
+        # PERFIL MORAL
+        if 'violento' in pregunta_norm or 'violencia' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            violento = perfil.get('violento', False)
+            return {'answer': 'Sí' if violento else 'No', 'clarification': ''}
+        
+        if 'pacifista' in pregunta_norm or 'paz' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            pacifista = perfil.get('pacifista', False)
+            return {'answer': 'Sí' if pacifista else 'No', 'clarification': ''}
+        
+        if 'conquistador' in pregunta_norm or 'conquisto' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            conquistador = perfil.get('conquistador', False)
+            return {'answer': 'Sí' if conquistador else 'No', 'clarification': ''}
+        
+        if 'imperialista' in pregunta_norm or 'imperio' in pregunta_norm:
+            perfil = personaje.get('perfil_moral', {})
+            imperialista = perfil.get('imperialista', False)
+            return {'answer': 'Sí' if imperialista else 'No', 'clarification': ''}
+        
+        # ROL
+        if 'lider' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            lider = rol.get('lider', False)
+            return {'answer': 'Sí' if lider else 'No', 'clarification': ''}
+        
+        if 'gobernante' in pregunta_norm or 'goberno' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            gobernante = rol.get('gobernante', False)
+            return {'answer': 'Sí' if gobernante else 'No', 'clarification': ''}
+        
+        if 'general' in pregunta_norm and 'estadisticas' not in pregunta_norm:
+            rol = personaje.get('rol', {})
+            general = rol.get('general', False)
+            return {'answer': 'Sí' if general else 'No', 'clarification': ''}
+        
+        if 'antagonista' in pregunta_norm:
+            rol = personaje.get('rol', {})
+            antagonista = rol.get('antagonista', False)
+            return {'answer': 'Sí' if antagonista else 'No', 'clarification': ''}
+        
+        # === FIN DE NUEVAS PREGUNTAS ===
+        
+
         # NO CLASIFICABLE
         return {'answer': 'No lo sé', 'clarification': 'No estoy seguro de cómo interpretar eso. ¿Podrías reformularlo?'}
 
@@ -959,6 +1522,130 @@ def oracle():
 # ===================================================================
 # ENDPOINTS DEL DASHBOARD
 # ===================================================================
+
+
+
+# ===================================================================
+# GENERADOR DE REPORTES
+# ===================================================================
+
+class GeneradorReportes:
+    """Genera reportes de dashboard en diferentes formatos"""
+    
+    @staticmethod
+    def generar_txt() -> str:
+        """Genera reporte en formato TXT"""
+        
+        try:
+            with open(METRICAS_FILE, 'r', encoding='utf-8') as f:
+                metricas = json.load(f)
+        except:
+            metricas = {}
+        
+        try:
+            with open(REGISTRO_HUECOS_FILE, 'r', encoding='utf-8') as f:
+                huecos = json.load(f)
+        except:
+            huecos = []
+        
+        output = StringIO()
+        
+        # Header
+        output.write("=" * 80 + "\n")
+        output.write("THE ORACLE - REPORTE DE DASHBOARD\n")
+        output.write("=" * 80 + "\n")
+        output.write(f"Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        output.write("=" * 80 + "\n\n")
+        
+        # Estadísticas Generales
+        output.write("ESTADÍSTICAS GENERALES\n")
+        output.write("-" * 80 + "\n")
+        output.write(f"Partidas Totales: {metricas.get('partidas_totales', 0)}\n")
+        output.write(f"Partidas Ganadas: {metricas.get('partidas_ganadas', 0)}\n")
+        output.write(f"Partidas Perdidas: {metricas.get('partidas_perdidas', 0)}\n")
+        
+        total = metricas.get('partidas_totales', 0)
+        ganadas = metricas.get('partidas_ganadas', 0)
+        tasa = (ganadas / total * 100) if total > 0 else 0
+        output.write(f"Tasa de Victoria: {tasa:.2f}%\n")
+        
+        output.write(f"Preguntas Totales: {metricas.get('preguntas_totales', 0)}\n")
+        promedio = (metricas.get('preguntas_totales', 0) / total) if total > 0 else 0
+        output.write(f"Promedio Preguntas/Partida: {promedio:.2f}\n\n")
+        
+        # Personajes más jugados
+        output.write("PERSONAJES MÁS JUGADOS (Top 20)\n")
+        output.write("-" * 80 + "\n")
+        personajes_usados = metricas.get('personajes_usados', {})
+        personajes_sorted = sorted(personajes_usados.items(), key=lambda x: x[1], reverse=True)
+        
+        for i, (nombre, veces) in enumerate(personajes_sorted[:20], 1):
+            output.write(f"{i:2d}. {nombre:30s} - {veces:3d} veces\n")
+        output.write("\n")
+        
+        # Tasa de éxito por personaje
+        output.write("TASA DE ÉXITO POR PERSONAJE\n")
+        output.write("-" * 80 + "\n")
+        output.write(f"{'Personaje':<30} {'Usadas':<8} {'Ganadas':<8} {'Perdidas':<8} {'% Victoria':<10}\n")
+        output.write("-" * 80 + "\n")
+        
+        tasa_exito = metricas.get('tasa_exito_por_personaje', {})
+        for personaje, stats in sorted(tasa_exito.items(), key=lambda x: x[1].get('ganadas', 0) + x[1].get('perdidas', 0), reverse=True):
+            ganadas = stats.get('ganadas', 0)
+            perdidas = stats.get('perdidas', 0)
+            total_p = ganadas + perdidas
+            porcentaje = (ganadas / total_p * 100) if total_p > 0 else 0
+            usado = personajes_usados.get(personaje, total_p)
+            
+            output.write(f"{personaje:<30} {usado:<8} {ganadas:<8} {perdidas:<8} {porcentaje:<10.2f}\n")
+        output.write("\n")
+        
+        # Huecos
+        output.write("ANÁLISIS DE HUECOS\n")
+        output.write("-" * 80 + "\n")
+        output.write(f"Total de Huecos: {len(huecos)}\n\n")
+        
+        # Preguntas más frecuentes
+        from collections import Counter
+        preguntas_counter = Counter([h['pregunta_normalizada'] for h in huecos])
+        output.write("Top 30 Preguntas Más Frecuentes (Sin Respuesta):\n")
+        output.write("-" * 80 + "\n")
+        
+        for i, (pregunta, cantidad) in enumerate(preguntas_counter.most_common(30), 1):
+            output.write(f"{i:2d}. [{cantidad:3d}x] {pregunta}\n")
+        output.write("\n")
+        
+        # Personajes problemáticos
+        personajes_counter = Counter([h['personaje'] for h in huecos])
+        output.write("Top 15 Personajes con Más Huecos:\n")
+        output.write("-" * 80 + "\n")
+        
+        for i, (personaje, cantidad) in enumerate(personajes_counter.most_common(15), 1):
+            output.write(f"{i:2d}. {personaje:30s} - {cantidad:3d} huecos\n")
+        output.write("\n")
+        
+        # Últimos huecos
+        output.write("ÚLTIMOS 50 HUECOS REGISTRADOS\n")
+        output.write("-" * 80 + "\n")
+        output.write(f"{'Fecha/Hora':<20} {'Personaje':<25} {'Pregunta':<35}\n")
+        output.write("-" * 80 + "\n")
+        
+        for hueco in reversed(huecos[-50:]):
+            timestamp = hueco.get('timestamp', '')[:19]
+            personaje = hueco.get('personaje', '')[:24]
+            pregunta = hueco.get('pregunta_original', '')[:34]
+            output.write(f"{timestamp:<20} {personaje:<25} {pregunta:<35}\n")
+        output.write("\n")
+        
+        # Footer
+        output.write("=" * 80 + "\n")
+        output.write("FIN DEL REPORTE\n")
+        output.write("=" * 80 + "\n")
+        
+        return output.getvalue()
+
+
+
 
 @app.route('/api/dashboard/stats', methods=['GET'])
 def dashboard_stats():
@@ -1296,7 +1983,10 @@ DASHBOARD_HTML = '''
         <header>
             <h1>🧠 THE ORACLE</h1>
             <p class="subtitle">Panel de Control y Métricas</p>
-            <button class="refresh-button" onclick="loadAllData()">🔄 Actualizar Datos</button>
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button class="refresh-button" onclick="loadAllData()">🔄 Actualizar Datos</button>
+                <button class="refresh-button" onclick="exportarTXT()" style="background: #00ff00;">📄 Descargar TXT</button>
+            </div>
         </header>
         
         <div class="tabs">
@@ -1617,6 +2307,11 @@ DASHBOARD_HTML = '''
             ]);
         }
         
+        
+        function exportarTXT() {
+            window.location.href = '/api/dashboard/exportar-txt';
+        }
+        
         // Cargar datos al iniciar
         loadAllData();
         
@@ -1637,6 +2332,23 @@ def dashboard():
 # ===================================================================
 # ENDPOINTS BÁSICOS
 # ===================================================================
+
+
+
+@app.route('/api/dashboard/exportar-txt', methods=['GET'])
+def exportar_txt():
+    """Exporta el reporte del dashboard en formato TXT"""
+    try:
+        txt_content = GeneradorReportes.generar_txt()
+        
+        response = make_response(txt_content)
+        response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+        response.headers['Content-Disposition'] = f'attachment; filename=oracle_dashboard_{datetime.now().strftime("%Y%m%d_%H%M%S")}.txt'
+        
+        return response
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/health', methods=['GET'])
 def health():
