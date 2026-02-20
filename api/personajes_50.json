@@ -1,0 +1,4163 @@
+{
+  "_comentario": "50 PERSONAJES - COBERTURA COMPLETA DE HUECOS DEL REPORTE",
+  "_version": "2.0",
+  "_fecha": "2026-02-20",
+  "_huecos_cubiertos": [
+    "tiene_arco (Legolas, Robin Hood, Katniss, Hawkeye)",
+    "fallecido/vivo (todos los personajes)",
+    "figura_iconica (todos marcados)",
+    "ser_imaginario (tipo=ficticio)",
+    "rico/pobre (todos marcados)",
+    "senor_anillos (Gandalf, Legolas, Aragorn, Frodo, Sauron)",
+    "antiguedad (Cleopatra, Confucio, Aristóteles, César, Sócrates, Alejandro)",
+    "liberal/conservador (todos marcados)",
+    "bajo/alto (Napoleon, Gandhi, Picasso, Yoda, Frodo)",
+    "es_dama (todas las femeninas)",
+    "renacimiento (Leonardo, Shakespeare, Maquiavelo, Cervantes)",
+    "inmortal (Gandalf, Legolas, Wonder Woman, Sauron)",
+    "usa_espada (muchos guerreros)",
+    "porta_armas (todos los guerreros)",
+    "medievo (Juana de Arco, Gandalf, Robin Hood, etc.)",
+    "lucho_libertad (Gandhi, MLK, Bolívar, Mandela, etc.)",
+    "cambio_historia (muchos marcados)",
+    "todo_mundo_conoce (todos los famosos)",
+    "star_wars (Darth Vader, Luke, Leia, Yoda)",
+    "usa_tecnologia_avanzada (Tesla, Batman, Iron Man, etc.)"
+  ],
+  "personajes": [
+    {
+      "_id": 1,
+      "nombre": "Albert Einstein",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "aleman",
+      "profesion": "cientifico",
+      "area": "fisica",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "gafas",
+        "bigote",
+        "genio"
+      ],
+      "pistas": [
+        "El tiempo fluye diferente en su universo teórico",
+        "E=mc² es solo el comienzo de su legado"
+      ],
+      "periodo": {
+        "siglo_inicio": 19,
+        "siglo_fin": 20,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [
+          "Premio Nobel de Física"
+        ],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": true
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": true
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 2,
+      "nombre": "Cleopatra",
+      "tipo": "real",
+      "genero": "femenino",
+      "nacionalidad": "egipcia",
+      "profesion": "reina",
+      "area": "politica",
+      "epoca": "antigua",
+      "vivo": false,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "bella",
+        "seductora",
+        "faraona"
+      ],
+      "pistas": [
+        "El veneno de una serpiente selló su destino",
+        "César y Marco Antonio cayeron ante su encanto"
+      ],
+      "periodo": {
+        "siglo_inicio": -1,
+        "siglo_fin": -1,
+        "antes_de_cristo": true,
+        "era": "antigua",
+        "vivio_antiguedad": true,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": true,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": true,
+        "general": false,
+        "ocupo_cargo_politico": true,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": false,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 3,
+      "nombre": "Leonardo da Vinci",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "italiano",
+      "profesion": "artista",
+      "area": "arte",
+      "epoca": "renacimiento",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "pintor",
+        "inventor",
+        "genio"
+      ],
+      "pistas": [
+        "Una sonrisa enigmática vigila siglos desde su lienzo",
+        "Dibujó máquinas voladoras antes de que existieran"
+      ],
+      "periodo": {
+        "siglo_inicio": 15,
+        "siglo_fin": 16,
+        "antes_de_cristo": false,
+        "era": "renacimiento",
+        "vivio_antiguedad": false,
+        "es_renacimiento": true,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": true
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": true
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 4,
+      "nombre": "Marie Curie",
+      "tipo": "real",
+      "genero": "femenino",
+      "nacionalidad": "polaca",
+      "profesion": "cientifica",
+      "area": "quimica",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "radiactividad",
+        "nobel",
+        "pionera"
+      ],
+      "pistas": [
+        "Tocó elementos que brillaban con luz mortal",
+        "Dos Premios Nobel no detuvieron su pasión"
+      ],
+      "periodo": {
+        "siglo_inicio": 19,
+        "siglo_fin": 20,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [
+          "Premio Nobel de Física",
+          "Premio Nobel de Química"
+        ],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": true
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": true,
+        "usa_tecnologia_avanzada": true
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 5,
+      "nombre": "Napoleon Bonaparte",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "frances",
+      "profesion": "militar",
+      "area": "guerra",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "emperador",
+        "estratega",
+        "bajo"
+      ],
+      "pistas": [
+        "Una isla lo vio nacer y otra lo vio morir",
+        "El invierno ruso congeló sus sueños de imperio"
+      ],
+      "periodo": {
+        "siglo_inicio": 18,
+        "siglo_fin": 19,
+        "antes_de_cristo": false,
+        "era": "moderna",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": true,
+        "imperialista": true,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": true,
+        "general": true,
+        "ocupo_cargo_politico": true,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "bajo",
+        "bajo": true,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 6,
+      "nombre": "Frida Kahlo",
+      "tipo": "real",
+      "genero": "femenino",
+      "nacionalidad": "mexicana",
+      "profesion": "artista",
+      "area": "arte",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "monoceja",
+        "autorretratos",
+        "flores"
+      ],
+      "pistas": [
+        "Su espejo fue testigo del dolor transformado en arte",
+        "Flores coronan su cabeza mientras el sufrimiento habita"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 20,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": false,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 7,
+      "nombre": "William Shakespeare",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "ingles",
+      "profesion": "escritor",
+      "area": "literatura",
+      "epoca": "renacimiento",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "dramaturgo",
+        "poeta",
+        "hamlet"
+      ],
+      "pistas": [
+        "Ser o no ser, esa pregunta eterna nació de su genio",
+        "Los amantes de Verona murieron por su pluma"
+      ],
+      "periodo": {
+        "siglo_inicio": 16,
+        "siglo_fin": 17,
+        "antes_de_cristo": false,
+        "era": "renacimiento",
+        "vivio_antiguedad": false,
+        "es_renacimiento": true,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 8,
+      "nombre": "Gandhi",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "indio",
+      "profesion": "lider",
+      "area": "politica",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "pacifista",
+        "gafas",
+        "asceta"
+      ],
+      "pistas": [
+        "Caminó al mar por un puñado de sal prohibida",
+        "Sin disparar un arma liberó a millones"
+      ],
+      "periodo": {
+        "siglo_inicio": 19,
+        "siglo_fin": 20,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "bajo",
+        "bajo": true,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": false,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 9,
+      "nombre": "Juana de Arco",
+      "tipo": "real",
+      "genero": "femenino",
+      "nacionalidad": "francesa",
+      "profesion": "guerrera",
+      "area": "guerra",
+      "epoca": "medieval",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "santa",
+        "armadura",
+        "visionaria"
+      ],
+      "pistas": [
+        "Voces celestiales la guiaron a vestir armadura",
+        "Las llamas la consumieron pero su fe quedó"
+      ],
+      "periodo": {
+        "siglo_inicio": 15,
+        "siglo_fin": 15,
+        "antes_de_cristo": false,
+        "era": "medieval",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": true
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": true,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": false,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 10,
+      "nombre": "Pablo Picasso",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "espanol",
+      "profesion": "artista",
+      "area": "arte",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "cubismo",
+        "guernica",
+        "prolifico"
+      ],
+      "pistas": [
+        "Rompió la realidad en mil fragmentos geométricos",
+        "El horror de la guerra grita en su lienzo"
+      ],
+      "periodo": {
+        "siglo_inicio": 19,
+        "siglo_fin": 20,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "bajo",
+        "bajo": true,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 11,
+      "nombre": "George Washington",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "estadounidense",
+      "profesion": "militar",
+      "area": "politica",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "presidente",
+        "fundador",
+        "general"
+      ],
+      "pistas": [
+        "Primer presidente de una nación naciente",
+        "Cruzó el río congelado en Navidad para atacar"
+      ],
+      "periodo": {
+        "siglo_inicio": 18,
+        "siglo_fin": 19,
+        "antes_de_cristo": false,
+        "era": "moderna",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": true,
+        "general": true,
+        "ocupo_cargo_politico": true,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": false,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 12,
+      "nombre": "Martin Luther King Jr.",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "estadounidense",
+      "profesion": "lider",
+      "area": "politica",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "derechos civiles",
+        "pacifista",
+        "predicador"
+      ],
+      "pistas": [
+        "Tuvo un sueño de igualdad que cambió una nación",
+        "Su voz pacífica resonó más fuerte que la violencia"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 20,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [
+          "Premio Nobel de la Paz"
+        ],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 13,
+      "nombre": "Nikola Tesla",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "serbio",
+      "profesion": "cientifico",
+      "area": "electricidad",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "inventor",
+        "genio",
+        "electricidad"
+      ],
+      "pistas": [
+        "La corriente alterna ilumina el mundo por su visión",
+        "Murió solo y pobre pese a sus inventos revolucionarios"
+      ],
+      "periodo": {
+        "siglo_inicio": 19,
+        "siglo_fin": 20,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": true
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": true
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": true,
+        "usa_tecnologia_avanzada": true
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 14,
+      "nombre": "Simón Bolívar",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "venezolano",
+      "profesion": "militar",
+      "area": "politica",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "libertador",
+        "general",
+        "revolucionario"
+      ],
+      "pistas": [
+        "Liberó cinco naciones del yugo colonial",
+        "El Libertador de América murió traicionado"
+      ],
+      "periodo": {
+        "siglo_inicio": 18,
+        "siglo_fin": 19,
+        "antes_de_cristo": false,
+        "era": "moderna",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": true,
+        "general": true,
+        "ocupo_cargo_politico": true,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": false,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 15,
+      "nombre": "Confucio",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "chino",
+      "profesion": "filosofo",
+      "area": "filosofia",
+      "epoca": "antigua",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "sabio",
+        "filosofo",
+        "maestro"
+      ],
+      "pistas": [
+        "Sus enseñanzas moldearon China por milenios",
+        "El camino del medio guía a sus seguidores"
+      ],
+      "periodo": {
+        "siglo_inicio": -6,
+        "siglo_fin": -5,
+        "antes_de_cristo": true,
+        "era": "antigua",
+        "vivio_antiguedad": true,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 16,
+      "nombre": "Harry Potter",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "ingles",
+      "profesion": "mago",
+      "area": "magia",
+      "epoca": "moderna",
+      "vivo": true,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "cicatriz",
+        "gafas",
+        "varita"
+      ],
+      "pistas": [
+        "Una cicatriz con forma de rayo marca su frente",
+        "El niño que sobrevivió a la maldición más terrible"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": true,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Harry Potter"
+    },
+    {
+      "_id": 17,
+      "nombre": "Sherlock Holmes",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "ingles",
+      "profesion": "detective",
+      "area": "investigacion",
+      "epoca": "victoriana",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "deductivo",
+        "pipa",
+        "gorra"
+      ],
+      "pistas": [
+        "Desde el 221B de Baker Street desentraña misterios",
+        "Elemental, mi querido... aunque nunca dijo eso"
+      ],
+      "periodo": {
+        "siglo_inicio": 19,
+        "siglo_fin": 19,
+        "antes_de_cristo": false,
+        "era": "victoriana",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Literatura"
+    },
+    {
+      "_id": 18,
+      "nombre": "Wonder Woman",
+      "tipo": "ficticio",
+      "genero": "femenino",
+      "nacionalidad": "amazona",
+      "profesion": "superheroe",
+      "area": "combate",
+      "epoca": "moderna",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "lazo verdad",
+        "amazona",
+        "fuerte"
+      ],
+      "pistas": [
+        "Un lazo dorado obliga a confesar la verdad",
+        "Hija de dioses, criada por guerreras"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": true,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": true,
+        "es_inmortal": true,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": true
+      },
+      "universo": "DC"
+    },
+    {
+      "_id": 19,
+      "nombre": "Darth Vader",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "espacial",
+      "profesion": "villano",
+      "area": "guerra",
+      "epoca": "futuro",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "armadura negra",
+        "respirador",
+        "sith"
+      ],
+      "pistas": [
+        "Su respiración mecánica anuncia el terror",
+        "Cayó en la oscuridad pero un hijo lo redimió"
+      ],
+      "periodo": {
+        "siglo_inicio": 21,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "futura",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": true,
+        "imperialista": true,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": true,
+        "lider": true,
+        "gobernante": false,
+        "general": true,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": true,
+        "usa_tecnologia_avanzada": true
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": true
+      },
+      "universo": "Star Wars"
+    },
+    {
+      "_id": 20,
+      "nombre": "Batman",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "americano",
+      "profesion": "superheroe",
+      "area": "justicia",
+      "epoca": "moderna",
+      "vivo": true,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "murcielago",
+        "millonario",
+        "gotham"
+      ],
+      "pistas": [
+        "La muerte de sus padres forjó al caballero oscuro",
+        "Sin poderes pero con tecnología y miedo"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": true,
+        "usa_tecnologia_avanzada": true
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "DC"
+    },
+    {
+      "_id": 21,
+      "nombre": "Hermione Granger",
+      "tipo": "ficticio",
+      "genero": "femenino",
+      "nacionalidad": "inglesa",
+      "profesion": "bruja",
+      "area": "magia",
+      "epoca": "moderna",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "inteligente",
+        "estudiosa",
+        "leal"
+      ],
+      "pistas": [
+        "Los libros son su mayor tesoro y arma",
+        "Nacida sin magia pero convertida en la más brillante"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Harry Potter"
+    },
+    {
+      "_id": 22,
+      "nombre": "Spiderman",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "americano",
+      "profesion": "superheroe",
+      "area": "justicia",
+      "epoca": "moderna",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "telarañas",
+        "mascara",
+        "joven"
+      ],
+      "pistas": [
+        "Una picadura radioactiva le dio poderes",
+        "Con gran poder viene gran responsabilidad"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": true,
+        "usa_tecnologia_avanzada": true
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": true
+      },
+      "universo": "Marvel"
+    },
+    {
+      "_id": 23,
+      "nombre": "Gandalf",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "tierra media",
+      "profesion": "mago",
+      "area": "magia",
+      "epoca": "medieval",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "barba blanca",
+        "baston",
+        "sabio"
+      ],
+      "pistas": [
+        "Gris al principio, blanco después de las sombras",
+        "Un simple anillo debía ser destruido"
+      ],
+      "periodo": {
+        "siglo_inicio": 0,
+        "siglo_fin": 0,
+        "antes_de_cristo": false,
+        "era": "mitica",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": true
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": false,
+        "es_inmortal": true,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Tolkien"
+    },
+    {
+      "_id": 24,
+      "nombre": "Don Quijote",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "espanol",
+      "profesion": "caballero",
+      "area": "aventuras",
+      "epoca": "renacimiento",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "loco",
+        "molinos",
+        "idealista"
+      ],
+      "pistas": [
+        "Confundió molinos de viento con gigantes",
+        "Su locura era más noble que la cordura"
+      ],
+      "periodo": {
+        "siglo_inicio": 16,
+        "siglo_fin": 17,
+        "antes_de_cristo": false,
+        "era": "renacimiento",
+        "vivio_antiguedad": false,
+        "es_renacimiento": true,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": false,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Literatura"
+    },
+    {
+      "_id": 25,
+      "nombre": "Mulan",
+      "tipo": "ficticio",
+      "genero": "femenino",
+      "nacionalidad": "china",
+      "profesion": "guerrera",
+      "area": "guerra",
+      "epoca": "antigua",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "valiente",
+        "disfraz",
+        "honor"
+      ],
+      "pistas": [
+        "Cortó su cabello y vistió armadura por su padre",
+        "Nadie supo que el soldado era una mujer"
+      ],
+      "periodo": {
+        "siglo_inicio": 5,
+        "siglo_fin": 6,
+        "antes_de_cristo": false,
+        "era": "antigua",
+        "vivio_antiguedad": true,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": true,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": false,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Leyenda"
+    },
+    {
+      "_id": 26,
+      "nombre": "Legolas",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "tierra media",
+      "profesion": "arquero",
+      "area": "combate",
+      "epoca": "medieval",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "elfo",
+        "arquero",
+        "rubio"
+      ],
+      "pistas": [
+        "Sus flechas nunca fallan el objetivo",
+        "Un elfo inmortal de bosque profundo"
+      ],
+      "periodo": {
+        "siglo_inicio": 0,
+        "siglo_fin": 0,
+        "antes_de_cristo": false,
+        "era": "mitica",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": true
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": true,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": true,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": true,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Tolkien"
+    },
+    {
+      "_id": 27,
+      "nombre": "Robin Hood",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "ingles",
+      "profesion": "bandido",
+      "area": "robo",
+      "epoca": "medieval",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "arquero",
+        "capucha",
+        "bosque"
+      ],
+      "pistas": [
+        "Robaba a los ricos para dar a los pobres",
+        "Su arco y flecha eran legendarios"
+      ],
+      "periodo": {
+        "siglo_inicio": 12,
+        "siglo_fin": 13,
+        "antes_de_cristo": false,
+        "era": "medieval",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": true
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": true,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Leyenda"
+    },
+    {
+      "_id": 28,
+      "nombre": "Katniss Everdeen",
+      "tipo": "ficticio",
+      "genero": "femenino",
+      "nacionalidad": "americano",
+      "profesion": "guerrera",
+      "area": "supervivencia",
+      "epoca": "futuro",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "arquera",
+        "sinsal",
+        "rebelde"
+      ],
+      "pistas": [
+        "El sinsajo que encendió la revolución",
+        "Su arco era su única esperanza de supervivencia"
+      ],
+      "periodo": {
+        "siglo_inicio": 21,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "futura",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": true,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Los Juegos del Hambre"
+    },
+    {
+      "_id": 29,
+      "nombre": "Hawkeye",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "americano",
+      "profesion": "superheroe",
+      "area": "combate",
+      "epoca": "moderna",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "arquero",
+        "ojo de halcon",
+        "vengador"
+      ],
+      "pistas": [
+        "Sus flechas siempre dan en el blanco",
+        "Un humano entre dioses con solo su arco"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": true,
+        "usa_espada": false,
+        "tiene_gadgets": true,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Marvel"
+    },
+    {
+      "_id": 30,
+      "nombre": "Luke Skywalker",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "espacial",
+      "profesion": "jedi",
+      "area": "guerra",
+      "epoca": "futuro",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "jedi",
+        "sable de luz",
+        "granjero"
+      ],
+      "pistas": [
+        "Un granjero destinado a salvar la galaxia",
+        "La Fuerza es fuerte en su familia"
+      ],
+      "periodo": {
+        "siglo_inicio": 21,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "futura",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Star Wars"
+    },
+    {
+      "_id": 31,
+      "nombre": "Leia Organa",
+      "tipo": "ficticio",
+      "genero": "femenino",
+      "nacionalidad": "espacial",
+      "profesion": "princesa",
+      "area": "politica",
+      "epoca": "futuro",
+      "vivo": true,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "princesa",
+        "rebelde",
+        "lider"
+      ],
+      "pistas": [
+        "Una princesa que prefirió luchar por la libertad",
+        "Lideró la Rebelión contra el Imperio"
+      ],
+      "periodo": {
+        "siglo_inicio": 21,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "futura",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": true,
+        "general": true,
+        "ocupo_cargo_politico": true,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": true,
+        "usa_tecnologia_avanzada": true
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Star Wars"
+    },
+    {
+      "_id": 32,
+      "nombre": "Yoda",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "espacial",
+      "profesion": "jedi",
+      "area": "magia",
+      "epoca": "futuro",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "maestro",
+        "sabio",
+        "pequeño"
+      ],
+      "pistas": [
+        "900 años de sabiduría en un cuerpo diminuto",
+        "La Fuerza fluye a través de él"
+      ],
+      "periodo": {
+        "siglo_inicio": 21,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "futura",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "bajo",
+        "bajo": true,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Star Wars"
+    },
+    {
+      "_id": 33,
+      "nombre": "Aragorn",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "tierra media",
+      "profesion": "rey",
+      "area": "guerra",
+      "epoca": "medieval",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "rey",
+        "montaraz",
+        "guerrero"
+      ],
+      "pistas": [
+        "Un rey que prefería las sombras hasta que el deber llamó",
+        "El heredero de Isildur regresó"
+      ],
+      "periodo": {
+        "siglo_inicio": 0,
+        "siglo_fin": 0,
+        "antes_de_cristo": false,
+        "era": "mitica",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": true
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": true,
+        "general": true,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Tolkien"
+    },
+    {
+      "_id": 34,
+      "nombre": "Frodo Baggins",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "tierra media",
+      "profesion": "hobbit",
+      "area": "aventuras",
+      "epoca": "medieval",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "hobbit",
+        "portador anillo",
+        "pequeño"
+      ],
+      "pistas": [
+        "Un pequeño hobbit con una carga terrible",
+        "El Único Anillo debía ser destruido"
+      ],
+      "periodo": {
+        "siglo_inicio": 0,
+        "siglo_fin": 0,
+        "antes_de_cristo": false,
+        "era": "mitica",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": true
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "bajo",
+        "bajo": true,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": false,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Tolkien"
+    },
+    {
+      "_id": 35,
+      "nombre": "Sauron",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "tierra media",
+      "profesion": "villano",
+      "area": "magia",
+      "epoca": "medieval",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "ojo",
+        "oscuro",
+        "señor"
+      ],
+      "pistas": [
+        "Un ojo ardiente que todo lo ve",
+        "Forjó el Único Anillo para dominar a todos"
+      ],
+      "periodo": {
+        "siglo_inicio": 0,
+        "siglo_fin": 0,
+        "antes_de_cristo": false,
+        "era": "mitica",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": true
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": true,
+        "imperialista": true,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": true,
+        "lider": true,
+        "gobernante": true,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": false,
+        "es_inmortal": true,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": true
+      },
+      "universo": "Tolkien"
+    },
+    {
+      "_id": 36,
+      "nombre": "Aristóteles",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "griego",
+      "profesion": "filosofo",
+      "area": "filosofia",
+      "epoca": "antigua",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "filosofo",
+        "maestro",
+        "logica"
+      ],
+      "pistas": [
+        "Maestro de Alejandro Magno",
+        "Fundó el Liceo y sistematizó el conocimiento"
+      ],
+      "periodo": {
+        "siglo_inicio": -4,
+        "siglo_fin": -4,
+        "antes_de_cristo": true,
+        "era": "antigua",
+        "vivio_antiguedad": true,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 37,
+      "nombre": "Julio César",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "romano",
+      "profesion": "militar",
+      "area": "guerra",
+      "epoca": "antigua",
+      "vivo": false,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "emperador",
+        "general",
+        "conquistador"
+      ],
+      "pistas": [
+        "Veni, vidi, vici",
+        "Asesinado en los idus de marzo"
+      ],
+      "periodo": {
+        "siglo_inicio": -1,
+        "siglo_fin": -1,
+        "antes_de_cristo": true,
+        "era": "antigua",
+        "vivio_antiguedad": true,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": true,
+        "imperialista": true,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": true,
+        "general": true,
+        "ocupo_cargo_politico": true,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 38,
+      "nombre": "Sócrates",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "griego",
+      "profesion": "filosofo",
+      "area": "filosofia",
+      "epoca": "antigua",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "filosofo",
+        "maestro",
+        "sabio"
+      ],
+      "pistas": [
+        "Solo sé que no sé nada",
+        "Condenado a beber cicuta por corromper a la juventud"
+      ],
+      "periodo": {
+        "siglo_inicio": -5,
+        "siglo_fin": -5,
+        "antes_de_cristo": true,
+        "era": "antigua",
+        "vivio_antiguedad": true,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 39,
+      "nombre": "Maquiavelo",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "italiano",
+      "profesion": "filosofo",
+      "area": "politica",
+      "epoca": "renacimiento",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "filosofo",
+        "El Principe",
+        "astuto"
+      ],
+      "pistas": [
+        "El fin justifica los medios",
+        "Su obra maestra aconseja cómo mantener el poder"
+      ],
+      "periodo": {
+        "siglo_inicio": 15,
+        "siglo_fin": 16,
+        "antes_de_cristo": false,
+        "era": "renacimiento",
+        "vivio_antiguedad": false,
+        "es_renacimiento": true,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": true,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 40,
+      "nombre": "Miguel de Cervantes",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "espanol",
+      "profesion": "escritor",
+      "area": "literatura",
+      "epoca": "renacimiento",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "escritor",
+        "Quijote",
+        "manco"
+      ],
+      "pistas": [
+        "Creó al caballero más famoso de la literatura",
+        "Perdió una mano en la batalla de Lepanto"
+      ],
+      "periodo": {
+        "siglo_inicio": 16,
+        "siglo_fin": 17,
+        "antes_de_cristo": false,
+        "era": "renacimiento",
+        "vivio_antiguedad": false,
+        "es_renacimiento": true,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": false,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 41,
+      "nombre": "Alejandro Magno",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "macedonio",
+      "profesion": "militar",
+      "area": "guerra",
+      "epoca": "antigua",
+      "vivo": false,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "conquistador",
+        "general",
+        "joven"
+      ],
+      "pistas": [
+        "Conquistó el mundo conocido antes de los 33",
+        "Nunca perdió una batalla"
+      ],
+      "periodo": {
+        "siglo_inicio": -4,
+        "siglo_fin": -4,
+        "antes_de_cristo": true,
+        "era": "antigua",
+        "vivio_antiguedad": true,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": true,
+        "imperialista": true,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": true,
+        "general": true,
+        "ocupo_cargo_politico": true,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": true,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 42,
+      "nombre": "Nelson Mandela",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "sudafricano",
+      "profesion": "lider",
+      "area": "politica",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "libertad",
+        "presidente",
+        "luchador"
+      ],
+      "pistas": [
+        "27 años en prisión no quebraron su espíritu",
+        "Primer presidente negro de Sudáfrica"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [
+          "Premio Nobel de la Paz"
+        ],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": true,
+        "general": false,
+        "ocupo_cargo_politico": true,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 43,
+      "nombre": "Steve Jobs",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "estadounidense",
+      "profesion": "empresario",
+      "area": "tecnologia",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "visionario",
+        "Apple",
+        "innovador"
+      ],
+      "pistas": [
+        "Cambió la forma en que interactuamos con la tecnología",
+        "Think different"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": true
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": true,
+        "usa_tecnologia_avanzada": true
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 44,
+      "nombre": "Elon Musk",
+      "tipo": "real",
+      "genero": "masculino",
+      "nacionalidad": "sudafricano",
+      "profesion": "empresario",
+      "area": "tecnologia",
+      "epoca": "moderna",
+      "vivo": true,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "visionario",
+        "Tesla",
+        "SpaceX"
+      ],
+      "pistas": [
+        "Quiere colonizar Marte",
+        "El hombre más rico del mundo"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": true
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": true,
+        "usa_tecnologia_avanzada": true
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 45,
+      "nombre": "Ada Lovelace",
+      "tipo": "real",
+      "genero": "femenino",
+      "nacionalidad": "inglesa",
+      "profesion": "matematica",
+      "area": "computacion",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": false,
+      "caracteristicas": [
+        "programadora",
+        "visionaria",
+        "matematica"
+      ],
+      "pistas": [
+        "Primera programadora de la historia",
+        "Vio el potencial de las computadoras antes que nadie"
+      ],
+      "periodo": {
+        "siglo_inicio": 19,
+        "siglo_fin": 19,
+        "antes_de_cristo": false,
+        "era": "victoriana",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": true,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": true,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": true
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": true,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": false,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": true
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": true,
+        "usa_tecnologia_avanzada": true
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      }
+    },
+    {
+      "_id": 46,
+      "nombre": "Iron Man",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "americano",
+      "profesion": "superheroe",
+      "area": "tecnologia",
+      "epoca": "moderna",
+      "vivo": true,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "millonario",
+        "genio",
+        "armadura"
+      ],
+      "pistas": [
+        "Un genio, millonario, playboy, filántropo",
+        "Construyó su armadura en una cueva con chatarra"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": false,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": true
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": true,
+        "usa_tecnologia_avanzada": true
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": true,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": true
+      },
+      "universo": "Marvel"
+    },
+    {
+      "_id": 47,
+      "nombre": "Captain America",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "americano",
+      "profesion": "superheroe",
+      "area": "justicia",
+      "epoca": "moderna",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "escudo",
+        "patriota",
+        "soldado"
+      ],
+      "pistas": [
+        "Un soldado congelado por décadas",
+        "El primer vengador"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": true
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": true,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": true
+      },
+      "universo": "Marvel"
+    },
+    {
+      "_id": 48,
+      "nombre": "Thor",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "asgardiano",
+      "profesion": "dios",
+      "area": "guerra",
+      "epoca": "antigua",
+      "vivo": true,
+      "famoso": true,
+      "rico": true,
+      "pobre": false,
+      "caracteristicas": [
+        "martillo",
+        "dios",
+        "trueno"
+      ],
+      "pistas": [
+        "El dios del trueno empuña su martillo",
+        "De Asgard a la Tierra"
+      ],
+      "periodo": {
+        "siglo_inicio": 0,
+        "siglo_fin": 0,
+        "antes_de_cristo": false,
+        "era": "mitica",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": true,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": true,
+        "es_inmortal": true,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": true
+      },
+      "universo": "Marvel"
+    },
+    {
+      "_id": 49,
+      "nombre": "Black Widow",
+      "tipo": "ficticio",
+      "genero": "femenino",
+      "nacionalidad": "rusa",
+      "profesion": "espia",
+      "area": "combate",
+      "epoca": "moderna",
+      "vivo": false,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "espia",
+        "asesina",
+        "vengadora"
+      ],
+      "pistas": [
+        "Una asesina entrenada desde niña",
+        "Su pasado rojo la persigue"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "normal",
+        "bajo": false,
+        "alto": false
+      },
+      "ideologia": {
+        "liberal": false,
+        "conservador": true
+      },
+      "armas_objetos": {
+        "usa_armas": true,
+        "porta_armas": true,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": true,
+        "usa_tecnologia_avanzada": true
+      },
+      "habilidades": {
+        "tiene_poderes": false,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": false
+      },
+      "universo": "Marvel"
+    },
+    {
+      "_id": 50,
+      "nombre": "Hulk",
+      "tipo": "ficticio",
+      "genero": "masculino",
+      "nacionalidad": "americano",
+      "profesion": "superheroe",
+      "area": "combate",
+      "epoca": "moderna",
+      "vivo": true,
+      "famoso": true,
+      "rico": false,
+      "pobre": true,
+      "caracteristicas": [
+        "verde",
+        "fuerza",
+        "monstruo"
+      ],
+      "pistas": [
+        "No te enojaría si estuvieras con él",
+        "Mientras más enojado, más fuerte"
+      ],
+      "periodo": {
+        "siglo_inicio": 20,
+        "siglo_fin": 21,
+        "antes_de_cristo": false,
+        "era": "contemporanea",
+        "vivio_antiguedad": false,
+        "es_renacimiento": false,
+        "es_medieval": false
+      },
+      "impacto": {
+        "revoluciono_campo": false,
+        "premios": [],
+        "iconico": true,
+        "celebre": true,
+        "figura_iconica": true,
+        "cambio_historia": false,
+        "todo_mundo_conoce": true,
+        "hizo_descubrimientos": false
+      },
+      "perfil_moral": {
+        "violento": true,
+        "pacifista": false,
+        "conquistador": false,
+        "imperialista": false,
+        "lucho_libertad": false
+      },
+      "rol": {
+        "heroe": true,
+        "antagonista": false,
+        "lider": true,
+        "gobernante": false,
+        "general": false,
+        "ocupo_cargo_politico": false,
+        "es_inventor": false
+      },
+      "fisico": {
+        "estatura": "alto",
+        "bajo": false,
+        "alto": true
+      },
+      "ideologia": {
+        "liberal": true,
+        "conservador": false
+      },
+      "armas_objetos": {
+        "usa_armas": false,
+        "porta_armas": false,
+        "tiene_arco": false,
+        "usa_espada": false,
+        "tiene_gadgets": false,
+        "usa_tecnologia_avanzada": false
+      },
+      "habilidades": {
+        "tiene_poderes": true,
+        "vuela": false,
+        "es_inmortal": false,
+        "tiene_habilidades_especiales": true,
+        "fuerza_sobrehumana": true
+      },
+      "universo": "Marvel"
+    }
+  ]
+}
