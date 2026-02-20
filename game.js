@@ -382,7 +382,7 @@ function addMessageWithBubble(text, sender, callback, skipTypewriter = false) {
     const senderName = document.createElement('div');
     senderName.className = 'message-sender';
     senderName.style.color = sender === 'brain' ? '#ff00ff' : (sender === 'player' ? '#0f0' : '#888');
-    senderName.textContent = sender === 'brain' ? ' Oráculo:' : (sender === 'player' ? ' Tú:' : '⚙️ Sistema:');
+    senderName.textContent = sender === 'brain' ? ' Oráculo:' : (sender === 'player' ? ' Tú:' : 'Sistema:');
     
     const messageBubble = document.createElement('div');
     messageBubble.className = 'message-bubble';
