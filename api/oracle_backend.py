@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+
+   #!/usr/bin/env python3
 """
 THE ORACLE - Backend con Panel de Control
 Versión: 20 personajes + Dashboard de Métricas
