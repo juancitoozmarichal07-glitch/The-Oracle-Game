@@ -7,7 +7,7 @@
 const config = {
     questionsLimit: 20,
     typewriterSpeed: 20,
-    backendURL: 'http://127.0.0.1:5000/api/oracle',
+    backendURL: 'https://the-oracle-game.onrender.com/api/oracle',
     suggestionsAfterQuestion: 2,
     hintsAfterQuestion: 5,
     maxHints: 2
