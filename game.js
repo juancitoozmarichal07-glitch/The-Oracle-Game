@@ -1,18 +1,182 @@
 // ===================================================================
 // THE ORACLE - JavaScript Mejorado
-// Typewriter + Burbujas + Sistema Pulido + TEMPORIZADOR
+// Typewriter + Burbujas + Sistema Pulido + TEMPORIZADOR + SONIDOS
 // ===================================================================
 
 // --- CONFIGURACIÓN ---
-
 const config = {
     questionsLimit: 20,
-    typewriterSpeed: 20, // Velocidad suave del typewriter (ms por carácter)
-    backendURL: 'https://the-oracle-game.onrender.com/api/oracle',
-    suggestionsAfterQuestion: 2,  // Sugerencias desde pregunta 2
-    hintsAfterQuestion: 5,         // Pistas desde pregunta 5
-    maxHints: 2                    // Máximo 2 pistas
+    typewriterSpeed: 20,
+    backendURL: 'https://the-oracle-game.onrender.com/api/oracle'',
+    suggestionsAfterQuestion: 2,
+    hintsAfterQuestion: 5,
+    maxHints: 2
 };
+
+// ===================================================================
+// GENERADOR DE SONIDOS MEJORADO (Web Audio API)
+// ===================================================================
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+let backgroundInterval = null;
+
+// Inicializar audio (llamar desde un evento de usuario)
+function initAudio() {
+    if (audioCtx) return;
+    try {
+        audioCtx = new AudioContext();
+        console.log('✅ Audio inicializado');
+    } catch (e) {
+        console.warn('❌ No se pudo inicializar audio:', e);
+    }
+}
+
+// Reproducir sonido de forma robusta
+function playSound(type) {
+    if (!audioCtx) {
+        initAudio();
+        if (!audioCtx) return;
+    }
+    
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume().then(() => {
+            generateSound(type);
+        }).catch(e => console.warn('Error al reanudar audio:', e));
+    } else {
+        generateSound(type);
+    }
+}
+
+// Generar sonidos mejorados
+function generateSound(type) {
+    if (!audioCtx) return;
+    
+    const now = audioCtx.currentTime;
+    
+    switch(type) {
+        case 'button':
+            const oscBtn = audioCtx.createOscillator();
+            const gainBtn = audioCtx.createGain();
+            oscBtn.connect(gainBtn);
+            gainBtn.connect(audioCtx.destination);
+            
+            oscBtn.frequency.value = 800;
+            gainBtn.gain.setValueAtTime(0.1, now);
+            gainBtn.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            
+            oscBtn.start(now);
+            oscBtn.stop(now + 0.08);
+            break;
+            
+        case 'start':
+            [400, 500, 600].forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.15, now + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.2);
+                
+                osc.start(now + i * 0.1);
+                osc.stop(now + i * 0.1 + 0.2);
+            });
+            break;
+            
+        case 'victory':
+            [262, 330, 392].forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+                
+                osc.start(now);
+                osc.stop(now + 1.0);
+            });
+            
+            setTimeout(() => {
+                if (!audioCtx || audioCtx.state !== 'running') return;
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.frequency.value = 523;
+                gain2.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                osc2.start();
+                osc2.stop(audioCtx.currentTime + 0.5);
+            }, 800);
+            break;
+            
+        case 'defeat':
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.exponentialRampToValueAtTime(150, now + 1.2);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+            
+            osc.start(now);
+            osc.stop(now + 1.2);
+            break;
+            
+        case 'background':
+            if (backgroundInterval) clearInterval(backgroundInterval);
+            
+            const playBackgroundNote = () => {
+                if (!audioCtx || audioCtx.state !== 'running') return;
+                
+                const now = audioCtx.currentTime;
+                
+                const osc1 = audioCtx.createOscillator();
+                const gain1 = audioCtx.createGain();
+                osc1.connect(gain1);
+                gain1.connect(audioCtx.destination);
+                
+                osc1.frequency.value = 220;
+                gain1.gain.setValueAtTime(0.02, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+                
+                osc1.start(now);
+                osc1.stop(now + 1.0);
+                
+                setTimeout(() => {
+                    if (!audioCtx || audioCtx.state !== 'running') return;
+                    const osc2 = audioCtx.createOscillator();
+                    const gain2 = audioCtx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioCtx.destination);
+                    
+                    osc2.frequency.value = 330;
+                    gain2.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+                    
+                    osc2.start();
+                    osc2.stop(audioCtx.currentTime + 0.8);
+                }, 1200);
+            };
+            
+            playBackgroundNote();
+            backgroundInterval = setInterval(playBackgroundNote, 2500);
+            break;
+    }
+}
+
+function stopBackgroundMusic() {
+    if (backgroundInterval) {
+        clearInterval(backgroundInterval);
+        backgroundInterval = null;
+    }
+}
+// ===================================================================
 
 // --- ESTADO ---
 let state = {
@@ -91,6 +255,11 @@ function updateTimerDisplay() {
 
 // === FUNCIONES PRINCIPALES ===
 async function startGame() {
+    // Inicializar audio y reproducir sonidos de inicio
+    if (!audioCtx) initAudio();
+    playSound('start');
+    playSound('background');
+    
     showScreen('game');
     resetGame();
     startTimer();
@@ -129,6 +298,8 @@ async function startGame() {
 }
 
 async function askQuestion() {
+    playSound('button');
+    
     const question = el.questionInput.value.trim();
     if (!question || !state.isGameActive || state.isWaitingResponse) return;
     
@@ -191,6 +362,7 @@ async function askQuestion() {
 }
 
 async function getSuggestions() {
+    playSound('button');
     if (!state.isGameActive) return;
     
     try {
@@ -220,6 +392,7 @@ async function getSuggestions() {
 }
 
 async function getHint() {
+    playSound('button');
     if (!state.isGameActive) return;
     if (state.questionCount < config.hintsAfterQuestion) {
         addMessageWithBubble(`Las pistas están disponibles después de la pregunta ${config.hintsAfterQuestion}.`, 'system');
@@ -256,12 +429,14 @@ async function getHint() {
 }
 
 function showSuggestionsPopup(suggestions) {
+    playSound('button');
     el.suggestionsList.innerHTML = '';
     suggestions.forEach(suggestion => {
         const item = document.createElement('div');
         item.className = 'suggestion-item';
         item.textContent = suggestion;
         item.onclick = () => {
+            playSound('button');
             el.questionInput.value = suggestion;
             closeSuggestionsPopup();
             el.questionInput.focus();
@@ -272,20 +447,24 @@ function showSuggestionsPopup(suggestions) {
 }
 
 function closeSuggestionsPopup() {
+    playSound('button');
     el.suggestionsPopup.classList.add('hidden');
 }
 
 function openGuessPopup() {
+    playSound('button');
     el.guessPopup.classList.remove('hidden');
     el.guessInput.value = '';
     el.guessInput.focus();
 }
 
 function closeGuessPopup() {
+    playSound('button');
     el.guessPopup.classList.add('hidden');
 }
 
 async function confirmGuess() {
+    playSound('button');
     const guess = el.guessInput.value.trim();
     if (!guess) return;
     
@@ -311,16 +490,20 @@ async function confirmGuess() {
 }
 
 function endGame(won, characterName) {
-    state.isGameActive = false;
-    stopTimer();
+    stopBackgroundMusic();
     
     if (won) {
+        playSound('victory');
         el.winMessage.textContent = `¡Correcto! El personaje era ${characterName}.`;
         showScreen('win');
     } else {
+        playSound('defeat');
         el.loseMessage.textContent = `Has fallado. El personaje era ${characterName}.`;
         showScreen('lose');
     }
+    
+    state.isGameActive = false;
+    stopTimer();
 }
 
 function resetGame() {
@@ -382,7 +565,7 @@ function addMessageWithBubble(text, sender, callback, skipTypewriter = false) {
     const senderName = document.createElement('div');
     senderName.className = 'message-sender';
     senderName.style.color = sender === 'brain' ? '#ff00ff' : (sender === 'player' ? '#0f0' : '#888');
-    senderName.textContent = sender === 'brain' ? ' Oráculo:' : (sender === 'player' ? ' Tú:' : 'Sistema:');
+    senderName.textContent = sender === 'brain' ? ' Oráculo:' : (sender === 'player' ? ' Tú:' : ' Sistema:');
     
     const messageBubble = document.createElement('div');
     messageBubble.className = 'message-bubble';
@@ -430,8 +613,15 @@ function showScreen(screenName) {
 
 // === EVENT LISTENERS ===
 el.startBtn.addEventListener('click', startGame);
-el.exitBtn.addEventListener('click', () => window.close());
-el.backBtn.addEventListener('click', () => location.reload());
+el.exitBtn.addEventListener('click', () => {
+    playSound('button');
+    window.close();
+});
+el.backBtn.addEventListener('click', () => {
+    playSound('button');
+    stopBackgroundMusic();
+    location.reload();
+});
 
 el.askBtn.addEventListener('click', askQuestion);
 el.questionInput.addEventListener('keyup', (e) => {
@@ -445,9 +635,12 @@ el.guessBtn.addEventListener('click', openGuessPopup);
 el.confirmGuess.addEventListener('click', confirmGuess);
 el.cancelGuess.addEventListener('click', closeGuessPopup);
 el.closeSuggestions.addEventListener('click', closeSuggestionsPopup);
-el.guessInput.addEventListener('keyup', (e) => e.key === 'Enter' && confirmGuess());
+el.guessInput.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') confirmGuess();
+});
 
-console.log('🧠 THE ORACLE GAME - Versión Arcade con temporizador');
+console.log('🧠 THE ORACLE GAME - Versión Arcade con temporizador y sonidos');
+
 // ===================================================================
 // EFECTO DE APAGADO - EL ORÁCULO TE EXPULSA (Versión legible)
 // ===================================================================
@@ -566,6 +759,7 @@ if (el.exitBtn) {
     el.exitBtn = newBtn;
     
     el.exitBtn.addEventListener('click', () => {
+        playSound('button');
         // Efecto de apagado
         const screen = document.getElementById('arcade-screen');
         screen.classList.add('shutdown-effect');
